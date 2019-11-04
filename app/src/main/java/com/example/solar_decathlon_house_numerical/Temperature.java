@@ -48,6 +48,7 @@ public class Temperature extends AppCompatActivity {
     Double instantaneousWaterSolarCollectorTemperature = 0.0;
 
     String units = " Fahrenheit";
+    String string;
     String maxExteriorTemperature1, minExteriorTemperature1, instantaneousExteriorTemperature1,
             maxInteriorTemperature1, minInteriorTemperature1, instantaneousInteriorTemperature1,
             maxNorthWallTemperature1, minNorthWallTemperature1, instantaneousNorthWallTemperature1,
@@ -288,67 +289,91 @@ public class Temperature extends AppCompatActivity {
 
                         //Exterior Temperature Sensor
                         maxTextView1.setVisibility(TextView.VISIBLE);
-                        maxTextView1.setText(maxExteriorTemperature1 +  units);
+                        string = maxExteriorTemperature1 +  units;
+                        maxTextView1.setText(string);
                         minTextView1.setVisibility(TextView.VISIBLE);
-                        minTextView1.setText(minExteriorTemperature1 +  units);
+                        string = minExteriorTemperature1 +  units;
+                        minTextView1.setText(string);
                         instantaneousTextView1.setVisibility(TextView.VISIBLE);
-                        instantaneousTextView1.setText(instantaneousExteriorTemperature1 +  units);
+                        string = instantaneousExteriorTemperature1 +  units;
+                        instantaneousTextView1.setText(string);
 
                         //Interior Temperature Sensor
                         maxTextView2.setVisibility(TextView.VISIBLE);
-                        maxTextView2.setText(maxInteriorTemperature1 +  units);
+                        string = maxInteriorTemperature1 +  units;
+                        maxTextView2.setText(string);
                         minTextView2.setVisibility(TextView.VISIBLE);
-                        minTextView2.setText(minInteriorTemperature1 +  units);
+                        string = minInteriorTemperature1 +  units;
+                        minTextView2.setText(string);
                         instantaneousTextView2.setVisibility(TextView.VISIBLE);
-                        instantaneousTextView2.setText(instantaneousInteriorTemperature1 +  units);
+                        string = instantaneousInteriorTemperature1 +  units;
+                        instantaneousTextView2.setText(string);
 
                         //South Wall Temperature Sensor
                         maxTextView3.setVisibility(TextView.VISIBLE);
-                        maxTextView3.setText(maxExteriorTemperature1 +  units);
+                        string = maxExteriorTemperature1 +  units;
+                        maxTextView3.setText(string);
                         minTextView3.setVisibility(TextView.VISIBLE);
-                        minTextView3.setText(minExteriorTemperature1 +  units);
+                        string = minExteriorTemperature1 +  units;
+                        minTextView3.setText(string);
                         instantaneousTextView3.setVisibility(TextView.VISIBLE);
-                        instantaneousTextView3.setText(instantaneousExteriorTemperature1 +  units);
+                        string = instantaneousExteriorTemperature1 +  units;
+                        instantaneousTextView3.setText(string);
 
                         //North Wall Temperature Sensor
                         maxTextView4.setVisibility(TextView.VISIBLE);
-                        maxTextView4.setText(maxNorthWallTemperature1 +  units);
+                        string = maxNorthWallTemperature1 +  units;
+                        maxTextView4.setText(string);
                         minTextView4.setVisibility(TextView.VISIBLE);
-                        minTextView4.setText(minNorthWallTemperature1 +  units);
+                        string = minNorthWallTemperature1 +  units;
+                        minTextView4.setText(string);
                         instantaneousTextView4.setVisibility(TextView.VISIBLE);
-                        instantaneousTextView4.setText(instantaneousNorthWallTemperature1 +  units);
+                        string = instantaneousNorthWallTemperature1 +  units;
+                        instantaneousTextView4.setText(string);
 
                         //Solar Panel Temperature Sensor
                         maxTextView5.setVisibility(TextView.VISIBLE);
-                        maxTextView5.setText(maxSolarPanelTemperature1 +  units);
+                        string = maxSolarPanelTemperature1 +  units;
+                        maxTextView5.setText(string);
                         minTextView5.setVisibility(TextView.VISIBLE);
-                        minTextView5.setText(minSolarPanelTemperature1 +  units);
+                        string = minSolarPanelTemperature1 +  units;
+                        minTextView5.setText(string);
                         instantaneousTextView5.setVisibility(TextView.VISIBLE);
-                        instantaneousTextView5.setText(instantaneousSolarPanelTemperature1 +  units);
+                        string = instantaneousSolarPanelTemperature1 +  units;
+                        instantaneousTextView5.setText(string);
 
                         //Roof Temperature Sensor
                         maxTextView6.setVisibility(TextView.VISIBLE);
-                        maxTextView6.setText(maxRoofTemperature1 +  units);
+                        string = maxRoofTemperature1 +  units;
+                        maxTextView6.setText(string);
                         minTextView6.setVisibility(TextView.VISIBLE);
-                        minTextView6.setText(minRoofTemperature1 +  units);
+                        string = minRoofTemperature1 +  units;
+                        minTextView6.setText(string);
                         instantaneousTextView6.setVisibility(TextView.VISIBLE);
-                        instantaneousTextView6.setText(instantaneousRoofTemperature1 +  units);
+                        string = instantaneousRoofTemperature1 +  units;
+                        instantaneousTextView6.setText(string);
 
                         //Water Tank Temperature Sensor
                         maxTextView7.setVisibility(TextView.VISIBLE);
-                        maxTextView7.setText(maxWaterTankTemperature1 +  units);
+                        string = maxWaterTankTemperature1 +  units;
+                        maxTextView7.setText(string);
                         minTextView7.setVisibility(TextView.VISIBLE);
-                        minTextView7.setText(minWaterTankTemperature1 +  units);
+                        string = minWaterTankTemperature1 +  units;
+                        minTextView7.setText(string);
                         instantaneousTextView7.setVisibility(TextView.VISIBLE);
-                        instantaneousTextView7.setText(instantaneousWaterTankTemperature1 +  units);
+                        string = instantaneousWaterTankTemperature1 +  units;
+                        instantaneousTextView7.setText(string);
 
                         //Water Solar Collector Temperature Sensor
                         maxTextView1.setVisibility(TextView.VISIBLE);
-                        maxTextView1.setText(maxWaterSolarCollectorTemperature1 +  units);
+                        string = maxWaterSolarCollectorTemperature1 +  units;
+                        maxTextView1.setText(string);
                         minTextView1.setVisibility(TextView.VISIBLE);
-                        minTextView1.setText(minWaterSolarCollectorTemperature1 +  units);
+                        string = minWaterSolarCollectorTemperature1 +  units;
+                        minTextView1.setText(string);
                         instantaneousTextView1.setVisibility(TextView.VISIBLE);
-                        instantaneousTextView1.setText(instantaneousWaterSolarCollectorTemperature1 +  units);
+                        string = instantaneousWaterSolarCollectorTemperature1 +  units;
+                        instantaneousTextView1.setText(string);
 
                         while_boolean = false;
                     }
