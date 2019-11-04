@@ -24,7 +24,7 @@
     <string name="fahrenheit">Fahrenheit</string>
     <string name="refresh">Refresh</string>
     <string name="powerUnit">KW/hr</string>
-    <string name="waterUnit">Gallon</string>
+    <string name="waterUnit">Gallons</string>
     <string name="maximum">Maximum</string>
     <string name="minimum">Minimum</string>
     <string name="instantaneous">Instantaneous</string>
