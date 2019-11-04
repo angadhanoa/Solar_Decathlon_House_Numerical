@@ -22,4 +22,7 @@
     <string name="text_welcome">Welcome</string>
     <string name="text_title">Solar Decathlon House</string>
     <string name="fahrenheit">Fahrenheit</string>
+    <string name="refresh">Refresh</string>
+    <string name="powerUnit">KW/hr</string>
+    <string name="waterUnit">Gallon</string>
 </resources>
