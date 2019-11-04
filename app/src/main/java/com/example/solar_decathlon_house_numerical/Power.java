@@ -69,6 +69,12 @@ public class Power extends AppCompatActivity {
         instantaneousTextView1 = findViewById(R.id.power_production_current_value);
         instantaneousTextView1.setVisibility(TextView.INVISIBLE);
 
+        //Power Consumption
+        totalTextView8 = findViewById(R.id.power_consumption_total_value);
+        totalTextView8.setVisibility(TextView.INVISIBLE);
+        instantaneousTextView8 = findViewById(R.id.power_consumption_current_value);
+        instantaneousTextView8.setVisibility(TextView.INVISIBLE);
+
         //Lighting
         totalTextView2 = findViewById(R.id.lighting_total_value);
         totalTextView2.setVisibility(TextView.INVISIBLE);
@@ -106,7 +112,7 @@ public class Power extends AppCompatActivity {
         instantaneousTextView7.setVisibility(TextView.INVISIBLE);
 
         //For Graphing all the sensors at once.
-        refresh = (Button)findViewById(R.id.one_for_all);
+        refresh = findViewById(R.id.one_for_all);
         refresh.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -200,6 +206,7 @@ public class Power extends AppCompatActivity {
 
             while(while_boolean) {
                 if (!thread.isAlive()) {
+                    String string;
                     totalPowerProduction1 = Double.toString(totalPowerProduction);
                     totalLighting1 = Double.toString(totalLighting);
                     totalAirConditioner1 = Double.toString(totalAirConditioner);
@@ -219,44 +226,60 @@ public class Power extends AppCompatActivity {
                     instantaneousPowerConsumption1 = Double.toString(instantaneousPowerConsumption);
 
                     totalTextView1.setVisibility(TextView.VISIBLE);
-                    totalTextView1.setText(totalPowerProduction1 +  units);
+                    string = totalPowerProduction1 +  units;
+                    totalTextView1.setText(string);
                     instantaneousTextView1.setVisibility(TextView.VISIBLE);
-                    instantaneousTextView1.setText(instantaneousPowerProduction1 +  units);
+                    string = instantaneousPowerProduction1 +  units;
+                    instantaneousTextView1.setText(string);
 
                     totalTextView8.setVisibility(TextView.VISIBLE);
-                    totalTextView8.setText(totalPowerConsumption1 +  units);
+                    string = totalPowerConsumption1 +  units;
+                    totalTextView8.setText(string);
                     instantaneousTextView8.setVisibility(TextView.VISIBLE);
-                    instantaneousTextView8.setText(instantaneousPowerConsumption1 +  units);
+                    string = instantaneousPowerConsumption1 +  units;
+                    instantaneousTextView8.setText(string);
 
                     totalTextView2.setVisibility(TextView.VISIBLE);
-                    totalTextView2.setText(totalLighting1 +  units);
+                    string = totalLighting1 +  units;
+                    totalTextView2.setText(string);
                     instantaneousTextView1.setVisibility(TextView.VISIBLE);
-                    instantaneousTextView1.setText(instantaneousLighting1 +  units);
+                    string = instantaneousLighting1 +  units;
+                    instantaneousTextView1.setText(string);
 
                     totalTextView3.setVisibility(TextView.VISIBLE);
-                    totalTextView3.setText(totalAirConditioner1 +  units);
+                    string = totalAirConditioner1 +  units;
+                    totalTextView3.setText(string);
                     instantaneousTextView1.setVisibility(TextView.VISIBLE);
-                    instantaneousTextView1.setText(instantaneousAirConditioner1 +  units);
+                    string = instantaneousAirConditioner1 +  units;
+                    instantaneousTextView1.setText(string);
 
                     totalTextView4.setVisibility(TextView.VISIBLE);
-                    totalTextView4.setText(totalWaterHeater1 +  units);
+                    string = totalWaterHeater1 +  units;
+                    totalTextView4.setText(string);
+                    string = instantaneousWaterHeater1 +  units;
                     instantaneousTextView1.setVisibility(TextView.VISIBLE);
-                    instantaneousTextView1.setText(instantaneousWaterHeater1 +  units);
+                    instantaneousTextView1.setText(string);
 
                     totalTextView5.setVisibility(TextView.VISIBLE);
-                    totalTextView5.setText(totalRefrigerator1 +  units);
+                    string = totalRefrigerator1 +  units;
+                    totalTextView5.setText(string);
                     instantaneousTextView1.setVisibility(TextView.VISIBLE);
-                    instantaneousTextView1.setText(instantaneousRefrigerator1 +  units);
+                    string = instantaneousRefrigerator1 +  units;
+                    instantaneousTextView1.setText(string);
 
                     totalTextView6.setVisibility(TextView.VISIBLE);
-                    totalTextView6.setText(totalKitchenOutlet1 +  units);
+                    string = totalKitchenOutlet1 +  units;
+                    totalTextView6.setText(string);
                     instantaneousTextView1.setVisibility(TextView.VISIBLE);
-                    instantaneousTextView1.setText(instantaneousKitchenOutlet1 +  units);
+                    string = instantaneousKitchenOutlet1 +  units;
+                    instantaneousTextView1.setText(string);
 
                     totalTextView7.setVisibility(TextView.VISIBLE);
-                    totalTextView7.setText(totalRadiantFloorPump1 +  units);
+                    string = totalRadiantFloorPump1 +  units;
+                    totalTextView7.setText(string);
                     instantaneousTextView1.setVisibility(TextView.VISIBLE);
-                    instantaneousTextView1.setText(instantaneousRadiantFloorPump1 +  units);
+                    string = instantaneousRadiantFloorPump1 +  units;
+                    instantaneousTextView1.setText(string);
 
                     while_boolean = false;
                 }
