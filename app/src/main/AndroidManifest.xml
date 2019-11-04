@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.solar_decathlon_house_numerical">
+
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.BIND_VOICE_INTERACTION"/>
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="SDH LED"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <activity android:name=".LoginActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".RegisterActivity"
+            android:parentActivityName=".LoginActivity"
+            android:theme="@style/AppTheme">
+            <intent-filter>
+                <action android:name="com.example.solar_decathlon_house_numerical.activities.RegisterActivity" />
+                <category android:name="android.intent.category.default" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".FeatureSelection"
+            android:parentActivityName=".FeatureSelection"
+            android:theme="@style/AppTheme">
+            <intent-filter>
+                <action android:name="com.example.solar_decathlon_house_numerical.FeatureSelection" />
+                <category android:name="android.intent.category.default" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".Power"
+            android:parentActivityName=".FeatureSelection"
+            android:theme="@style/AppTheme">
+            <intent-filter>
+                <action android:name="com.example.solar_decathlon_house_numerical.FeatureSelection" />
+                <category android:name="android.intent.category.default" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".Temperature"
+            android:parentActivityName=".FeatureSelection"
+            android:theme="@style/AppTheme">
+            <intent-filter>
+                <action android:name="com.example.solar_decathlon_house_numerical.FeatureSelection" />
+                <category android:name="android.intent.category.default" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".WaterFlow"
+            android:parentActivityName=".FeatureSelection"
+            android:theme="@style/AppTheme">
+            <intent-filter>
+                <action android:name="com.example.solar_decathlon_house_numerical.FeatureSelection" />
+                <category android:name="android.intent.category.default" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".Humidity"
+            android:parentActivityName=".FeatureSelection"
+            android:theme="@style/AppTheme">
+            <intent-filter>
+                <action android:name="com.example.solar_decathlon_house_numerical.FeatureSelection" />
+                <category android:name="android.intent.category.default" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".SpeechToTextTextToSpeech"
+            android:parentActivityName=".FeatureSelection"
+            android:theme="@style/AppTheme">
+            <intent-filter>
+                <action android:name="com.example.solar_decathlon_house_numerical.FeatureSelection" />
+                <category android:name="android.intent.category.default" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>

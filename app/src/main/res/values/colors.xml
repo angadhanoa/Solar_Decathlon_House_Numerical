@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#008577</color>
+    <color name="colorPrimaryDark">#00574B</color>
+    <color name="colorAccent">#C5B358</color> //CD9809
+    <color name="colorBackground">#413e4f</color>
+    <color name="colorText">#696969</color>
+    <color name="colorTextHint">#51d8c7</color>
+    <color name="buttonPressed">#26F0F8FF</color>
+    <color name="buttonFocused">#26F0F8FF</color>
+    <color name="colorRed">#800000</color>
+    <color name="colorMaroon">#802020</color>
+    <color name="colorBlue">#191970</color>
+    <color name="colorSlateGrey">#008080</color>
+    <color name="colorOrange">#FF6347</color>
+    <color name="colorOrchid">#DA70DA</color>
+    <color name="colorLimeGreen">#32CD32</color>
+    <color name="colorPaleGreen">#98FB98</color>
+    <color name="colorSeaGreen">#2E8B57</color>
+    <color name="colorRosyBrown">#BC8F8F</color>
+    <color name="colorGrey">#A9A9A9</color>
+    <color name="colorLavender">#FFF0F5</color>
+    <color name="colorThistle">#D8BFD8</color>
+    <color name="colorMediumPurple">#998ECA</color>
+    <color name="colorRoyalBlue">#4169E1</color>
+    <color name="colorSteelBlue">#B0C4DE</color>
+    <color name="colorNavajoWhite">#FFDEAD</color>
+</resources>
