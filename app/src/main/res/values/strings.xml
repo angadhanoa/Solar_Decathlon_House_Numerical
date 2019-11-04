@@ -53,4 +53,7 @@
     <string name="sensorusage">Total Water Usage</string>
     <string name="sensor1usage">Total Sensor 1 Water Usage</string>
     <string name="sensor2usage">Total Sensor 2 Water Usage</string>
+    <string name="alreadymember">Already a member? Login</string>
+
+    <string name="humidity">Humidity</string>
 </resources>
