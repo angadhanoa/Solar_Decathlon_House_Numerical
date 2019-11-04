@@ -3,36 +3,57 @@ package com.example.solar_decathlon_house_numerical;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import java.io.InputStream;
-
-import com.jjoe64.graphview.DefaultLabelFormatter;
-import com.jjoe64.graphview.series.Series;
-import com.jjoe64.graphview.series.LineGraphSeries;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import android.util.Log;
-import com.jjoe64.graphview.GraphView;
-import com.jjoe64.graphview.LegendRenderer;
-import com.jjoe64.graphview.series.DataPoint;
-import com.jjoe64.graphview.series.DataPointInterface;
-import android.graphics.Color;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
-
-import com.jjoe64.graphview.series.OnDataPointTapListener;
-
+import android.widget.TextView;
 import jcifs.smb.NtlmPasswordAuthentication;
 import jcifs.smb.SmbFile;
 
 public class Power extends AppCompatActivity {
     private static final String TAG = Power.class.getSimpleName();
-    private GraphView lineGraphForAll, lineGraph1, lineGraph2, lineGraph3, lineGraph4, lineGraph5, lineGraph6;
+    Button refresh;
+    TextView totalTextView1, totalTextView2, totalTextView3, totalTextView4,
+            totalTextView5, totalTextView6, totalTextView7, totalTextView8;
+    TextView instantaneousTextView1, instantaneousTextView2, instantaneousTextView3,
+            instantaneousTextView4, instantaneousTextView5, instantaneousTextView6,
+            instantaneousTextView7, instantaneousTextView8;
+
+    double totalPowerProduction = 0.0;
+    double totalPowerConsumption = 0.0;
+    double totalLighting = 0.0;
+    double totalAirConditioner = 0.0;
+    double totalWaterHeater = 0.0;
+    double totalRefrigerator = 0.0;
+    double totalKitchenOutlet = 0.0;
+    double totalRadiantFloorPump = 0.0;
+
+    double instantaneousPowerProduction = 0.0;
+    double instantaneousPowerConsumption = 0.0;
+    double instantaneousLighting = 0.0;
+    double instantaneousAirConditioner = 0.0;
+    double instantaneousWaterHeater = 0.0;
+    double instantaneousRefrigerator = 0.0;
+    double instantaneousKitchenOutlet = 0.0;
+    double instantaneousRadiantFloorPump = 0.0;
+
+    String units = " KW/hr";
+    String totalPowerProduction1, totalLighting1, totalAirConditioner1,
+            totalWaterHeater1, totalRefrigerator1, totalKitchenOutlet1,
+            totalRadiantFloorPump1, totalPowerConsumption1;
+    String instantaneousPowerProduction1, instantaneousLighting1, instantaneousAirConditioner1,
+            instantaneousWaterHeater1, instantaneousRefrigerator1, instantaneousKitchenOutlet1,
+            instantaneousRadiantFloorPump1, instantaneousPowerConsumption1;
+
+    boolean while_boolean = true;
+    Thread thread = new Thread();
+
     String user = "rpihubteam6";  //Samba User name
-    String pass ="raspberrypi";   //Samba Password
-    String sharedFolder="share";  //Samba Shared folder
+    String pass = "raspberrypi";   //Samba Password
+    String sharedFolder= "share";  //Samba Shared folder
     String domain = "rpihubteam6";    //Samba domain name
     String fileName = "power.csv";
     String ipAddressWireless = "192.168.1.10"; //IP address for rpihubteam6 when it is wirelessly connected with the router
@@ -42,28 +63,62 @@ public class Power extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_power);
 
-        lineGraphForAll = findViewById(R.id.graph_for_all);
-        lineGraph1 = findViewById(R.id.graph_for_lighting);
-        lineGraph2 = findViewById(R.id.graph_for_air_conditioner);
-        lineGraph3 = findViewById(R.id.graph_for_water_heater);
-        lineGraph4 = findViewById(R.id.graph_for_refrigerator);
-        lineGraph5 = findViewById(R.id.graph_for_kitchen_outlet);
-        lineGraph6 = findViewById(R.id.graph_for_radiant_floor_pump);
+        //Power Production
+        totalTextView1 = findViewById(R.id.power_production_total_value);
+        totalTextView1.setVisibility(TextView.INVISIBLE);
+        instantaneousTextView1 = findViewById(R.id.power_production_current_value);
+        instantaneousTextView1.setVisibility(TextView.INVISIBLE);
+
+        //Lighting
+        totalTextView2 = findViewById(R.id.lighting_total_value);
+        totalTextView2.setVisibility(TextView.INVISIBLE);
+        instantaneousTextView2 = findViewById(R.id.lighting_current_value);
+        instantaneousTextView2.setVisibility(TextView.INVISIBLE);
+
+        //Air Conditioner
+        totalTextView3 = findViewById(R.id.air_conditioner_total_value);
+        totalTextView3.setVisibility(TextView.INVISIBLE);
+        instantaneousTextView3 = findViewById(R.id.air_conditioner_current_value);
+        instantaneousTextView3.setVisibility(TextView.INVISIBLE);
+
+        //Water Heater
+        totalTextView4 = findViewById(R.id.water_heater_total_value);
+        totalTextView4.setVisibility(TextView.INVISIBLE);
+        instantaneousTextView4 = findViewById(R.id.water_heater_current_value);
+        instantaneousTextView4.setVisibility(TextView.INVISIBLE);
+
+        //Refrigerator
+        totalTextView5 = findViewById(R.id.refrigerator_total_value);
+        totalTextView5.setVisibility(TextView.INVISIBLE);
+        instantaneousTextView5 = findViewById(R.id.refrigerator_current_value);
+        instantaneousTextView5.setVisibility(TextView.INVISIBLE);
+
+        //Kitchen Outlet
+        totalTextView6 = findViewById(R.id.kitchen_outlet_total_value);
+        totalTextView6.setVisibility(TextView.INVISIBLE);
+        instantaneousTextView6 = findViewById(R.id.kitchen_outlet_current_value);
+        instantaneousTextView6.setVisibility(TextView.INVISIBLE);
+
+        //Radiant Floor Pump
+        totalTextView7 = findViewById(R.id.radiant_floor_pump_total_value);
+        totalTextView7.setVisibility(TextView.INVISIBLE);
+        instantaneousTextView7 = findViewById(R.id.radiant_floor_pump_current_value);
+        instantaneousTextView7.setVisibility(TextView.INVISIBLE);
 
         //For Graphing all the sensors at once.
-        Button graphForAllButton = (Button)findViewById(R.id.one_for_all);
-        graphForAllButton.setOnClickListener(new View.OnClickListener() {
+        refresh = (Button)findViewById(R.id.one_for_all);
+        refresh.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
             jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
             try {
                 //Creating a new thread for the file transfer, this takes the load off the main thread.
-                Thread thread = new Thread(new Runnable() {
+                thread = new Thread(new Runnable() {
                     @Override
                     public void run() {
                     try {
                         //To get Samba Shared file from the Raspberry Pi
-                        List<String[]> consumption;
+                        List<String[]> powerData;
 
                         String url2 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + fileName;
                         NtlmPasswordAuthentication auth2 = new NtlmPasswordAuthentication(domain, user, pass);
@@ -71,10 +126,67 @@ public class Power extends AppCompatActivity {
 
                         //To create a List Array for Power Consumed
                         CSVReader csv_consumption = new CSVReader(smbPowerConsumeFile, "power");//CSVReader(inputStream2);
-                        consumption = csv_consumption.read();
+                        powerData = csv_consumption.read();
 
-                        //Creating line graphs
-                        createLineGraph(consumption, "GraphForAll");
+                        double sumPowerProduction = 0.0;
+                        double sumLighting = 0.0;
+                        double sumAirConditioner = 0.0;
+                        double sumWaterHeater = 0.0;
+                        double sumRefrigerator = 0.0;
+                        double sumKitchenOutlet = 0.0;
+                        double sumRadiantFloorPump = 0.0;
+
+                        double currentPowerProduction = 0.0;
+                        double currentLighting = 0.0;
+                        double currentAirConditioner = 0.0;
+                        double currentWaterHeater = 0.0;
+                        double currentRefrigerator = 0.0;
+                        double currentKitchenOutlet = 0.0;
+                        double currentRadiantFloorPump = 0.0;
+
+                        for (int i = 0; i < powerData.size(); i++) {
+                            String[] row = powerData.get(i);
+
+                            sumPowerProduction += Double.parseDouble(row[1]);
+                            sumLighting += Double.parseDouble(row[2]);
+                            sumAirConditioner += Double.parseDouble(row[3]);
+                            sumWaterHeater += Double.parseDouble(row[4]);
+                            sumRefrigerator += Double.parseDouble(row[5]);
+                            sumKitchenOutlet += Double.parseDouble(row[6]);
+                            sumRadiantFloorPump += Double.parseDouble(row[7]);
+
+                            if( i == powerData.size() - 1)
+                            {
+                                currentPowerProduction = Double.parseDouble(row[1]);
+                                currentLighting = Double.parseDouble(row[2]);
+                                currentAirConditioner = Double.parseDouble(row[3]);
+                                currentWaterHeater = Double.parseDouble(row[4]);
+                                currentRefrigerator = Double.parseDouble(row[5]);
+                                currentKitchenOutlet = Double.parseDouble(row[6]);
+                                currentRadiantFloorPump = Double.parseDouble(row[7]);
+                            }
+                        }
+
+                        totalPowerProduction = Math.round(sumPowerProduction * Math.pow(10, 2)) / Math.pow(10, 2);
+                        totalLighting = Math.round(sumLighting * Math.pow(10, 2)) / Math.pow(10, 2);
+                        totalAirConditioner = Math.round(sumAirConditioner * Math.pow(10, 2)) / Math.pow(10, 2);
+                        totalWaterHeater = Math.round(sumWaterHeater * Math.pow(10, 2)) / Math.pow(10, 2);
+                        totalRefrigerator = Math.round(sumRefrigerator * Math.pow(10, 2)) / Math.pow(10, 2);
+                        totalKitchenOutlet = Math.round(sumKitchenOutlet * Math.pow(10, 2)) / Math.pow(10, 2);
+                        totalRadiantFloorPump = Math.round(sumRadiantFloorPump * Math.pow(10, 2)) / Math.pow(10, 2);
+                        totalPowerConsumption = totalLighting + totalAirConditioner + totalWaterHeater +
+                                totalRefrigerator + totalKitchenOutlet + totalRadiantFloorPump;
+
+                        instantaneousPowerProduction = Math.round(currentPowerProduction * Math.pow(10, 2)) / Math.pow(10, 2);
+                        instantaneousLighting = Math.round(currentLighting * Math.pow(10, 2)) / Math.pow(10, 2);
+                        instantaneousAirConditioner = Math.round(currentAirConditioner * Math.pow(10, 2)) / Math.pow(10, 2);
+                        instantaneousWaterHeater = Math.round(currentWaterHeater * Math.pow(10, 2)) / Math.pow(10, 2);
+                        instantaneousRefrigerator = Math.round(currentRefrigerator * Math.pow(10, 2)) / Math.pow(10, 2);
+                        instantaneousKitchenOutlet = Math.round(currentKitchenOutlet * Math.pow(10, 2)) / Math.pow(10, 2);
+                        instantaneousRadiantFloorPump = Math.round(currentRadiantFloorPump * Math.pow(10, 2)) / Math.pow(10, 2);
+                        instantaneousPowerConsumption = instantaneousLighting + instantaneousAirConditioner +
+                                instantaneousWaterHeater + instantaneousRefrigerator +
+                                instantaneousKitchenOutlet + instantaneousRadiantFloorPump;
 
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -85,682 +197,71 @@ public class Power extends AppCompatActivity {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            }
-        });
 
-        //For Graphing Sensor 1
-        Button graphForSensor1Button = (Button)findViewById(R.id.lighting);
-        graphForSensor1Button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
-                try {
-                    //Creating a new thread for the file transfer, this takes the load off the main thread.
-                    Thread thread = new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                //To get Samba Shared file from the Raspberry Pi
-                                List<String[]> consumption;
+            while(while_boolean) {
+                if (!thread.isAlive()) {
+                    totalPowerProduction1 = Double.toString(totalPowerProduction);
+                    totalLighting1 = Double.toString(totalLighting);
+                    totalAirConditioner1 = Double.toString(totalAirConditioner);
+                    totalWaterHeater1 = Double.toString(totalWaterHeater);
+                    totalRefrigerator1 = Double.toString(totalRefrigerator);
+                    totalKitchenOutlet1 = Double.toString(totalKitchenOutlet);
+                    totalRadiantFloorPump1 = Double.toString(totalRadiantFloorPump);
+                    totalPowerConsumption1 = Double.toString(totalPowerConsumption);
 
-                                String url2 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + fileName;
-                                NtlmPasswordAuthentication auth2 = new NtlmPasswordAuthentication(domain, user, pass);
-                                InputStream smbPowerConsumeFile = new SmbFile(url2, auth2).getInputStream();
+                    instantaneousPowerProduction1 = Double.toString(instantaneousPowerProduction);
+                    instantaneousLighting1 = Double.toString(instantaneousLighting);
+                    instantaneousAirConditioner1 = Double.toString(instantaneousAirConditioner);
+                    instantaneousWaterHeater1 = Double.toString(instantaneousWaterHeater);
+                    instantaneousRefrigerator1 = Double.toString(instantaneousRefrigerator);
+                    instantaneousKitchenOutlet1 = Double.toString(instantaneousKitchenOutlet);
+                    instantaneousRadiantFloorPump1 = Double.toString(instantaneousRadiantFloorPump);
+                    instantaneousPowerConsumption1 = Double.toString(instantaneousPowerConsumption);
 
-                                //To create a List Array for Power Consumed
-                                CSVReader csv_consumption = new CSVReader(smbPowerConsumeFile, "power");//CSVReader(inputStream2);
-                                consumption = csv_consumption.read();
+                    totalTextView1.setVisibility(TextView.VISIBLE);
+                    totalTextView1.setText(totalPowerProduction1 +  units);
+                    instantaneousTextView1.setVisibility(TextView.VISIBLE);
+                    instantaneousTextView1.setText(instantaneousPowerProduction1 +  units);
 
-                                //Creating line graphs
-                                createLineGraph(consumption, "GraphForLighting");
+                    totalTextView8.setVisibility(TextView.VISIBLE);
+                    totalTextView8.setText(totalPowerConsumption1 +  units);
+                    instantaneousTextView8.setVisibility(TextView.VISIBLE);
+                    instantaneousTextView8.setText(instantaneousPowerConsumption1 +  units);
 
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    });
-                    thread.start();
-                } catch (Exception e) {
-                    e.printStackTrace();
+                    totalTextView2.setVisibility(TextView.VISIBLE);
+                    totalTextView2.setText(totalLighting1 +  units);
+                    instantaneousTextView1.setVisibility(TextView.VISIBLE);
+                    instantaneousTextView1.setText(instantaneousLighting1 +  units);
+
+                    totalTextView3.setVisibility(TextView.VISIBLE);
+                    totalTextView3.setText(totalAirConditioner1 +  units);
+                    instantaneousTextView1.setVisibility(TextView.VISIBLE);
+                    instantaneousTextView1.setText(instantaneousAirConditioner1 +  units);
+
+                    totalTextView4.setVisibility(TextView.VISIBLE);
+                    totalTextView4.setText(totalWaterHeater1 +  units);
+                    instantaneousTextView1.setVisibility(TextView.VISIBLE);
+                    instantaneousTextView1.setText(instantaneousWaterHeater1 +  units);
+
+                    totalTextView5.setVisibility(TextView.VISIBLE);
+                    totalTextView5.setText(totalRefrigerator1 +  units);
+                    instantaneousTextView1.setVisibility(TextView.VISIBLE);
+                    instantaneousTextView1.setText(instantaneousRefrigerator1 +  units);
+
+                    totalTextView6.setVisibility(TextView.VISIBLE);
+                    totalTextView6.setText(totalKitchenOutlet1 +  units);
+                    instantaneousTextView1.setVisibility(TextView.VISIBLE);
+                    instantaneousTextView1.setText(instantaneousKitchenOutlet1 +  units);
+
+                    totalTextView7.setVisibility(TextView.VISIBLE);
+                    totalTextView7.setText(totalRadiantFloorPump1 +  units);
+                    instantaneousTextView1.setVisibility(TextView.VISIBLE);
+                    instantaneousTextView1.setText(instantaneousRadiantFloorPump1 +  units);
+
+                    while_boolean = false;
                 }
-            }
-        });
-
-        //For Graphing Sensor 2
-        Button graphForSensor2Button = (Button)findViewById(R.id.air_conditioner);
-        graphForSensor2Button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
-                try {
-                    //Creating a new thread for the file transfer, this takes the load off the main thread.
-                    Thread thread = new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                //To get Samba Shared file from the Raspberry Pi
-                                List<String[]> consumption;
-
-                                String url2 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + fileName;
-                                NtlmPasswordAuthentication auth2 = new NtlmPasswordAuthentication(domain, user, pass);
-                                InputStream smbPowerConsumeFile = new SmbFile(url2, auth2).getInputStream();
-
-                                //To create a List Array for Power Consumed
-                                CSVReader csv_consumption = new CSVReader(smbPowerConsumeFile, "power");//CSVReader(inputStream2);
-                                consumption = csv_consumption.read();
-
-                                //Creating line graphs
-                                createLineGraph(consumption, "GraphForAirConditioner");
-
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    });
-
-                    thread.start();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        //For Graphing Sensor 3
-        Button graphForSensor3Button = (Button)findViewById(R.id.water_heater);
-        graphForSensor3Button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
-                try {
-                    //Creating a new thread for the file transfer, this takes the load off the main thread.
-                    Thread thread = new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                //To get Samba Shared file from the Raspberry Pi
-                                List<String[]> consumption;
-
-                                String url2 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + fileName;
-                                NtlmPasswordAuthentication auth2 = new NtlmPasswordAuthentication(domain, user, pass);
-                                InputStream smbPowerConsumeFile = new SmbFile(url2, auth2).getInputStream();
-                                //To create a List Array for Power Consumed
-                                CSVReader csv_consumption = new CSVReader(smbPowerConsumeFile, "power");//CSVReader(inputStream2);
-                                consumption = csv_consumption.read();
-
-                                //Creating line graphs
-                                createLineGraph(consumption, "GraphForWaterHeater");
-
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    });
-
-                    thread.start();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        //For Graphing Sensor 4
-        Button graphForSensor4Button = (Button)findViewById(R.id.refrigerator);
-        graphForSensor4Button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
-                try {
-                    //Creating a new thread for the file transfer, this takes the load off the main thread.
-                    Thread thread = new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                //To get Samba Shared file from the Raspberry Pi
-                                List<String[]> consumption;
-
-                                String url2 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + fileName;
-                                NtlmPasswordAuthentication auth2 = new NtlmPasswordAuthentication(domain, user, pass);
-                                InputStream smbPowerConsumeFile = new SmbFile(url2, auth2).getInputStream();
-
-                                //To create a List Array for Power Consumed
-                                CSVReader csv_consumption = new CSVReader(smbPowerConsumeFile, "power");//CSVReader(inputStream2);
-                                consumption = csv_consumption.read();
-
-                                //Creating line graphs
-                                createLineGraph(consumption, "GraphForRefrigerator");
-
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    });
-
-                    thread.start();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        //For Graphing Sensor 5
-        Button graphForSensor5Button = (Button)findViewById(R.id.kitchen_outlet);
-        graphForSensor5Button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
-                try {
-                    //Creating a new thread for the file transfer, this takes the load off the main thread.
-                    Thread thread = new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                //To get Samba Shared file from the Raspberry Pi
-                                List<String[]> consumption;
-
-                                String url2 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + fileName;
-                                NtlmPasswordAuthentication auth2 = new NtlmPasswordAuthentication(domain, user, pass);
-                                InputStream smbPowerConsumeFile = new SmbFile(url2, auth2).getInputStream();
-                                //To create a List Array for Power Consumed
-                                CSVReader csv_consumption = new CSVReader(smbPowerConsumeFile, "power");//CSVReader(inputStream2);
-                                consumption = csv_consumption.read();
-
-                                //Creating line graphs
-                                createLineGraph(consumption, "GraphForKitchenOutlet");
-
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    });
-
-                    thread.start();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        //For Graphing Sensor 6
-        Button graphForSensor6Button = (Button)findViewById(R.id.radiant_floor_pump);
-        graphForSensor6Button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-            jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
-            try {
-                //Creating a new thread for the file transfer, this takes the load off the main thread.
-                Thread thread = new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                    try {
-                        //To get Samba Shared file from the Raspberry Pi
-                        List<String[]> consumption;
-
-                        String url2 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + fileName;
-                        NtlmPasswordAuthentication auth2 = new NtlmPasswordAuthentication(domain, user, pass);
-                        InputStream smbPowerConsumeFile = new SmbFile(url2, auth2).getInputStream();
-
-                        //To create a List Array for Power Consumed
-                        CSVReader csv_consumption = new CSVReader(smbPowerConsumeFile, "power");//CSVReader(inputStream2);
-                        consumption = csv_consumption.read();
-
-                        //Creating line graphs
-                        createLineGraph(consumption, "GraphForRadiantFloorPump");
-
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    }
-                });
-
-                thread.start();
-            } catch (Exception e) {
-                e.printStackTrace();
             }
             }
         });
-
-    }
-
-    private void createLineGraph(List<String[]> consumption, String graphToPlot) throws ParseException {
-        if(graphToPlot.equals("GraphForAll")){
-            lineGraphForAll.removeAllSeries();
-            lineGraphForAll.getViewport().setScalable(true);
-            lineGraphForAll.getViewport().setScalableY(true);
-            lineGraphForAll.getGridLabelRenderer().setHorizontalAxisTitle("Time Stamp");
-            lineGraphForAll.getGridLabelRenderer().setVerticalAxisTitle("Power Consumption [Watts]");
-            lineGraphForAll.getGridLabelRenderer().setLabelsSpace(10);
-            lineGraphForAll.getGridLabelRenderer().setHorizontalLabelsAngle(135);
-
-            //Legend
-            lineGraphForAll.getLegendRenderer().resetStyles();
-            lineGraphForAll.getLegendRenderer().setMargin(10);
-            lineGraphForAll.getLegendRenderer().setTextColor(Color.BLACK);
-            lineGraphForAll.getLegendRenderer().setBackgroundColor(Color.WHITE);
-            lineGraphForAll.getLegendRenderer().setVisible(true);
-            //lineGraphForAll.getLegendRenderer().setAlign(LegendRenderer.LegendAlign.TOP);
-            lineGraphForAll.getLegendRenderer().setFixedPosition(20,20);
-        }
-
-        DataPoint[] consumption_dataPoints = new DataPoint[consumption.size()];
-
-        //Power Consumption Sensor 1
-        if(graphToPlot.equals("GraphForAll") || graphToPlot.equals("GraphForLighting")){
-            Date date = new Date();
-            final SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy");
-            for (int i = 0; i < consumption.size(); i++){
-                String [] rows = consumption.get(i);
-                Log.d(TAG, "Output: " + rows[0] + " " + Double.parseDouble(rows[2]));
-                date = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy").parse(rows[0]);
-                consumption_dataPoints[i] = new DataPoint(date, Double.parseDouble(rows[2]));
-            }
-            LineGraphSeries<DataPoint> series1 = new LineGraphSeries<DataPoint>(consumption_dataPoints);
-            series1.setTitle("Lighting");
-            series1.setDrawDataPoints(true);
-            series1.setDataPointsRadius(8);
-            series1.setColor(Color.BLACK);
-            series1.setThickness(8);
-            series1.setOnDataPointTapListener(new OnDataPointTapListener() {
-                @Override
-                public void onTap(Series series1, DataPointInterface consumption_dataPoints) {
-                    Toast.makeText(getApplicationContext(), "Lighting: ["+ sdf.format(new Date((long) consumption_dataPoints.getX())) + "/" + consumption_dataPoints.getY() +" Watts]", Toast.LENGTH_LONG).show();
-                }
-            });
-
-            if(graphToPlot.equals("GraphForAll")) {
-                lineGraphForAll.addSeries(series1);
-                //Label
-                lineGraphForAll.getGridLabelRenderer().setLabelFormatter(new DefaultLabelFormatter(){
-                    @Override
-                    public String formatLabel(double value, boolean isValueX) {
-                        if(isValueX){
-                            return sdf.format(new Date((long) value));
-                        }else {
-                            return super.formatLabel(value, isValueX);
-                        }
-                    }
-                });
-            }
-            if(graphToPlot.equals("GraphForLighting")) {
-                series1.setDrawBackground(true);
-
-                lineGraph1.removeAllSeries();
-                lineGraph1.getViewport().setScalable(true);
-                lineGraph1.getViewport().setScalableY(true);
-                lineGraph1.getGridLabelRenderer().setHorizontalAxisTitle("Time Stamp");
-                lineGraph1.getGridLabelRenderer().setVerticalAxisTitle("Power Consumption [Watts]");
-                lineGraph1.getGridLabelRenderer().setLabelsSpace(10);
-                lineGraph1.getGridLabelRenderer().setHorizontalLabelsAngle(135);
-
-                lineGraph1.addSeries(series1);
-                //Label
-                lineGraph1.getGridLabelRenderer().setLabelFormatter(new DefaultLabelFormatter(){
-                    @Override
-                    public String formatLabel(double value, boolean isValueX) {
-                        if(isValueX){
-                            return sdf.format(new Date((long) value));
-                        }else {
-                            return super.formatLabel(value, isValueX);
-                        }
-                    }
-                });
-
-                //Legend
-                lineGraph1.getLegendRenderer().resetStyles();
-                lineGraph1.getLegendRenderer().setMargin(10);
-                lineGraph1.getLegendRenderer().setTextColor(Color.WHITE);
-                lineGraph1.getLegendRenderer().setVisible(true);
-                lineGraph1.getLegendRenderer().setAlign(LegendRenderer.LegendAlign.TOP);
-            }
-        }
-
-        //Power Consumption Sensor 2
-        if(graphToPlot.equals("GraphForAll") || graphToPlot.equals("GraphForAirConditioner")){
-            Date date = new Date();
-            final SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy");
-            for (int i = 0; i < consumption.size(); i++){
-                String [] rows = consumption.get(i);
-                Log.d(TAG, "Output: " + rows[0] + " " + Double.parseDouble(rows[3]));
-                date = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy").parse(rows[0]);
-                consumption_dataPoints[i] = new DataPoint(date, Double.parseDouble(rows[3]));
-            }
-            LineGraphSeries<DataPoint> series2 = new LineGraphSeries<DataPoint>(consumption_dataPoints);
-            series2.setTitle("Air Conditioner");
-            series2.setDrawDataPoints(true);
-            series2.setDataPointsRadius(8);
-            series2.setColor(Color.RED);
-            series2.setThickness(8);
-            series2.setOnDataPointTapListener(new OnDataPointTapListener() {
-                @Override
-                public void onTap(Series series2, DataPointInterface consumption_dataPoints) {
-                    Toast.makeText(getApplicationContext(), "Air Conditioner: ["+ sdf.format(new Date((long) consumption_dataPoints.getX())) + "/" + consumption_dataPoints.getY() +" Watts]", Toast.LENGTH_LONG).show();
-                }
-            });
-
-            if(graphToPlot.equals("GraphForAll")) {
-                lineGraphForAll.addSeries(series2);
-                //Label
-                lineGraphForAll.getGridLabelRenderer().setLabelFormatter(new DefaultLabelFormatter(){
-                    @Override
-                    public String formatLabel(double value, boolean isValueX) {
-                        if(isValueX){
-                            return sdf.format(new Date((long) value));
-                        }else {
-                            return super.formatLabel(value, isValueX);
-                        }
-                    }
-                });
-            }
-            if(graphToPlot.equals("GraphForAirConditioner")) {
-                series2.setDrawBackground(true);
-
-                lineGraph2.removeAllSeries();
-                lineGraph2.getViewport().setScalable(true);
-                lineGraph2.getViewport().setScalableY(true);
-                lineGraph2.getGridLabelRenderer().setHorizontalAxisTitle("Time Stamp");
-                lineGraph2.getGridLabelRenderer().setVerticalAxisTitle("Power Consumption [Watts]");
-                lineGraph2.getGridLabelRenderer().setLabelsSpace(10);
-                lineGraph2.getGridLabelRenderer().setHorizontalLabelsAngle(135);
-
-                lineGraph2.addSeries(series2);
-                //Label
-                lineGraph2.getGridLabelRenderer().setLabelFormatter(new DefaultLabelFormatter(){
-                    @Override
-                    public String formatLabel(double value, boolean isValueX) {
-                        if(isValueX){
-                            return sdf.format(new Date((long) value));
-                        }else {
-                            return super.formatLabel(value, isValueX);
-                        }
-                    }
-                });
-
-                //Legend
-                lineGraph2.getLegendRenderer().resetStyles();
-                lineGraph2.getLegendRenderer().setMargin(10);
-                lineGraph2.getLegendRenderer().setTextColor(Color.WHITE);
-                lineGraph2.getLegendRenderer().setVisible(true);
-                lineGraph2.getLegendRenderer().setAlign(LegendRenderer.LegendAlign.TOP);
-            }
-        }
-
-        //Power Consumption Sensor 3
-        if(graphToPlot.equals("GraphForAll") || graphToPlot.equals("GraphForWaterHeater")){
-            Date date = new Date();
-            final SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy");
-            for (int i = 0; i < consumption.size(); i++){
-                String [] rows = consumption.get(i);
-                Log.d(TAG, "Output: " + rows[0] + " " + Double.parseDouble(rows[4]));
-                date = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy").parse(rows[0]);
-                consumption_dataPoints[i] = new DataPoint(date, Double.parseDouble(rows[4]));
-            }
-            LineGraphSeries<DataPoint> series3 = new LineGraphSeries<DataPoint>(consumption_dataPoints);
-            series3.setTitle("Water Heater");
-            series3.setDrawDataPoints(true);
-            series3.setDataPointsRadius(8);
-            series3.setColor(Color.BLUE);
-            series3.setThickness(8);
-            series3.setOnDataPointTapListener(new OnDataPointTapListener() {
-                @Override
-                public void onTap(Series series3, DataPointInterface consumption_dataPoints) {
-                    Toast.makeText(getApplicationContext(), "Water Heater: ["+ sdf.format(new Date((long) consumption_dataPoints.getX())) + "/" + consumption_dataPoints.getY() +" Watts]", Toast.LENGTH_LONG).show();
-                }
-            });
-
-            if(graphToPlot.equals("GraphForAll")) {
-                lineGraphForAll.addSeries(series3);
-                //Label
-                lineGraphForAll.getGridLabelRenderer().setLabelFormatter(new DefaultLabelFormatter(){
-                    @Override
-                    public String formatLabel(double value, boolean isValueX) {
-                        if(isValueX){
-                            return sdf.format(new Date((long) value));
-                        }else {
-                            return super.formatLabel(value, isValueX);
-                        }
-                    }
-                });
-            }
-            if(graphToPlot.equals("GraphForWaterHeater")) {
-                series3.setDrawBackground(true);
-
-                lineGraph3.removeAllSeries();
-                lineGraph3.getViewport().setScalable(true);
-                lineGraph3.getViewport().setScalableY(true);
-                lineGraph3.getGridLabelRenderer().setHorizontalAxisTitle("Time Stamp");
-                lineGraph3.getGridLabelRenderer().setVerticalAxisTitle("Power Consumption [Watts]");
-                lineGraph3.getGridLabelRenderer().setLabelsSpace(10);
-                lineGraph3.getGridLabelRenderer().setHorizontalLabelsAngle(135);
-
-                lineGraph3.addSeries(series3);
-                //Label
-                lineGraph3.getGridLabelRenderer().setLabelFormatter(new DefaultLabelFormatter(){
-                    @Override
-                    public String formatLabel(double value, boolean isValueX) {
-                        if(isValueX){
-                            return sdf.format(new Date((long) value));
-                        }else {
-                            return super.formatLabel(value, isValueX);
-                        }
-                    }
-                });
-
-                //Legend
-                lineGraph3.getLegendRenderer().resetStyles();
-                lineGraph3.getLegendRenderer().setMargin(10);
-                lineGraph3.getLegendRenderer().setTextColor(Color.WHITE);
-                lineGraph3.getLegendRenderer().setVisible(true);
-                lineGraph3.getLegendRenderer().setAlign(LegendRenderer.LegendAlign.TOP);
-            }
-        }
-
-        //Power Consumption Sensor 4
-        if(graphToPlot.equals("GraphForAll") || graphToPlot.equals("GraphForRefrigerator")){
-            Date date = new Date();
-            final SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy");
-            for (int i = 0; i < consumption.size(); i++){
-                String [] rows = consumption.get(i);
-                Log.d(TAG, "Output: " + rows[0] + " " + Double.parseDouble(rows[5]));
-                date = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy").parse(rows[0]);
-                consumption_dataPoints[i] = new DataPoint(date, Double.parseDouble(rows[5]));
-            }
-            LineGraphSeries<DataPoint> series4 = new LineGraphSeries<DataPoint>(consumption_dataPoints);
-            series4.setTitle("Refrigerator");
-            series4.setDrawDataPoints(true);
-            series4.setDataPointsRadius(8);
-            series4.setColor(Color.GRAY);
-            series4.setThickness(8);
-            series4.setOnDataPointTapListener(new OnDataPointTapListener() {
-                @Override
-                public void onTap(Series series4, DataPointInterface consumption_dataPoints) {
-                    Toast.makeText(getApplicationContext(), "Refrigerator: ["+ sdf.format(new Date((long) consumption_dataPoints.getX())) + "/" + consumption_dataPoints.getY() +" Watts]", Toast.LENGTH_LONG).show();
-                }
-            });
-
-            if(graphToPlot.equals("GraphForAll")) {
-               lineGraphForAll.addSeries(series4);
-                //Label
-                lineGraphForAll.getGridLabelRenderer().setLabelFormatter(new DefaultLabelFormatter(){
-                    @Override
-                    public String formatLabel(double value, boolean isValueX) {
-                        if(isValueX){
-                            return sdf.format(new Date((long) value));
-                        }else {
-                            return super.formatLabel(value, isValueX);
-                        }
-                    }
-                });
-            }
-            if(graphToPlot.equals("GraphForRefrigerator")) {
-                series4.setDrawBackground(true);
-
-                lineGraph4.removeAllSeries();
-                lineGraph4.getViewport().setScalable(true);
-                lineGraph4.getViewport().setScalableY(true);
-                lineGraph4.getGridLabelRenderer().setHorizontalAxisTitle("Time Stamp");
-                lineGraph4.getGridLabelRenderer().setVerticalAxisTitle("Power Consumption [Watts]");
-                lineGraph4.getGridLabelRenderer().setLabelsSpace(10);
-                lineGraph4.getGridLabelRenderer().setHorizontalLabelsAngle(135);
-
-                lineGraph4.addSeries(series4);
-                //Label
-                lineGraph4.getGridLabelRenderer().setLabelFormatter(new DefaultLabelFormatter(){
-                    @Override
-                    public String formatLabel(double value, boolean isValueX) {
-                        if(isValueX){
-                            return sdf.format(new Date((long) value));
-                        }else {
-                            return super.formatLabel(value, isValueX);
-                        }
-                    }
-                });
-
-                //Legend
-                lineGraph4.getLegendRenderer().resetStyles();
-                lineGraph4.getLegendRenderer().setMargin(10);
-                lineGraph4.getLegendRenderer().setTextColor(Color.WHITE);
-                lineGraph4.getLegendRenderer().setVisible(true);
-                lineGraph4.getLegendRenderer().setAlign(LegendRenderer.LegendAlign.TOP);
-            }
-        }
-
-        //Power Consumption Sensor 5
-        if(graphToPlot.equals("GraphForAll") || graphToPlot.equals("GraphForKitchenOutlet")){
-            Date date = new Date();
-            final SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy");
-            for (int i = 0; i < consumption.size(); i++){
-                String [] rows = consumption.get(i);
-                Log.d(TAG, "Output: " + rows[0] + " " + Double.parseDouble(rows[6]));
-                date = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy").parse(rows[0]);
-                consumption_dataPoints[i] = new DataPoint(date, Double.parseDouble(rows[6]));
-            }
-            LineGraphSeries<DataPoint> series5 = new LineGraphSeries<DataPoint>(consumption_dataPoints);
-            series5.setTitle("Kitchen Outlet");
-            series5.setDrawDataPoints(true);
-            series5.setDataPointsRadius(8);
-            series5.setColor(Color.GREEN);
-            series5.setThickness(8);
-            series5.setOnDataPointTapListener(new OnDataPointTapListener() {
-                @Override
-                public void onTap(Series series5, DataPointInterface consumption_dataPoints) {
-                    Toast.makeText(getApplicationContext(), "Kitchen Outlet: ["+ sdf.format(new Date((long) consumption_dataPoints.getX())) + "/" + consumption_dataPoints.getY() +" Watts]", Toast.LENGTH_LONG).show();
-                }
-            });
-
-            if(graphToPlot.equals("GraphForAll")) {
-                lineGraphForAll.addSeries(series5);
-                //Label
-                lineGraphForAll.getGridLabelRenderer().setLabelFormatter(new DefaultLabelFormatter(){
-                    @Override
-                    public String formatLabel(double value, boolean isValueX) {
-                        if(isValueX){
-                            return sdf.format(new Date((long) value));
-                        }else {
-                            return super.formatLabel(value, isValueX);
-                        }
-                    }
-                });
-            }
-            if(graphToPlot.equals("GraphForKitchenOutlet")) {
-                series5.setDrawBackground(true);
-
-                lineGraph5.removeAllSeries();
-                lineGraph5.getViewport().setScalable(true);
-                lineGraph5.getViewport().setScalableY(true);
-                lineGraph5.getGridLabelRenderer().setHorizontalAxisTitle("Time Stamp");
-                lineGraph5.getGridLabelRenderer().setVerticalAxisTitle("Power Consumption [Watts]");
-                lineGraph5.getGridLabelRenderer().setLabelsSpace(10);
-                lineGraph5.getGridLabelRenderer().setHorizontalLabelsAngle(135);
-
-                lineGraph5.addSeries(series5);
-                //Label
-                lineGraph5.getGridLabelRenderer().setLabelFormatter(new DefaultLabelFormatter(){
-                    @Override
-                    public String formatLabel(double value, boolean isValueX) {
-                        if(isValueX){
-                            return sdf.format(new Date((long) value));
-                        }else {
-                            return super.formatLabel(value, isValueX);
-                        }
-                    }
-                });
-
-                //Legend
-                lineGraph5.getLegendRenderer().resetStyles();
-                lineGraph5.getLegendRenderer().setMargin(10);
-                lineGraph5.getLegendRenderer().setTextColor(Color.WHITE);
-                lineGraph5.getLegendRenderer().setVisible(true);
-                lineGraph5.getLegendRenderer().setAlign(LegendRenderer.LegendAlign.TOP);
-            }
-        }
-
-        //Power Consumption Sensor 6
-        if(graphToPlot.equals("GraphForAll") || graphToPlot.equals("GraphForRadiantFloorPump")){
-            Date date = new Date();
-            final SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy");
-            for (int i = 0; i < consumption.size(); i++){
-                String [] rows = consumption.get(i);
-                Log.d(TAG, "Output: " + rows[0] + " " + Double.parseDouble(rows[7]));
-                date = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy").parse(rows[0]);
-                consumption_dataPoints[i] = new DataPoint(date, Double.parseDouble(rows[7]));
-            }
-            LineGraphSeries<DataPoint> series6 = new LineGraphSeries<DataPoint>(consumption_dataPoints);
-            series6.setTitle("Radiant Floor Pump");
-            series6.setDrawDataPoints(true);
-            series6.setDataPointsRadius(8);
-            series6.setColor(Color.YELLOW);
-            series6.setThickness(8);
-            series6.setOnDataPointTapListener(new OnDataPointTapListener() {
-                @Override
-                public void onTap(Series series6, DataPointInterface consumption_dataPoints) {
-                    Toast.makeText(getApplicationContext(), "Radiant Floor Pump: ["+ sdf.format(new Date((long) consumption_dataPoints.getX())) + "/" + consumption_dataPoints.getY() +" Watts]", Toast.LENGTH_LONG).show();
-                }
-            });
-
-            if(graphToPlot.equals("GraphForAll")) {
-                lineGraphForAll.addSeries(series6);
-                //Label
-                lineGraphForAll.getGridLabelRenderer().setLabelFormatter(new DefaultLabelFormatter(){
-                    @Override
-                    public String formatLabel(double value, boolean isValueX) {
-                        if(isValueX){
-                            return sdf.format(new Date((long) value));
-                        }else {
-                            return super.formatLabel(value, isValueX);
-                        }
-                    }
-                });
-            }
-            if(graphToPlot.equals("GraphForRadiantFloorPump")) {
-                series6.setDrawBackground(true);
-
-                lineGraph6.removeAllSeries();
-                lineGraph6.getViewport().setScalable(true);
-                lineGraph6.getViewport().setScalableY(true);
-                lineGraph6.getGridLabelRenderer().setHorizontalAxisTitle("Time Stamp");
-                lineGraph6.getGridLabelRenderer().setVerticalAxisTitle("Power Consumption [Watts]");
-                lineGraph6.getGridLabelRenderer().setLabelsSpace(10);
-                lineGraph6.getGridLabelRenderer().setHorizontalLabelsAngle(135);
-
-                lineGraph6.addSeries(series6);
-                //Label
-                lineGraph6.getGridLabelRenderer().setLabelFormatter(new DefaultLabelFormatter(){
-                    @Override
-                    public String formatLabel(double value, boolean isValueX) {
-                        if(isValueX){
-                            return sdf.format(new Date((long) value));
-                        }else {
-                            return super.formatLabel(value, isValueX);
-                        }
-                    }
-                });
-
-                //Legend
-                lineGraph6.getLegendRenderer().resetStyles();
-                lineGraph6.getLegendRenderer().setMargin(10);
-                lineGraph6.getLegendRenderer().setTextColor(Color.WHITE);
-                lineGraph6.getLegendRenderer().setVisible(true);
-                lineGraph6.getLegendRenderer().setAlign(LegendRenderer.LegendAlign.TOP);
-            }
-        }
     }
 }

@@ -140,6 +140,92 @@
                 app:layout_constraintTop_toBottomOf="@id/power_production_current" />
 
             <TextView
+                android:id="@+id/power_consumption"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="50dp"
+                android:layout_marginTop="40dp"
+                android:layout_marginEnd="50dp"
+                android:fontFamily="@font/digital_numericals_heavy"
+                android:text="Power Consumed"
+                android:textAlignment="center"
+                android:textColor="@color/colorOrange"
+                android:textSize="35sp"
+                android:textStyle="bold"
+                android:visibility="visible"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/power_production_current_value" />
+
+            <TextView
+                android:id="@+id/power_consumption_total"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="25dp"
+                android:layout_marginTop="15dp"
+                android:layout_marginRight="20dp"
+                android:fontFamily="@font/digital_numericals_heavy"
+                android:text="Total Power Consumed"
+                android:textColor="@color/colorAccent"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:visibility="visible"
+                app:layout_constraintRight_toLeftOf="@+id/power_consumption_current"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/power_consumption" />
+
+            <TextView
+                android:id="@+id/power_consumption_current"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="15dp"
+                android:layout_marginEnd="25dp"
+                android:fontFamily="@font/digital_numericals_heavy"
+                android:text="Current Power Consumed"
+                android:textColor="@color/colorAccent"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:visibility="visible"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintLeft_toRightOf="@+id/power_consumption_total"
+                app:layout_constraintTop_toBottomOf="@id/power_consumption" />
+
+            <TextView
+                android:id="@+id/power_consumption_total_value"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="65dp"
+                android:layout_marginTop="15dp"
+                android:layout_marginRight="20dp"
+                android:fontFamily="@font/digital_numericals_heavy"
+                android:text="@string/powerUnit"
+                android:textColor="@color/colorAccent"
+                android:textSize="35sp"
+                android:textStyle="bold"
+                android:visibility="visible"
+                app:layout_constraintRight_toLeftOf="@+id/power_consumption_current"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/power_consumption_total" />
+
+            <TextView
+                android:id="@+id/power_consumption_current_value"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="15dp"
+                android:layout_marginEnd="65dp"
+                android:fontFamily="@font/digital_numericals_heavy"
+                android:text="@string/powerUnit"
+                android:textColor="@color/colorAccent"
+                android:textSize="35sp"
+                android:textStyle="bold"
+                android:visibility="visible"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintLeft_toRightOf="@+id/power_consumption_total"
+                app:layout_constraintTop_toBottomOf="@id/power_consumption_current" />
+
+            <TextView
                 android:id="@+id/lighting"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -155,7 +241,7 @@
                 android:visibility="visible"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/power_production_current_value" />
+                app:layout_constraintTop_toBottomOf="@id/power_consumption_current_value" />
 
             <TextView
                 android:id="@+id/lighting_total"
