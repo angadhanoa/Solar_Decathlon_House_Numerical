@@ -54,7 +54,7 @@ public class WaterFlow extends AppCompatActivity {
         totalSensor2TextView = findViewById(R.id.water_flow_sensor2_total_value);
         totalSensor2TextView.setVisibility(TextView.INVISIBLE);
 
-        refresh = findViewById(R.id.refreshView);
+        refresh = findViewById(R.id.one_for_all);
         refresh.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {

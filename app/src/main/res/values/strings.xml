@@ -25,4 +25,32 @@
     <string name="refresh">Refresh</string>
     <string name="powerUnit">KW/hr</string>
     <string name="waterUnit">Gallon</string>
+    <string name="maximum">Maximum</string>
+    <string name="minimum">Minimum</string>
+    <string name="instantaneous">Instantaneous</string>
+    <string name="roof">Roof</string>
+    <string name="watertank">Water Tank</string>
+    <string name="watersolarcollector">Water Solar Collector</string>
+    <string name="northwall">North Wall</string>
+    <string name="southwall">South Wall</string>
+    <string name="exteriortemperature">Exterior Temperature</string>
+    <string name="interiortemperature">Interior Temperature</string>
+    <string name="solarpanel">Solar Panel</string>
+    <string name="refrigerator">Refrigerator</string>
+
+    <string name="totalpowerconsumed">Total Power Consumed</string>
+    <string name="currentpowerconsumed">Current Power Consumed</string>
+    <string name="powerconsumed">Power Consumed</string>
+    <string name="totalpowerproduced">Total Power Produced</string>
+    <string name="currentpowerproduced">Current Power Produced</string>
+    <string name="powerproduced">Power Produced</string>
+    <string name="kitchenoutlet">Kitchen Outlet</string>
+    <string name="radiantfloorpump">Radiant Floor Pump</string>
+    <string name="airconditioner">Air Conditioner</string>
+    <string name="waterheater">Water Heater</string>
+    <string name="lightingsensor">Lighting Sensor</string>
+
+    <string name="sensorusage">Total Water Usage</string>
+    <string name="sensor1usage">Total Sensor 1 Water Usage</string>
+    <string name="sensor2usage">Total Sensor 2 Water Usage</string>
 </resources>

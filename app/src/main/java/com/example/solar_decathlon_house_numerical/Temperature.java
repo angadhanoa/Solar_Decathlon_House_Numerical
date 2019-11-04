@@ -135,7 +135,7 @@ public class Temperature extends AppCompatActivity {
         instantaneousTextView8 = findViewById(R.id.water_solar_collector_temperature_instantaneous_value);
         instantaneousTextView8.setVisibility(TextView.INVISIBLE);
 
-        refresh = findViewById(R.id.refreshView);
+        refresh = findViewById(R.id.one_for_all);
         refresh.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
