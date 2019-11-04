@@ -54,5 +54,4 @@ public class FeatureSelection extends AppCompatActivity {
             public void onClick(View button) { startActivity(intent); }
         });
     }
-
 }

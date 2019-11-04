@@ -32,12 +32,11 @@ public class CSVReader {
 
             //Read the .csv file one line at a time all the way till we reach the end.
             while((csvLine = reader.readLine()) != null){
-                double summation = 0;   //summation is used to create an extra column at the end of the line.
-                                       //It stores the sum of all the sensor values for that timestamp.
-                                       //It is used for the Summed-Up Power Consumption Graph and for Water Consumption.
+                double summation = 0;   /* Summation is used to create an extra column at the end of the line.
+                                         * It stores the sum of all the sensor values for that timestamp.
+                                         * It is used for the Summed-Up Power Consumption Graph and for Water Consumption.*/
 
                 String[] row = csvLine.split(",");  //Splits the row into array of sensor values.
-                //String[] row = csvLine.split("  ");
 
                 //For loop for summation of the split water sensor values.
                 if(power_water.equals("water")){
@@ -98,4 +97,3 @@ public class CSVReader {
         return newRow;
     }
 }
-
