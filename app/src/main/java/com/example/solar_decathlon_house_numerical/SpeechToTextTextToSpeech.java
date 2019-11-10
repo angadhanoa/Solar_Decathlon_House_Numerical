@@ -2211,8 +2211,59 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                         }
                         else if(Arrays.asList(keywords).contains("humidity"))
                         {
-                            toSpeak = "We are in the Humidity Section.";
-                            textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
+                            if(Arrays.asList(keywords).contains("current") || Arrays.asList(keywords).contains("total")
+                                    || Arrays.asList(keywords).contains("average")
+                                    || Arrays.asList(keywords).contains("max") || Arrays.asList(keywords).contains("maximum")
+                                    || Arrays.asList(keywords).contains("min") || Arrays.asList(keywords).contains("minimum"))
+                            {
+                                jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
+                                try{
+                                    //Creating a new thread for the file transfer, this takes the load off the main thread.
+                                    thread = new Thread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            try
+                                            {
+                                                //To get Samba Shared file from the Raspberry Pi
+                                                List<String[]> humidity;
+
+                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + humidityFileName;
+                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                InputStream smbPowerFile = new SmbFile(url1, auth1).getInputStream();
+                                                CSVReader csv_humidity = new CSVReader(smbPowerFile, "humidity");//CSVReader(inputStream2);
+                                                humidity = csv_humidity.read();
+
+                                                double currentHumidity = 0.0;
+                                                for (int i = 0; i < humidity.size(); i++) {
+                                                    String[] row = humidity.get(i);
+                                                    if( i == humidity.size() - 1)
+                                                    {
+                                                        currentHumidity = Double.parseDouble(row[1]);
+                                                    }
+                                                }
+                                                current = 0.0;
+                                                current = Math.round(currentHumidity * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
+                                            }
+                                        }
+                                    });
+                                    thread.start();
+                                }
+                                catch(Exception e)
+                                {
+                                    e.printStackTrace();
+                                }
+                                whilebool = true;
+                                while(whilebool) {
+                                    if (!thread.isAlive()) {
+                                        value =  Double.toString(current);
+                                        toSpeak = "Current Humidity inside the house is " + value + " Percent";
+                                        textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
+                                        whilebool = false;
+                                    }
+                                }
+                            }
                         }
                     }
                     else if(Arrays.asList(keywords).contains("nomajor") &&
