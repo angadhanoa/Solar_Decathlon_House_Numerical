@@ -42,7 +42,6 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
     String humidityFileName = "humiditysignature.csv";
     String houseIntro = "houseintro.txt";
     String houseWelcome = "housewelcome.txt";
-    String ipAddressEthernet = "192.168.1.11"; //IP address for rpihubteam6 when it is wired with the router
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -1021,7 +1020,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                         String[] row = power.get(i);
                                                         if( i == power.size() - 1)
                                                         {
-                                                            currentPower = Double.parseDouble(row[4]);
+                                                            currentPower = Double.parseDouble(row[3]);
                                                         }
                                                     }
                                                     current = 0.0;
@@ -1052,25 +1051,104 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                         && Arrays.asList(keywords).contains("floor")
                                         && Arrays.asList(keywords).contains("pump"))
                                 {
-                                    if(Arrays.asList(keywords).contains("total"))
+                                    if(Arrays.asList(keywords).contains("total") || Arrays.asList(keywords).contains("average")
+                                            || Arrays.asList(keywords).contains("max") || Arrays.asList(keywords).contains("maximum")
+                                            || Arrays.asList(keywords).contains("min") || Arrays.asList(keywords).contains("minimum"))
                                     {
+                                        jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
+                                        try{
+                                            //Creating a new thread for the file transfer, this takes the load off the main thread.
+                                            thread = new Thread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    try
+                                                    {
+                                                        //To get Samba Shared file from the Raspberry Pi
+                                                        List<String[]> power;
 
-                                    }
-                                    else if(Arrays.asList(keywords).contains("average"))
-                                    {
+                                                        String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + powerFileName;
+                                                        NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                        InputStream smbPowerFile = new SmbFile(url1, auth1).getInputStream();
+                                                        CSVReader csv_power = new CSVReader(smbPowerFile, "power");//CSVReader(inputStream2);
+                                                        power = csv_power.read();
 
-                                    }
-                                    else if(Arrays.asList(keywords).contains("max") || Arrays.asList(keywords).contains("maximum"))
-                                    {
-
-                                    }
-                                    else if(Arrays.asList(keywords).contains("min") || Arrays.asList(keywords).contains("minimum"))
-                                    {
-
+                                                        double totalPower = 0.0;
+                                                        for (int i = 0; i < power.size(); i++) {
+                                                            String[] row = power.get(i);
+                                                            totalPower += Double.parseDouble(row[7]);
+                                                        }
+                                                        total = 0.0;
+                                                        total = Math.round(totalPower * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                                    } catch (Exception e) {
+                                                        e.printStackTrace();
+                                                    }
+                                                }
+                                            });
+                                            thread.start();
+                                        }
+                                        catch(Exception e)
+                                        {
+                                            e.printStackTrace();
+                                        }
+                                        whilebool = true;
+                                        while(whilebool) {
+                                            if (!thread.isAlive()) {
+                                                value =  Double.toString(total);
+                                                toSpeak = "Total Power Consumption of the Radiant Floor Pump is " + value + " Watts Per Hour";
+                                                textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
+                                                whilebool = false;
+                                            }
+                                        }
                                     }
                                     else if(Arrays.asList(keywords).contains("current"))
                                     {
+                                        jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
+                                        try{
+                                            //Creating a new thread for the file transfer, this takes the load off the main thread.
+                                            thread = new Thread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    try
+                                                    {
+                                                        //To get Samba Shared file from the Raspberry Pi
+                                                        List<String[]> power;
 
+                                                        String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + powerFileName;
+                                                        NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                        InputStream smbPowerFile = new SmbFile(url1, auth1).getInputStream();
+                                                        CSVReader csv_power = new CSVReader(smbPowerFile, "power");//CSVReader(inputStream2);
+                                                        power = csv_power.read();
+
+                                                        double currentPower = 0.0;
+                                                        for (int i = 0; i < power.size(); i++) {
+                                                            String[] row = power.get(i);
+                                                            if( i == power.size() - 1)
+                                                            {
+                                                                currentPower = Double.parseDouble(row[7]);
+                                                            }
+                                                        }
+                                                        current = 0.0;
+                                                        current = Math.round(currentPower * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                                    } catch (Exception e) {
+                                                        e.printStackTrace();
+                                                    }
+                                                }
+                                            });
+                                            thread.start();
+                                        }
+                                        catch(Exception e)
+                                        {
+                                            e.printStackTrace();
+                                        }
+                                        whilebool = true;
+                                        while(whilebool) {
+                                            if (!thread.isAlive()) {
+                                                value =  Double.toString(current);
+                                                toSpeak = "Current Power Consumption of the Radiant Floor Pump is " + value + " Watts Per Hour";
+                                                textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
+                                                whilebool = false;
+                                            }
+                                        }
                                     }
                                 }
                             }
