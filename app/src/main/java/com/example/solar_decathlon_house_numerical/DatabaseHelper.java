@@ -6,8 +6,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import com.example.solar_decathlon_house_numerical.User;
-
 import java.util.ArrayList;
 import java.util.List;
 
