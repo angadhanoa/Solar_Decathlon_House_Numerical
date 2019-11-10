@@ -9,7 +9,10 @@ import android.speech.RecognizerIntent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
+
+import java.io.BufferedReader;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -17,6 +20,7 @@ import java.util.Locale;
 import java.lang.String;
 import jcifs.smb.NtlmPasswordAuthentication;
 import jcifs.smb.SmbFile;
+import jcifs.smb.SmbFileInputStream;
 
 public class SpeechToTextTextToSpeech extends AppCompatActivity {
     private final int REQ_CODE = 100;
@@ -36,6 +40,8 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
     String temperatureFileName = "heatsignature.csv";
     String waterFileName = "water1.csv";
     String humidityFileName = "humiditysignature.csv";
+    String houseIntro = "houseintro.txt";
+    String houseWelcome = "housewelcome.txt";
     String ipAddressEthernet = "192.168.1.11"; //IP address for rpihubteam6 when it is wired with the router
 
     @Override
@@ -131,27 +137,27 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                     thread = new Thread(new Runnable() {
                                         @Override
                                         public void run() {
-                                            try
-                                            {
-                                                //To get Samba Shared file from the Raspberry Pi
-                                                List<String[]> power;
+                                        try
+                                        {
+                                            //To get Samba Shared file from the Raspberry Pi
+                                            List<String[]> power;
 
-                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + powerFileName;
-                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                InputStream smbPowerFile = new SmbFile(url1, auth1).getInputStream();
-                                                CSVReader csv_power = new CSVReader(smbPowerFile, "power");//CSVReader(inputStream2);
-                                                power = csv_power.read();
+                                            String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + powerFileName;
+                                            NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                            InputStream smbPowerFile = new SmbFile(url1, auth1).getInputStream();
+                                            CSVReader csv_power = new CSVReader(smbPowerFile, "power");//CSVReader(inputStream2);
+                                            power = csv_power.read();
 
-                                                double totalPower = 0.0;
-                                                for (int i = 0; i < power.size(); i++) {
-                                                    String[] row = power.get(i);
-                                                    totalPower += Double.parseDouble(row[5]);
-                                                }
-                                                total = 0.0;
-                                                total = Math.round(totalPower * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
-                                            } catch (Exception e) {
-                                                e.printStackTrace();
+                                            double totalPower = 0.0;
+                                            for (int i = 0; i < power.size(); i++) {
+                                                String[] row = power.get(i);
+                                                totalPower += Double.parseDouble(row[5]);
                                             }
+                                            total = 0.0;
+                                            total = Math.round(totalPower * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
                                         }
                                     });
                                     thread.start();
@@ -178,30 +184,30 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                     thread = new Thread(new Runnable() {
                                         @Override
                                         public void run() {
-                                            try
-                                            {
-                                                //To get Samba Shared file from the Raspberry Pi
-                                                List<String[]> power;
+                                        try
+                                        {
+                                            //To get Samba Shared file from the Raspberry Pi
+                                            List<String[]> power;
 
-                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + powerFileName;
-                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                InputStream smbPowerFile = new SmbFile(url1, auth1).getInputStream();
-                                                CSVReader csv_power = new CSVReader(smbPowerFile, "power");//CSVReader(inputStream2);
-                                                power = csv_power.read();
+                                            String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + powerFileName;
+                                            NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                            InputStream smbPowerFile = new SmbFile(url1, auth1).getInputStream();
+                                            CSVReader csv_power = new CSVReader(smbPowerFile, "power");//CSVReader(inputStream2);
+                                            power = csv_power.read();
 
-                                                double currentPower = 0.0;
-                                                for (int i = 0; i < power.size(); i++) {
-                                                    String[] row = power.get(i);
-                                                    if( i == power.size() - 1)
-                                                    {
-                                                        currentPower = Double.parseDouble(row[5]);
-                                                    }
+                                            double currentPower = 0.0;
+                                            for (int i = 0; i < power.size(); i++) {
+                                                String[] row = power.get(i);
+                                                if( i == power.size() - 1)
+                                                {
+                                                    currentPower = Double.parseDouble(row[5]);
                                                 }
-                                                current = 0.0;
-                                                current = Math.round(currentPower * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
-                                            } catch (Exception e) {
-                                                e.printStackTrace();
                                             }
+                                            current = 0.0;
+                                            current = Math.round(currentPower * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
                                         }
                                     });
                                     thread.start();
@@ -231,26 +237,26 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                     thread = new Thread(new Runnable() {
                                         @Override
                                         public void run() {
-                                            try
-                                            {
-                                                //To get Samba Shared file from the Raspberry Pi
-                                                List<String[]> temperature;
-                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
-                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
-                                                CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");
-                                                temperature = csv_temperature.read();
-                                                double sumOfTemp = 0.0;
-                                                for (int i = 0; i < temperature.size(); i++) {
-                                                    String[] rows = temperature.get(i);
-                                                    sumOfTemp += Double.parseDouble(rows[6]);
-                                                }
-                                                double temp = sumOfTemp/(temperature.size());
-                                                average = 0.0;
-                                                average = Math.round(temp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
-                                            } catch (Exception e) {
-                                                e.printStackTrace();
+                                        try
+                                        {
+                                            //To get Samba Shared file from the Raspberry Pi
+                                            List<String[]> temperature;
+                                            String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                            NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                            InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
+                                            CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");
+                                            temperature = csv_temperature.read();
+                                            double sumOfTemp = 0.0;
+                                            for (int i = 0; i < temperature.size(); i++) {
+                                                String[] rows = temperature.get(i);
+                                                sumOfTemp += Double.parseDouble(rows[6]);
                                             }
+                                            double temp = sumOfTemp/(temperature.size());
+                                            average = 0.0;
+                                            average = Math.round(temp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
                                         }
                                     });
                                     thread.start();
@@ -279,32 +285,32 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                     thread = new Thread(new Runnable() {
                                         @Override
                                         public void run() {
-                                            try
-                                            {
-                                                //To get Samba Shared file from the Raspberry Pi
-                                                List<String[]> temperature;
+                                        try
+                                        {
+                                            //To get Samba Shared file from the Raspberry Pi
+                                            List<String[]> temperature;
 
-                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
-                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
-                                                CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
-                                                temperature = csv_temperature.read();
+                                            String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                            NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                            InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
+                                            CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
+                                            temperature = csv_temperature.read();
 
-                                                String[] rows = temperature.get(0);
-                                                double maxTemp = Double.parseDouble(rows[6]);
-                                                for (int i = 0; i < temperature.size(); i++) {
-                                                    String[] row = temperature.get(i);
-                                                    if(Double.parseDouble(row[6]) > maxTemp)
-                                                    {
-                                                        maxTemp = Double.parseDouble(row[6]);
-                                                    }
+                                            String[] rows = temperature.get(0);
+                                            double maxTemp = Double.parseDouble(rows[6]);
+                                            for (int i = 0; i < temperature.size(); i++) {
+                                                String[] row = temperature.get(i);
+                                                if(Double.parseDouble(row[6]) > maxTemp)
+                                                {
+                                                    maxTemp = Double.parseDouble(row[6]);
                                                 }
-                                                maximum = 0.0;
-                                                maximum = Math.round(maxTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
-                                                value =  Double.toString(maximum);
-                                            } catch (Exception e) {
-                                                e.printStackTrace();
                                             }
+                                            maximum = 0.0;
+                                            maximum = Math.round(maxTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                            value =  Double.toString(maximum);
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
                                         }
                                     });
                                     thread.start();
@@ -330,32 +336,32 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                     thread = new Thread(new Runnable() {
                                         @Override
                                         public void run() {
-                                            try
-                                            {
-                                                //To get Samba Shared file from the Raspberry Pi
-                                                List<String[]> temperature;
+                                        try
+                                        {
+                                            //To get Samba Shared file from the Raspberry Pi
+                                            List<String[]> temperature;
 
-                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
-                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
-                                                CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
-                                                temperature = csv_temperature.read();
+                                            String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                            NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                            InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
+                                            CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
+                                            temperature = csv_temperature.read();
 
-                                                String[] rows = temperature.get(0);
-                                                double minTemp = Double.parseDouble(rows[6]);
-                                                for (int i = 0; i < temperature.size(); i++) {
-                                                    String[] row = temperature.get(i);
-                                                    if(Double.parseDouble(row[6]) < minTemp)
-                                                    {
-                                                        minTemp = Double.parseDouble(row[6]);
-                                                    }
+                                            String[] rows = temperature.get(0);
+                                            double minTemp = Double.parseDouble(rows[6]);
+                                            for (int i = 0; i < temperature.size(); i++) {
+                                                String[] row = temperature.get(i);
+                                                if(Double.parseDouble(row[6]) < minTemp)
+                                                {
+                                                    minTemp = Double.parseDouble(row[6]);
                                                 }
-                                                minimum = 0.0;
-                                                minimum = Math.round(minTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
-                                                value =  Double.toString(minimum);
-                                            } catch (Exception e) {
-                                                e.printStackTrace();
                                             }
+                                            minimum = 0.0;
+                                            minimum = Math.round(minTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                            value =  Double.toString(minimum);
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
                                         }
                                     });
                                     thread.start();
@@ -381,31 +387,31 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                     thread = new Thread(new Runnable() {
                                         @Override
                                         public void run() {
-                                            try
-                                            {
-                                                //To get Samba Shared file from the Raspberry Pi
-                                                List<String[]> temperature;
+                                        try
+                                        {
+                                            //To get Samba Shared file from the Raspberry Pi
+                                            List<String[]> temperature;
 
-                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
-                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
-                                                CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
-                                                temperature = csv_temperature.read();
+                                            String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                            NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                            InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
+                                            CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
+                                            temperature = csv_temperature.read();
 
-                                                double currentTemp = 0.0;
-                                                for (int i = 0; i < temperature.size(); i++) {
-                                                    String[] row = temperature.get(i);
-                                                    if( i == temperature.size() - 1)
-                                                    {
-                                                        currentTemp = Double.parseDouble(row[6]);
-                                                    }
+                                            double currentTemp = 0.0;
+                                            for (int i = 0; i < temperature.size(); i++) {
+                                                String[] row = temperature.get(i);
+                                                if( i == temperature.size() - 1)
+                                                {
+                                                    currentTemp = Double.parseDouble(row[6]);
                                                 }
-                                                current = 0.0;
-                                                current = Math.round(currentTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
-                                                value =  Double.toString(current);
-                                            } catch (Exception e) {
-                                                e.printStackTrace();
                                             }
+                                            current = 0.0;
+                                            current = Math.round(currentTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                            value =  Double.toString(current);
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
                                         }
                                     });
                                     thread.start();
@@ -434,27 +440,27 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                     thread = new Thread(new Runnable() {
                                         @Override
                                         public void run() {
-                                            try
-                                            {
-                                                //To get Samba Shared file from the Raspberry Pi
-                                                List<String[]> temperature;
-                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
-                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
-                                                CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");
-                                                temperature = csv_temperature.read();
-                                                double sumOfTemp = 0.0;
-                                                for (int i = 0; i < temperature.size(); i++) {
-                                                    String[] rows = temperature.get(i);
-                                                    sumOfTemp += Double.parseDouble(rows[7]);
-                                                }
-                                                double temp = sumOfTemp/(temperature.size());
-                                                average = 0.0;
-                                                average = Math.round(temp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
-                                                value =  Double.toString(average);
-                                            } catch (Exception e) {
-                                                e.printStackTrace();
+                                        try
+                                        {
+                                            //To get Samba Shared file from the Raspberry Pi
+                                            List<String[]> temperature;
+                                            String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                            NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                            InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
+                                            CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");
+                                            temperature = csv_temperature.read();
+                                            double sumOfTemp = 0.0;
+                                            for (int i = 0; i < temperature.size(); i++) {
+                                                String[] rows = temperature.get(i);
+                                                sumOfTemp += Double.parseDouble(rows[7]);
                                             }
+                                            double temp = sumOfTemp/(temperature.size());
+                                            average = 0.0;
+                                            average = Math.round(temp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                            value =  Double.toString(average);
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
                                         }
                                     });
                                     thread.start();
@@ -480,32 +486,32 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                     thread = new Thread(new Runnable() {
                                         @Override
                                         public void run() {
-                                            try
-                                            {
-                                                //To get Samba Shared file from the Raspberry Pi
-                                                List<String[]> temperature;
+                                        try
+                                        {
+                                            //To get Samba Shared file from the Raspberry Pi
+                                            List<String[]> temperature;
 
-                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
-                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
-                                                CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
-                                                temperature = csv_temperature.read();
+                                            String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                            NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                            InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
+                                            CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
+                                            temperature = csv_temperature.read();
 
-                                                String[] rows = temperature.get(0);
-                                                double maxTemp = Double.parseDouble(rows[7]);
-                                                for (int i = 0; i < temperature.size(); i++) {
-                                                    String[] row = temperature.get(i);
-                                                    if(Double.parseDouble(row[7]) > maxTemp)
-                                                    {
-                                                        maxTemp = Double.parseDouble(row[7]);
-                                                    }
+                                            String[] rows = temperature.get(0);
+                                            double maxTemp = Double.parseDouble(rows[7]);
+                                            for (int i = 0; i < temperature.size(); i++) {
+                                                String[] row = temperature.get(i);
+                                                if(Double.parseDouble(row[7]) > maxTemp)
+                                                {
+                                                    maxTemp = Double.parseDouble(row[7]);
                                                 }
-                                                maximum = 0.0;
-                                                maximum = Math.round(maxTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
-                                                value =  Double.toString(maximum);
-                                            } catch (Exception e) {
-                                                e.printStackTrace();
                                             }
+                                            maximum = 0.0;
+                                            maximum = Math.round(maxTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                            value =  Double.toString(maximum);
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
                                         }
                                     });
                                     thread.start();
@@ -531,32 +537,32 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                     thread = new Thread(new Runnable() {
                                         @Override
                                         public void run() {
-                                            try
-                                            {
-                                                //To get Samba Shared file from the Raspberry Pi
-                                                List<String[]> temperature;
+                                        try
+                                        {
+                                            //To get Samba Shared file from the Raspberry Pi
+                                            List<String[]> temperature;
 
-                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
-                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
-                                                CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
-                                                temperature = csv_temperature.read();
+                                            String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                            NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                            InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
+                                            CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
+                                            temperature = csv_temperature.read();
 
-                                                String[] rows = temperature.get(0);
-                                                double minTemp = Double.parseDouble(rows[7]);
-                                                for (int i = 0; i < temperature.size(); i++) {
-                                                    String[] row = temperature.get(i);
-                                                    if(Double.parseDouble(row[7]) < minTemp)
-                                                    {
-                                                        minTemp = Double.parseDouble(row[7]);
-                                                    }
+                                            String[] rows = temperature.get(0);
+                                            double minTemp = Double.parseDouble(rows[7]);
+                                            for (int i = 0; i < temperature.size(); i++) {
+                                                String[] row = temperature.get(i);
+                                                if(Double.parseDouble(row[7]) < minTemp)
+                                                {
+                                                    minTemp = Double.parseDouble(row[7]);
                                                 }
-                                                minimum = 0.0;
-                                                minimum = Math.round(minTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
-                                                value =  Double.toString(minimum);
-                                            } catch (Exception e) {
-                                                e.printStackTrace();
                                             }
+                                            minimum = 0.0;
+                                            minimum = Math.round(minTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                            value =  Double.toString(minimum);
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
                                         }
                                     });
                                     thread.start();
@@ -582,31 +588,31 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                     thread = new Thread(new Runnable() {
                                         @Override
                                         public void run() {
-                                            try
-                                            {
-                                                //To get Samba Shared file from the Raspberry Pi
-                                                List<String[]> temperature;
+                                        try
+                                        {
+                                            //To get Samba Shared file from the Raspberry Pi
+                                            List<String[]> temperature;
 
-                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
-                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
-                                                CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
-                                                temperature = csv_temperature.read();
+                                            String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                            NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                            InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
+                                            CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
+                                            temperature = csv_temperature.read();
 
-                                                double currentTemp = 0.0;
-                                                for (int i = 0; i < temperature.size(); i++) {
-                                                    String[] row = temperature.get(i);
-                                                    if( i == temperature.size() - 1)
-                                                    {
-                                                        currentTemp = Double.parseDouble(row[7]);
-                                                    }
+                                            double currentTemp = 0.0;
+                                            for (int i = 0; i < temperature.size(); i++) {
+                                                String[] row = temperature.get(i);
+                                                if( i == temperature.size() - 1)
+                                                {
+                                                    currentTemp = Double.parseDouble(row[7]);
                                                 }
-                                                current = 0.0;
-                                                current = Math.round(currentTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
-                                                value =  Double.toString(current);
-                                            } catch (Exception e) {
-                                                e.printStackTrace();
                                             }
+                                            current = 0.0;
+                                            current = Math.round(currentTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                            value =  Double.toString(current);
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
                                         }
                                     });
                                     thread.start();
@@ -645,27 +651,27 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                             thread = new Thread(new Runnable() {
                                                 @Override
                                                 public void run() {
-                                                    try
-                                                    {
-                                                        //To get Samba Shared file from the Raspberry Pi
-                                                        List<String[]> power;
+                                                try
+                                                {
+                                                    //To get Samba Shared file from the Raspberry Pi
+                                                    List<String[]> power;
 
-                                                        String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + powerFileName;
-                                                        NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                        InputStream smbPowerFile = new SmbFile(url1, auth1).getInputStream();
-                                                        CSVReader csv_power = new CSVReader(smbPowerFile, "power");//CSVReader(inputStream2);
-                                                        power = csv_power.read();
+                                                    String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + powerFileName;
+                                                    NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                    InputStream smbPowerFile = new SmbFile(url1, auth1).getInputStream();
+                                                    CSVReader csv_power = new CSVReader(smbPowerFile, "power");//CSVReader(inputStream2);
+                                                    power = csv_power.read();
 
-                                                        double totalPower = 0.0;
-                                                        for (int i = 0; i < power.size(); i++) {
-                                                            String[] row = power.get(i);
-                                                            totalPower += Double.parseDouble(row[2]);
-                                                        }
-                                                        total = 0.0;
-                                                        total = Math.round(totalPower * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
-                                                    } catch (Exception e) {
-                                                        e.printStackTrace();
+                                                    double totalPower = 0.0;
+                                                    for (int i = 0; i < power.size(); i++) {
+                                                        String[] row = power.get(i);
+                                                        totalPower += Double.parseDouble(row[2]);
                                                     }
+                                                    total = 0.0;
+                                                    total = Math.round(totalPower * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                                } catch (Exception e) {
+                                                    e.printStackTrace();
+                                                }
                                                 }
                                             });
                                             thread.start();
@@ -692,30 +698,30 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                             thread = new Thread(new Runnable() {
                                                 @Override
                                                 public void run() {
-                                                    try
-                                                    {
-                                                        //To get Samba Shared file from the Raspberry Pi
-                                                        List<String[]> power;
+                                                try
+                                                {
+                                                    //To get Samba Shared file from the Raspberry Pi
+                                                    List<String[]> power;
 
-                                                        String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + powerFileName;
-                                                        NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                        InputStream smbPowerFile = new SmbFile(url1, auth1).getInputStream();
-                                                        CSVReader csv_power = new CSVReader(smbPowerFile, "power");//CSVReader(inputStream2);
-                                                        power = csv_power.read();
+                                                    String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + powerFileName;
+                                                    NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                    InputStream smbPowerFile = new SmbFile(url1, auth1).getInputStream();
+                                                    CSVReader csv_power = new CSVReader(smbPowerFile, "power");//CSVReader(inputStream2);
+                                                    power = csv_power.read();
 
-                                                        double currentPower = 0.0;
-                                                        for (int i = 0; i < power.size(); i++) {
-                                                            String[] row = power.get(i);
-                                                            if( i == power.size() - 1)
-                                                            {
-                                                                currentPower = Double.parseDouble(row[2]);
-                                                            }
+                                                    double currentPower = 0.0;
+                                                    for (int i = 0; i < power.size(); i++) {
+                                                        String[] row = power.get(i);
+                                                        if( i == power.size() - 1)
+                                                        {
+                                                            currentPower = Double.parseDouble(row[2]);
                                                         }
-                                                        current = 0.0;
-                                                        current = Math.round(currentPower * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
-                                                    } catch (Exception e) {
-                                                        e.printStackTrace();
                                                     }
+                                                    current = 0.0;
+                                                    current = Math.round(currentPower * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                                } catch (Exception e) {
+                                                    e.printStackTrace();
+                                                }
                                                 }
                                             });
                                             thread.start();
@@ -747,27 +753,27 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                             thread = new Thread(new Runnable() {
                                                 @Override
                                                 public void run() {
-                                                    try
-                                                    {
-                                                        //To get Samba Shared file from the Raspberry Pi
-                                                        List<String[]> power;
+                                                try
+                                                {
+                                                    //To get Samba Shared file from the Raspberry Pi
+                                                    List<String[]> power;
 
-                                                        String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + powerFileName;
-                                                        NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                        InputStream smbPowerFile = new SmbFile(url1, auth1).getInputStream();
-                                                        CSVReader csv_power = new CSVReader(smbPowerFile, "power");//CSVReader(inputStream2);
-                                                        power = csv_power.read();
+                                                    String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + powerFileName;
+                                                    NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                    InputStream smbPowerFile = new SmbFile(url1, auth1).getInputStream();
+                                                    CSVReader csv_power = new CSVReader(smbPowerFile, "power");//CSVReader(inputStream2);
+                                                    power = csv_power.read();
 
-                                                        double totalPower = 0.0;
-                                                        for (int i = 0; i < power.size(); i++) {
-                                                            String[] row = power.get(i);
-                                                            totalPower += Double.parseDouble(row[6]);
-                                                        }
-                                                        total = 0.0;
-                                                        total = Math.round(totalPower * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
-                                                    } catch (Exception e) {
-                                                        e.printStackTrace();
+                                                    double totalPower = 0.0;
+                                                    for (int i = 0; i < power.size(); i++) {
+                                                        String[] row = power.get(i);
+                                                        totalPower += Double.parseDouble(row[6]);
                                                     }
+                                                    total = 0.0;
+                                                    total = Math.round(totalPower * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                                } catch (Exception e) {
+                                                    e.printStackTrace();
+                                                }
                                                 }
                                             });
                                             thread.start();
@@ -794,30 +800,30 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                             thread = new Thread(new Runnable() {
                                                 @Override
                                                 public void run() {
-                                                    try
-                                                    {
-                                                        //To get Samba Shared file from the Raspberry Pi
-                                                        List<String[]> power;
+                                                try
+                                                {
+                                                    //To get Samba Shared file from the Raspberry Pi
+                                                    List<String[]> power;
 
-                                                        String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + powerFileName;
-                                                        NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                        InputStream smbPowerFile = new SmbFile(url1, auth1).getInputStream();
-                                                        CSVReader csv_power = new CSVReader(smbPowerFile, "power");//CSVReader(inputStream2);
-                                                        power = csv_power.read();
+                                                    String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + powerFileName;
+                                                    NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                    InputStream smbPowerFile = new SmbFile(url1, auth1).getInputStream();
+                                                    CSVReader csv_power = new CSVReader(smbPowerFile, "power");//CSVReader(inputStream2);
+                                                    power = csv_power.read();
 
-                                                        double currentPower = 0.0;
-                                                        for (int i = 0; i < power.size(); i++) {
-                                                            String[] row = power.get(i);
-                                                            if( i == power.size() - 1)
-                                                            {
-                                                                currentPower = Double.parseDouble(row[6]);
-                                                            }
+                                                    double currentPower = 0.0;
+                                                    for (int i = 0; i < power.size(); i++) {
+                                                        String[] row = power.get(i);
+                                                        if( i == power.size() - 1)
+                                                        {
+                                                            currentPower = Double.parseDouble(row[6]);
                                                         }
-                                                        current = 0.0;
-                                                        current = Math.round(currentPower * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
-                                                    } catch (Exception e) {
-                                                        e.printStackTrace();
                                                     }
+                                                    current = 0.0;
+                                                    current = Math.round(currentPower * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                                } catch (Exception e) {
+                                                    e.printStackTrace();
+                                                }
                                                 }
                                             });
                                             thread.start();
@@ -850,27 +856,27 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                             thread = new Thread(new Runnable() {
                                                 @Override
                                                 public void run() {
-                                                    try
-                                                    {
-                                                        //To get Samba Shared file from the Raspberry Pi
-                                                        List<String[]> power;
+                                                try
+                                                {
+                                                    //To get Samba Shared file from the Raspberry Pi
+                                                    List<String[]> power;
 
-                                                        String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + powerFileName;
-                                                        NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                        InputStream smbPowerFile = new SmbFile(url1, auth1).getInputStream();
-                                                        CSVReader csv_power = new CSVReader(smbPowerFile, "power");//CSVReader(inputStream2);
-                                                        power = csv_power.read();
+                                                    String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + powerFileName;
+                                                    NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                    InputStream smbPowerFile = new SmbFile(url1, auth1).getInputStream();
+                                                    CSVReader csv_power = new CSVReader(smbPowerFile, "power");//CSVReader(inputStream2);
+                                                    power = csv_power.read();
 
-                                                        double totalPower = 0.0;
-                                                        for (int i = 0; i < power.size(); i++) {
-                                                            String[] row = power.get(i);
-                                                            totalPower += Double.parseDouble(row[4]);
-                                                        }
-                                                        total = 0.0;
-                                                        total = Math.round(totalPower * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
-                                                    } catch (Exception e) {
-                                                        e.printStackTrace();
+                                                    double totalPower = 0.0;
+                                                    for (int i = 0; i < power.size(); i++) {
+                                                        String[] row = power.get(i);
+                                                        totalPower += Double.parseDouble(row[4]);
                                                     }
+                                                    total = 0.0;
+                                                    total = Math.round(totalPower * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                                } catch (Exception e) {
+                                                    e.printStackTrace();
+                                                }
                                                 }
                                             });
                                             thread.start();
@@ -897,30 +903,30 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                             thread = new Thread(new Runnable() {
                                                 @Override
                                                 public void run() {
-                                                    try
-                                                    {
-                                                        //To get Samba Shared file from the Raspberry Pi
-                                                        List<String[]> power;
+                                                try
+                                                {
+                                                    //To get Samba Shared file from the Raspberry Pi
+                                                    List<String[]> power;
 
-                                                        String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + powerFileName;
-                                                        NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                        InputStream smbPowerFile = new SmbFile(url1, auth1).getInputStream();
-                                                        CSVReader csv_power = new CSVReader(smbPowerFile, "power");//CSVReader(inputStream2);
-                                                        power = csv_power.read();
+                                                    String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + powerFileName;
+                                                    NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                    InputStream smbPowerFile = new SmbFile(url1, auth1).getInputStream();
+                                                    CSVReader csv_power = new CSVReader(smbPowerFile, "power");//CSVReader(inputStream2);
+                                                    power = csv_power.read();
 
-                                                        double currentPower = 0.0;
-                                                        for (int i = 0; i < power.size(); i++) {
-                                                            String[] row = power.get(i);
-                                                            if( i == power.size() - 1)
-                                                            {
-                                                                currentPower = Double.parseDouble(row[3]);
-                                                            }
+                                                    double currentPower = 0.0;
+                                                    for (int i = 0; i < power.size(); i++) {
+                                                        String[] row = power.get(i);
+                                                        if( i == power.size() - 1)
+                                                        {
+                                                            currentPower = Double.parseDouble(row[3]);
                                                         }
-                                                        current = 0.0;
-                                                        current = Math.round(currentPower * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
-                                                    } catch (Exception e) {
-                                                        e.printStackTrace();
                                                     }
+                                                    current = 0.0;
+                                                    current = Math.round(currentPower * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                                } catch (Exception e) {
+                                                    e.printStackTrace();
+                                                }
                                                 }
                                             });
                                             thread.start();
@@ -952,27 +958,27 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                             thread = new Thread(new Runnable() {
                                                 @Override
                                                 public void run() {
-                                                    try
-                                                    {
-                                                        //To get Samba Shared file from the Raspberry Pi
-                                                        List<String[]> power;
+                                                try
+                                                {
+                                                    //To get Samba Shared file from the Raspberry Pi
+                                                    List<String[]> power;
 
-                                                        String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + powerFileName;
-                                                        NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                        InputStream smbPowerFile = new SmbFile(url1, auth1).getInputStream();
-                                                        CSVReader csv_power = new CSVReader(smbPowerFile, "power");//CSVReader(inputStream2);
-                                                        power = csv_power.read();
+                                                    String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + powerFileName;
+                                                    NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                    InputStream smbPowerFile = new SmbFile(url1, auth1).getInputStream();
+                                                    CSVReader csv_power = new CSVReader(smbPowerFile, "power");//CSVReader(inputStream2);
+                                                    power = csv_power.read();
 
-                                                        double totalPower = 0.0;
-                                                        for (int i = 0; i < power.size(); i++) {
-                                                            String[] row = power.get(i);
-                                                            totalPower += Double.parseDouble(row[3]);
-                                                        }
-                                                        total = 0.0;
-                                                        total = Math.round(totalPower * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
-                                                    } catch (Exception e) {
-                                                        e.printStackTrace();
+                                                    double totalPower = 0.0;
+                                                    for (int i = 0; i < power.size(); i++) {
+                                                        String[] row = power.get(i);
+                                                        totalPower += Double.parseDouble(row[3]);
                                                     }
+                                                    total = 0.0;
+                                                    total = Math.round(totalPower * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                                } catch (Exception e) {
+                                                    e.printStackTrace();
+                                                }
                                                 }
                                             });
                                             thread.start();
@@ -999,30 +1005,30 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                             thread = new Thread(new Runnable() {
                                                 @Override
                                                 public void run() {
-                                                    try
-                                                    {
-                                                        //To get Samba Shared file from the Raspberry Pi
-                                                        List<String[]> power;
+                                                try
+                                                {
+                                                    //To get Samba Shared file from the Raspberry Pi
+                                                    List<String[]> power;
 
-                                                        String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + powerFileName;
-                                                        NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                        InputStream smbPowerFile = new SmbFile(url1, auth1).getInputStream();
-                                                        CSVReader csv_power = new CSVReader(smbPowerFile, "power");//CSVReader(inputStream2);
-                                                        power = csv_power.read();
+                                                    String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + powerFileName;
+                                                    NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                    InputStream smbPowerFile = new SmbFile(url1, auth1).getInputStream();
+                                                    CSVReader csv_power = new CSVReader(smbPowerFile, "power");//CSVReader(inputStream2);
+                                                    power = csv_power.read();
 
-                                                        double currentPower = 0.0;
-                                                        for (int i = 0; i < power.size(); i++) {
-                                                            String[] row = power.get(i);
-                                                            if( i == power.size() - 1)
-                                                            {
-                                                                currentPower = Double.parseDouble(row[4]);
-                                                            }
+                                                    double currentPower = 0.0;
+                                                    for (int i = 0; i < power.size(); i++) {
+                                                        String[] row = power.get(i);
+                                                        if( i == power.size() - 1)
+                                                        {
+                                                            currentPower = Double.parseDouble(row[4]);
                                                         }
-                                                        current = 0.0;
-                                                        current = Math.round(currentPower * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
-                                                    } catch (Exception e) {
-                                                        e.printStackTrace();
                                                     }
+                                                    current = 0.0;
+                                                    current = Math.round(currentPower * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                                } catch (Exception e) {
+                                                    e.printStackTrace();
+                                                }
                                                 }
                                             });
                                             thread.start();
@@ -1081,26 +1087,26 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                         thread = new Thread(new Runnable() {
                                             @Override
                                             public void run() {
-                                                try
-                                                {
-                                                    //To get Samba Shared file from the Raspberry Pi
-                                                    List<String[]> temperature;
-                                                    String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
-                                                    NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                    InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
-                                                    CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");
-                                                    temperature = csv_temperature.read();
-                                                    double sumOfTemp = 0.0;
-                                                    for (int i = 0; i < temperature.size(); i++) {
-                                                        String[] rows = temperature.get(i);
-                                                        sumOfTemp += Double.parseDouble(rows[4]);
-                                                    }
-                                                    double temp = sumOfTemp/(temperature.size());
-                                                    average = Math.round(temp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
-                                                    value = Double.toString(average);
-                                                } catch (Exception e) {
-                                                    e.printStackTrace();
+                                            try
+                                            {
+                                                //To get Samba Shared file from the Raspberry Pi
+                                                List<String[]> temperature;
+                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
+                                                CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");
+                                                temperature = csv_temperature.read();
+                                                double sumOfTemp = 0.0;
+                                                for (int i = 0; i < temperature.size(); i++) {
+                                                    String[] rows = temperature.get(i);
+                                                    sumOfTemp += Double.parseDouble(rows[4]);
                                                 }
+                                                double temp = sumOfTemp/(temperature.size());
+                                                average = Math.round(temp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                                value = Double.toString(average);
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
+                                            }
                                             }
                                         });
                                         thread.start();
@@ -1126,32 +1132,32 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                         thread = new Thread(new Runnable() {
                                             @Override
                                             public void run() {
-                                                try
-                                                {
-                                                    //To get Samba Shared file from the Raspberry Pi
-                                                    List<String[]> temperature;
+                                            try
+                                            {
+                                                //To get Samba Shared file from the Raspberry Pi
+                                                List<String[]> temperature;
 
-                                                    String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
-                                                    NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                    InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
-                                                    CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
-                                                    temperature = csv_temperature.read();
+                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
+                                                CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
+                                                temperature = csv_temperature.read();
 
-                                                    String[] rows = temperature.get(0);
-                                                    double maxTemp = Double.parseDouble(rows[4]);
-                                                    for (int i = 0; i < temperature.size(); i++) {
-                                                        String[] row = temperature.get(i);
-                                                        if(Double.parseDouble(row[4]) > maxTemp)
-                                                        {
-                                                            maxTemp = Double.parseDouble(row[4]);
-                                                        }
+                                                String[] rows = temperature.get(0);
+                                                double maxTemp = Double.parseDouble(rows[4]);
+                                                for (int i = 0; i < temperature.size(); i++) {
+                                                    String[] row = temperature.get(i);
+                                                    if(Double.parseDouble(row[4]) > maxTemp)
+                                                    {
+                                                        maxTemp = Double.parseDouble(row[4]);
                                                     }
-                                                    maximum = 0.0;
-                                                    maximum = Math.round(maxTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
-                                                    value =  Double.toString(maximum);
-                                                } catch (Exception e) {
-                                                    e.printStackTrace();
                                                 }
+                                                maximum = 0.0;
+                                                maximum = Math.round(maxTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                                value =  Double.toString(maximum);
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
+                                            }
                                             }
                                         });
                                         thread.start();
@@ -1177,32 +1183,32 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                         thread = new Thread(new Runnable() {
                                             @Override
                                             public void run() {
-                                                try
-                                                {
-                                                    //To get Samba Shared file from the Raspberry Pi
-                                                    List<String[]> temperature;
+                                            try
+                                            {
+                                                //To get Samba Shared file from the Raspberry Pi
+                                                List<String[]> temperature;
 
-                                                    String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
-                                                    NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                    InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
-                                                    CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
-                                                    temperature = csv_temperature.read();
+                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
+                                                CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
+                                                temperature = csv_temperature.read();
 
-                                                    String[] rows = temperature.get(0);
-                                                    double minTemp = Double.parseDouble(rows[4]);
-                                                    for (int i = 0; i < temperature.size(); i++) {
-                                                        String[] row = temperature.get(i);
-                                                        if(Double.parseDouble(row[4]) < minTemp)
-                                                        {
-                                                            minTemp = Double.parseDouble(row[4]);
-                                                        }
+                                                String[] rows = temperature.get(0);
+                                                double minTemp = Double.parseDouble(rows[4]);
+                                                for (int i = 0; i < temperature.size(); i++) {
+                                                    String[] row = temperature.get(i);
+                                                    if(Double.parseDouble(row[4]) < minTemp)
+                                                    {
+                                                        minTemp = Double.parseDouble(row[4]);
                                                     }
-                                                    minimum = 0.0;
-                                                    minimum = Math.round(minTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
-                                                    value =  Double.toString(minimum);
-                                                } catch (Exception e) {
-                                                    e.printStackTrace();
                                                 }
+                                                minimum = 0.0;
+                                                minimum = Math.round(minTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                                value =  Double.toString(minimum);
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
+                                            }
                                             }
                                         });
                                         thread.start();
@@ -1228,31 +1234,31 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                         thread = new Thread(new Runnable() {
                                             @Override
                                             public void run() {
-                                                try
-                                                {
-                                                    //To get Samba Shared file from the Raspberry Pi
-                                                    List<String[]> temperature;
+                                            try
+                                            {
+                                                //To get Samba Shared file from the Raspberry Pi
+                                                List<String[]> temperature;
 
-                                                    String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
-                                                    NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                    InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
-                                                    CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
-                                                    temperature = csv_temperature.read();
+                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
+                                                CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
+                                                temperature = csv_temperature.read();
 
-                                                    double currentTemp = 0.0;
-                                                    for (int i = 0; i < temperature.size(); i++) {
-                                                        String[] row = temperature.get(i);
-                                                        if( i == temperature.size() - 1)
-                                                        {
-                                                            currentTemp = Double.parseDouble(row[4]);
-                                                        }
+                                                double currentTemp = 0.0;
+                                                for (int i = 0; i < temperature.size(); i++) {
+                                                    String[] row = temperature.get(i);
+                                                    if( i == temperature.size() - 1)
+                                                    {
+                                                        currentTemp = Double.parseDouble(row[4]);
                                                     }
-                                                    current = 0.0;
-                                                    current = Math.round(currentTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
-                                                    value =  Double.toString(current);
-                                                } catch (Exception e) {
-                                                    e.printStackTrace();
                                                 }
+                                                current = 0.0;
+                                                current = Math.round(currentTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                                value =  Double.toString(current);
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
+                                            }
                                             }
                                         });
                                         thread.start();
@@ -1282,27 +1288,27 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                         thread = new Thread(new Runnable() {
                                             @Override
                                             public void run() {
-                                                try
-                                                {
-                                                    //To get Samba Shared file from the Raspberry Pi
-                                                    List<String[]> temperature;
-                                                    String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
-                                                    NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                    InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
-                                                    CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");
-                                                    temperature = csv_temperature.read();
-                                                    double sumOfTemp = 0.0;
-                                                    for (int i = 0; i < temperature.size(); i++) {
-                                                        String[] rows = temperature.get(i);
-                                                        sumOfTemp += Double.parseDouble(rows[1]);
-                                                    }
-                                                    double temp = sumOfTemp/(temperature.size());
-                                                    average = 0.0;
-                                                    average = Math.round(temp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
-                                                    value =  Double.toString(average);
-                                                } catch (Exception e) {
-                                                    e.printStackTrace();
+                                            try
+                                            {
+                                                //To get Samba Shared file from the Raspberry Pi
+                                                List<String[]> temperature;
+                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
+                                                CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");
+                                                temperature = csv_temperature.read();
+                                                double sumOfTemp = 0.0;
+                                                for (int i = 0; i < temperature.size(); i++) {
+                                                    String[] rows = temperature.get(i);
+                                                    sumOfTemp += Double.parseDouble(rows[1]);
                                                 }
+                                                double temp = sumOfTemp/(temperature.size());
+                                                average = 0.0;
+                                                average = Math.round(temp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                                value =  Double.toString(average);
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
+                                            }
                                             }
                                         });
                                         thread.start();
@@ -1328,32 +1334,32 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                         thread = new Thread(new Runnable() {
                                             @Override
                                             public void run() {
-                                                try
-                                                {
-                                                    //To get Samba Shared file from the Raspberry Pi
-                                                    List<String[]> temperature;
+                                            try
+                                            {
+                                                //To get Samba Shared file from the Raspberry Pi
+                                                List<String[]> temperature;
 
-                                                    String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
-                                                    NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                    InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
-                                                    CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
-                                                    temperature = csv_temperature.read();
+                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
+                                                CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
+                                                temperature = csv_temperature.read();
 
-                                                    String[] rows = temperature.get(0);
-                                                    double maxTemp = Double.parseDouble(rows[1]);
-                                                    for (int i = 0; i < temperature.size(); i++) {
-                                                        String[] row = temperature.get(i);
-                                                        if(Double.parseDouble(row[1]) > maxTemp)
-                                                        {
-                                                            maxTemp = Double.parseDouble(row[1]);
-                                                        }
+                                                String[] rows = temperature.get(0);
+                                                double maxTemp = Double.parseDouble(rows[1]);
+                                                for (int i = 0; i < temperature.size(); i++) {
+                                                    String[] row = temperature.get(i);
+                                                    if(Double.parseDouble(row[1]) > maxTemp)
+                                                    {
+                                                        maxTemp = Double.parseDouble(row[1]);
                                                     }
-                                                    maximum = 0.0;
-                                                    maximum = Math.round(maxTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
-                                                    value =  Double.toString(maximum);
-                                                } catch (Exception e) {
-                                                    e.printStackTrace();
                                                 }
+                                                maximum = 0.0;
+                                                maximum = Math.round(maxTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                                value =  Double.toString(maximum);
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
+                                            }
                                             }
                                         });
                                         thread.start();
@@ -1379,32 +1385,32 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                         thread = new Thread(new Runnable() {
                                             @Override
                                             public void run() {
-                                                try
-                                                {
-                                                    //To get Samba Shared file from the Raspberry Pi
-                                                    List<String[]> temperature;
+                                            try
+                                            {
+                                                //To get Samba Shared file from the Raspberry Pi
+                                                List<String[]> temperature;
 
-                                                    String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
-                                                    NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                    InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
-                                                    CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
-                                                    temperature = csv_temperature.read();
+                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
+                                                CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
+                                                temperature = csv_temperature.read();
 
-                                                    String[] rows = temperature.get(0);
-                                                    double minTemp = Double.parseDouble(rows[1]);
-                                                    for (int i = 0; i < temperature.size(); i++) {
-                                                        String[] row = temperature.get(i);
-                                                        if(Double.parseDouble(row[1]) < minTemp)
-                                                        {
-                                                            minTemp = Double.parseDouble(row[1]);
-                                                        }
+                                                String[] rows = temperature.get(0);
+                                                double minTemp = Double.parseDouble(rows[1]);
+                                                for (int i = 0; i < temperature.size(); i++) {
+                                                    String[] row = temperature.get(i);
+                                                    if(Double.parseDouble(row[1]) < minTemp)
+                                                    {
+                                                        minTemp = Double.parseDouble(row[1]);
                                                     }
-                                                    minimum = 0.0;
-                                                    minimum = Math.round(minTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
-
-                                                } catch (Exception e) {
-                                                    e.printStackTrace();
                                                 }
+                                                minimum = 0.0;
+                                                minimum = Math.round(minTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
+                                            }
                                             }
                                         });
                                         thread.start();
@@ -1431,31 +1437,31 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                         thread = new Thread(new Runnable() {
                                             @Override
                                             public void run() {
-                                                try
-                                                {
-                                                    //To get Samba Shared file from the Raspberry Pi
-                                                    List<String[]> temperature;
+                                            try
+                                            {
+                                                //To get Samba Shared file from the Raspberry Pi
+                                                List<String[]> temperature;
 
-                                                    String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
-                                                    NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                    InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
-                                                    CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
-                                                    temperature = csv_temperature.read();
+                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
+                                                CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
+                                                temperature = csv_temperature.read();
 
-                                                    double currentTemp = 0.0;
-                                                    for (int i = 0; i < temperature.size(); i++) {
-                                                        String[] row = temperature.get(i);
-                                                        if( i == temperature.size() - 1)
-                                                        {
-                                                            currentTemp = Double.parseDouble(row[1]);
-                                                        }
+                                                double currentTemp = 0.0;
+                                                for (int i = 0; i < temperature.size(); i++) {
+                                                    String[] row = temperature.get(i);
+                                                    if( i == temperature.size() - 1)
+                                                    {
+                                                        currentTemp = Double.parseDouble(row[1]);
                                                     }
-                                                    current = 0.0;
-                                                    current = Math.round(currentTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
-
-                                                } catch (Exception e) {
-                                                    e.printStackTrace();
                                                 }
+                                                current = 0.0;
+                                                current = Math.round(currentTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
+                                            }
                                             }
                                         });
                                         thread.start();
@@ -1486,26 +1492,26 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                         thread = new Thread(new Runnable() {
                                             @Override
                                             public void run() {
-                                                try
-                                                {
-                                                    //To get Samba Shared file from the Raspberry Pi
-                                                    List<String[]> temperature;
-                                                    String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
-                                                    NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                    InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
-                                                    CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");
-                                                    temperature = csv_temperature.read();
-                                                    double sumOfTemp = 0.0;
-                                                    for (int i = 0; i < temperature.size(); i++) {
-                                                        String[] rows = temperature.get(i);
-                                                        sumOfTemp += Double.parseDouble(rows[2]);
-                                                    }
-                                                    double temp = sumOfTemp/(temperature.size());
-                                                    average = 0.0;
-                                                    average = Math.round(temp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
-                                                } catch (Exception e) {
-                                                    e.printStackTrace();
+                                            try
+                                            {
+                                                //To get Samba Shared file from the Raspberry Pi
+                                                List<String[]> temperature;
+                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
+                                                CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");
+                                                temperature = csv_temperature.read();
+                                                double sumOfTemp = 0.0;
+                                                for (int i = 0; i < temperature.size(); i++) {
+                                                    String[] rows = temperature.get(i);
+                                                    sumOfTemp += Double.parseDouble(rows[2]);
                                                 }
+                                                double temp = sumOfTemp/(temperature.size());
+                                                average = 0.0;
+                                                average = Math.round(temp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
+                                            }
                                             }
                                         });
                                         thread.start();
@@ -1532,31 +1538,31 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                         thread = new Thread(new Runnable() {
                                             @Override
                                             public void run() {
-                                                try
-                                                {
-                                                    //To get Samba Shared file from the Raspberry Pi
-                                                    List<String[]> temperature;
+                                            try
+                                            {
+                                                //To get Samba Shared file from the Raspberry Pi
+                                                List<String[]> temperature;
 
-                                                    String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
-                                                    NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                    InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
-                                                    CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
-                                                    temperature = csv_temperature.read();
+                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
+                                                CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
+                                                temperature = csv_temperature.read();
 
-                                                    String[] rows = temperature.get(0);
-                                                    double maxTemp = Double.parseDouble(rows[2]);
-                                                    for (int i = 0; i < temperature.size(); i++) {
-                                                        String[] row = temperature.get(i);
-                                                        if(Double.parseDouble(row[2]) > maxTemp)
-                                                        {
-                                                            maxTemp = Double.parseDouble(row[2]);
-                                                        }
+                                                String[] rows = temperature.get(0);
+                                                double maxTemp = Double.parseDouble(rows[2]);
+                                                for (int i = 0; i < temperature.size(); i++) {
+                                                    String[] row = temperature.get(i);
+                                                    if(Double.parseDouble(row[2]) > maxTemp)
+                                                    {
+                                                        maxTemp = Double.parseDouble(row[2]);
                                                     }
-                                                    maximum = 0.0;
-                                                    maximum = Math.round(maxTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
-                                                } catch (Exception e) {
-                                                    e.printStackTrace();
                                                 }
+                                                maximum = 0.0;
+                                                maximum = Math.round(maxTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
+                                            }
                                             }
                                         });
                                         thread.start();
@@ -1583,31 +1589,31 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                         thread = new Thread(new Runnable() {
                                             @Override
                                             public void run() {
-                                                try
-                                                {
-                                                    //To get Samba Shared file from the Raspberry Pi
-                                                    List<String[]> temperature;
+                                            try
+                                            {
+                                                //To get Samba Shared file from the Raspberry Pi
+                                                List<String[]> temperature;
 
-                                                    String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
-                                                    NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                    InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
-                                                    CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
-                                                    temperature = csv_temperature.read();
+                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
+                                                CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
+                                                temperature = csv_temperature.read();
 
-                                                    String[] rows = temperature.get(0);
-                                                    double minTemp = Double.parseDouble(rows[2]);
-                                                    for (int i = 0; i < temperature.size(); i++) {
-                                                        String[] row = temperature.get(i);
-                                                        if(Double.parseDouble(row[2]) < minTemp)
-                                                        {
-                                                            minTemp = Double.parseDouble(row[2]);
-                                                        }
+                                                String[] rows = temperature.get(0);
+                                                double minTemp = Double.parseDouble(rows[2]);
+                                                for (int i = 0; i < temperature.size(); i++) {
+                                                    String[] row = temperature.get(i);
+                                                    if(Double.parseDouble(row[2]) < minTemp)
+                                                    {
+                                                        minTemp = Double.parseDouble(row[2]);
                                                     }
-                                                    minimum = 0.0;
-                                                    minimum = Math.round(minTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
-                                                } catch (Exception e) {
-                                                    e.printStackTrace();
                                                 }
+                                                minimum = 0.0;
+                                                minimum = Math.round(minTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
+                                            }
                                             }
                                         });
                                         thread.start();
@@ -1634,30 +1640,30 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                         thread = new Thread(new Runnable() {
                                             @Override
                                             public void run() {
-                                                try
-                                                {
-                                                    //To get Samba Shared file from the Raspberry Pi
-                                                    List<String[]> temperature;
+                                            try
+                                            {
+                                                //To get Samba Shared file from the Raspberry Pi
+                                                List<String[]> temperature;
 
-                                                    String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
-                                                    NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                    InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
-                                                    CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
-                                                    temperature = csv_temperature.read();
+                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
+                                                CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
+                                                temperature = csv_temperature.read();
 
-                                                    double currentTemp = 0.0;
-                                                    for (int i = 0; i < temperature.size(); i++) {
-                                                        String[] row = temperature.get(i);
-                                                        if( i == temperature.size() - 1)
-                                                        {
-                                                            currentTemp = Double.parseDouble(row[2]);
-                                                        }
+                                                double currentTemp = 0.0;
+                                                for (int i = 0; i < temperature.size(); i++) {
+                                                    String[] row = temperature.get(i);
+                                                    if( i == temperature.size() - 1)
+                                                    {
+                                                        currentTemp = Double.parseDouble(row[2]);
                                                     }
-                                                    current = 0.0;
-                                                    current = Math.round(currentTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
-                                                } catch (Exception e) {
-                                                    e.printStackTrace();
                                                 }
+                                                current = 0.0;
+                                                current = Math.round(currentTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
+                                            }
                                             }
                                         });
                                         thread.start();
@@ -1687,26 +1693,26 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                         thread = new Thread(new Runnable() {
                                             @Override
                                             public void run() {
-                                                try
-                                                {
-                                                    //To get Samba Shared file from the Raspberry Pi
-                                                    List<String[]> temperature;
-                                                    String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
-                                                    NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                    InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
-                                                    CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");
-                                                    temperature = csv_temperature.read();
-                                                    double sumOfTemp = 0.0;
-                                                    for (int i = 0; i < temperature.size(); i++) {
-                                                        String[] rows = temperature.get(i);
-                                                        sumOfTemp += Double.parseDouble(rows[3]);
-                                                    }
-                                                    double temp = sumOfTemp/(temperature.size());
-                                                    average = 0.0;
-                                                    average = Math.round(temp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
-                                                } catch (Exception e) {
-                                                    e.printStackTrace();
+                                            try
+                                            {
+                                                //To get Samba Shared file from the Raspberry Pi
+                                                List<String[]> temperature;
+                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
+                                                CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");
+                                                temperature = csv_temperature.read();
+                                                double sumOfTemp = 0.0;
+                                                for (int i = 0; i < temperature.size(); i++) {
+                                                    String[] rows = temperature.get(i);
+                                                    sumOfTemp += Double.parseDouble(rows[3]);
                                                 }
+                                                double temp = sumOfTemp/(temperature.size());
+                                                average = 0.0;
+                                                average = Math.round(temp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
+                                            }
                                             }
                                         });
                                         thread.start();
@@ -1733,32 +1739,32 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                         thread = new Thread(new Runnable() {
                                             @Override
                                             public void run() {
-                                                try
-                                                {
-                                                    //To get Samba Shared file from the Raspberry Pi
-                                                    List<String[]> temperature;
+                                            try
+                                            {
+                                                //To get Samba Shared file from the Raspberry Pi
+                                                List<String[]> temperature;
 
-                                                    String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
-                                                    NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                    InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
-                                                    CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
-                                                    temperature = csv_temperature.read();
+                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
+                                                CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
+                                                temperature = csv_temperature.read();
 
-                                                    String[] rows = temperature.get(0);
-                                                    double maxTemp = Double.parseDouble(rows[3]);
-                                                    for (int i = 0; i < temperature.size(); i++) {
-                                                        String[] row = temperature.get(i);
-                                                        if(Double.parseDouble(row[3]) > maxTemp)
-                                                        {
-                                                            maxTemp = Double.parseDouble(row[3]);
-                                                        }
+                                                String[] rows = temperature.get(0);
+                                                double maxTemp = Double.parseDouble(rows[3]);
+                                                for (int i = 0; i < temperature.size(); i++) {
+                                                    String[] row = temperature.get(i);
+                                                    if(Double.parseDouble(row[3]) > maxTemp)
+                                                    {
+                                                        maxTemp = Double.parseDouble(row[3]);
                                                     }
-                                                    maximum = 0.0;
-                                                    maximum = Math.round(maxTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
-
-                                                } catch (Exception e) {
-                                                    e.printStackTrace();
                                                 }
+                                                maximum = 0.0;
+                                                maximum = Math.round(maxTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
+                                            }
                                             }
                                         });
                                         thread.start();
@@ -1785,32 +1791,32 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                         thread = new Thread(new Runnable() {
                                             @Override
                                             public void run() {
-                                                try
-                                                {
-                                                    //To get Samba Shared file from the Raspberry Pi
-                                                    List<String[]> temperature;
+                                            try
+                                            {
+                                                //To get Samba Shared file from the Raspberry Pi
+                                                List<String[]> temperature;
 
-                                                    String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
-                                                    NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                    InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
-                                                    CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
-                                                    temperature = csv_temperature.read();
+                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
+                                                CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
+                                                temperature = csv_temperature.read();
 
-                                                    String[] rows = temperature.get(0);
-                                                    double minTemp = Double.parseDouble(rows[3]);
-                                                    for (int i = 0; i < temperature.size(); i++) {
-                                                        String[] row = temperature.get(i);
-                                                        if(Double.parseDouble(row[3]) < minTemp)
-                                                        {
-                                                            minTemp = Double.parseDouble(row[3]);
-                                                        }
+                                                String[] rows = temperature.get(0);
+                                                double minTemp = Double.parseDouble(rows[3]);
+                                                for (int i = 0; i < temperature.size(); i++) {
+                                                    String[] row = temperature.get(i);
+                                                    if(Double.parseDouble(row[3]) < minTemp)
+                                                    {
+                                                        minTemp = Double.parseDouble(row[3]);
                                                     }
-                                                    minimum = 0.0;
-                                                    minimum = Math.round(minTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
-
-                                                } catch (Exception e) {
-                                                    e.printStackTrace();
                                                 }
+                                                minimum = 0.0;
+                                                minimum = Math.round(minTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
+                                            }
                                             }
                                         });
                                         thread.start();
@@ -1837,31 +1843,31 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                         thread = new Thread(new Runnable() {
                                             @Override
                                             public void run() {
-                                                try
-                                                {
-                                                    //To get Samba Shared file from the Raspberry Pi
-                                                    List<String[]> temperature;
+                                            try
+                                            {
+                                                //To get Samba Shared file from the Raspberry Pi
+                                                List<String[]> temperature;
 
-                                                    String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
-                                                    NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                    InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
-                                                    CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
-                                                    temperature = csv_temperature.read();
+                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
+                                                CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
+                                                temperature = csv_temperature.read();
 
-                                                    double currentTemp = 0.0;
-                                                    for (int i = 0; i < temperature.size(); i++) {
-                                                        String[] row = temperature.get(i);
-                                                        if( (i == temperature.size() - 1))
-                                                        {
-                                                            currentTemp = Double.parseDouble(row[3]);
-                                                        }
+                                                double currentTemp = 0.0;
+                                                for (int i = 0; i < temperature.size(); i++) {
+                                                    String[] row = temperature.get(i);
+                                                    if( (i == temperature.size() - 1))
+                                                    {
+                                                        currentTemp = Double.parseDouble(row[3]);
                                                     }
-                                                    current = 0.0;
-                                                    current = Math.round(currentTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
-
-                                                } catch (Exception e) {
-                                                    e.printStackTrace();
                                                 }
+                                                current = 0.0;
+                                                current = Math.round(currentTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
+                                            }
                                             }
                                         });
                                         thread.start();
@@ -1891,26 +1897,26 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                         thread = new Thread(new Runnable() {
                                             @Override
                                             public void run() {
-                                                try
-                                                {
-                                                    //To get Samba Shared file from the Raspberry Pi
-                                                    List<String[]> temperature;
-                                                    String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
-                                                    NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                    InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
-                                                    CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");
-                                                    temperature = csv_temperature.read();
-                                                    double sumOfTemp = 0.0;
-                                                    for (int i = 0; i < temperature.size(); i++) {
-                                                        String[] rows = temperature.get(i);
-                                                        sumOfTemp += Double.parseDouble(rows[5]);
-                                                    }
-                                                    double temp = sumOfTemp/(temperature.size());
-                                                    average = 0.0;
-                                                    average = Math.round(temp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
-                                                } catch (Exception e) {
-                                                    e.printStackTrace();
+                                            try
+                                            {
+                                                //To get Samba Shared file from the Raspberry Pi
+                                                List<String[]> temperature;
+                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
+                                                CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");
+                                                temperature = csv_temperature.read();
+                                                double sumOfTemp = 0.0;
+                                                for (int i = 0; i < temperature.size(); i++) {
+                                                    String[] rows = temperature.get(i);
+                                                    sumOfTemp += Double.parseDouble(rows[5]);
                                                 }
+                                                double temp = sumOfTemp/(temperature.size());
+                                                average = 0.0;
+                                                average = Math.round(temp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
+                                            }
                                             }
                                         });
                                         thread.start();
@@ -1937,32 +1943,32 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                         thread = new Thread(new Runnable() {
                                             @Override
                                             public void run() {
-                                                try
-                                                {
-                                                    //To get Samba Shared file from the Raspberry Pi
-                                                    List<String[]> temperature;
+                                            try
+                                            {
+                                                //To get Samba Shared file from the Raspberry Pi
+                                                List<String[]> temperature;
 
-                                                    String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
-                                                    NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                    InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
-                                                    CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
-                                                    temperature = csv_temperature.read();
+                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
+                                                CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
+                                                temperature = csv_temperature.read();
 
-                                                    String[] rows = temperature.get(0);
-                                                    double maxTemp = Double.parseDouble(rows[5]);
-                                                    for (int i = 0; i < temperature.size(); i++) {
-                                                        String[] row = temperature.get(i);
-                                                        if(Double.parseDouble(row[5]) > maxTemp)
-                                                        {
-                                                            maxTemp = Double.parseDouble(row[5]);
-                                                        }
+                                                String[] rows = temperature.get(0);
+                                                double maxTemp = Double.parseDouble(rows[5]);
+                                                for (int i = 0; i < temperature.size(); i++) {
+                                                    String[] row = temperature.get(i);
+                                                    if(Double.parseDouble(row[5]) > maxTemp)
+                                                    {
+                                                        maxTemp = Double.parseDouble(row[5]);
                                                     }
-                                                    maximum = 0.0;
-                                                    maximum = Math.round(maxTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
-
-                                                } catch (Exception e) {
-                                                    e.printStackTrace();
                                                 }
+                                                maximum = 0.0;
+                                                maximum = Math.round(maxTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
+                                            }
                                             }
                                         });
                                         thread.start();
@@ -1989,32 +1995,32 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                         thread = new Thread(new Runnable() {
                                             @Override
                                             public void run() {
-                                                try
-                                                {
-                                                    //To get Samba Shared file from the Raspberry Pi
-                                                    List<String[]> temperature;
+                                            try
+                                            {
+                                                //To get Samba Shared file from the Raspberry Pi
+                                                List<String[]> temperature;
 
-                                                    String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
-                                                    NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                    InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
-                                                    CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
-                                                    temperature = csv_temperature.read();
+                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
+                                                CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
+                                                temperature = csv_temperature.read();
 
-                                                    String[] rows = temperature.get(0);
-                                                    double minTemp = Double.parseDouble(rows[5]);
-                                                    for (int i = 0; i < temperature.size(); i++) {
-                                                        String[] row = temperature.get(i);
-                                                        if(Double.parseDouble(row[5]) < minTemp)
-                                                        {
-                                                            minTemp = Double.parseDouble(row[5]);
-                                                        }
+                                                String[] rows = temperature.get(0);
+                                                double minTemp = Double.parseDouble(rows[5]);
+                                                for (int i = 0; i < temperature.size(); i++) {
+                                                    String[] row = temperature.get(i);
+                                                    if(Double.parseDouble(row[5]) < minTemp)
+                                                    {
+                                                        minTemp = Double.parseDouble(row[5]);
                                                     }
-                                                    minimum = 0.0;
-                                                    minimum = Math.round(minTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
-
-                                                } catch (Exception e) {
-                                                    e.printStackTrace();
                                                 }
+                                                minimum = 0.0;
+                                                minimum = Math.round(minTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
+                                            }
                                             }
                                         });
                                         thread.start();
@@ -2041,30 +2047,30 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                         thread = new Thread(new Runnable() {
                                             @Override
                                             public void run() {
-                                                try
-                                                {
-                                                    //To get Samba Shared file from the Raspberry Pi
-                                                    List<String[]> temperature;
+                                            try
+                                            {
+                                                //To get Samba Shared file from the Raspberry Pi
+                                                List<String[]> temperature;
 
-                                                    String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
-                                                    NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                    InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
-                                                    CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
-                                                    temperature = csv_temperature.read();
+                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
+                                                CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
+                                                temperature = csv_temperature.read();
 
-                                                    double currentTemp = 0.0;
-                                                    for (int i = 0; i < temperature.size(); i++) {
-                                                        String[] row = temperature.get(i);
-                                                        if( i == temperature.size() - 1)
-                                                        {
-                                                            currentTemp = Double.parseDouble(row[5]);
-                                                        }
+                                                double currentTemp = 0.0;
+                                                for (int i = 0; i < temperature.size(); i++) {
+                                                    String[] row = temperature.get(i);
+                                                    if( i == temperature.size() - 1)
+                                                    {
+                                                        currentTemp = Double.parseDouble(row[5]);
                                                     }
-                                                    current = 0.0;
-                                                    current = Math.round(currentTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
-                                                } catch (Exception e) {
-                                                    e.printStackTrace();
                                                 }
+                                                current = 0.0;
+                                                current = Math.round(currentTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
+                                            }
                                             }
                                         });
                                         thread.start();
@@ -2137,22 +2143,98 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                     {
                         if(Arrays.asList(keywords).contains("house"))
                         {
-                            toSpeak = "For this project, we plan on " +
+                            jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
+                            try{
+                                //Creating a new thread for the file transfer, this takes the load off the main thread.
+                                thread = new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                    try
+                                    {
+                                        toSpeak = "";
+                                        String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + houseIntro;
+                                        NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                        SmbFile houseInfo = new SmbFile(url1, auth1);
+                                        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new SmbFileInputStream(houseInfo)))) {
+                                            String line = reader.readLine();
+                                            while (line != null) {
+                                                line = reader.readLine();
+                                                toSpeak += line;
+                                            }
+                                        }
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                    }
+                                });
+                                thread.start();
+                            }
+                            catch(Exception e)
+                            {
+                                e.printStackTrace();
+                            }
+
+                            whilebool = true;
+                            while(whilebool) {
+                                if (!thread.isAlive()) {
+                                    textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
+                                    whilebool = false;
+                                }
+                            }
+                            /*toSpeak = "For this project, we plan on " +
                                     "creating a data display with analysis and home automation system " +
                                     "for a solar powered 1000 sq. ft. smart house. It will be able to " +
                                     "display utility consumption for daily home functions such as " +
                                     "electrical power, water temperature, water flow using an interactive " +
                                     "medium, so that the user is made aware of their consumption. " +
                                     "When adequately integrated, these innovations can change people’s " +
-                                    "lifestyle for the better and establish sustainability for the future.";
-                            textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
+                                    "lifestyle for the better and establish sustainability for the future.";*/
                         }
                         else if(Arrays.asList(keywords).contains("welcome"))
                         {
-                            toSpeak = "Welcome to the solar decathalon house " +
+                            jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
+                            try{
+                                //Creating a new thread for the file transfer, this takes the load off the main thread.
+                                thread = new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                    try
+                                    {
+                                        toSpeak = "";
+                                        String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + houseWelcome;
+                                        NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                        SmbFile houseInfo = new SmbFile(url1, auth1);
+                                        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new SmbFileInputStream(houseInfo)))) {
+                                            String line = reader.readLine();
+                                            while (line != null) {
+                                                line = reader.readLine();
+                                                toSpeak += line;
+                                            }
+                                        }
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                    }
+                                });
+                                thread.start();
+                            }
+                            catch(Exception e)
+                            {
+                                e.printStackTrace();
+                            }
+
+                            whilebool = true;
+                            while(whilebool) {
+                                if (!thread.isAlive()) {
+                                    textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
+                                    whilebool = false;
+                                }
+                            }
+
+                            /*toSpeak = "Welcome to the solar decathalon house " +
                                     "Professor Vadhva and Professor Vogt. I hope that " +
                                     "you are having a wonderful day. What can I do for you?";
-                            textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
+                            textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);*/
                         }
                     }
 
