@@ -117,11 +117,8 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
             // get textview inside snackbar view
             TextView snackTextView = snackbarView.findViewById(android.support.design.R.id.snackbar_text);
             // set text to center
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                snackTextView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-                snackTextView.setTextColor(Color.WHITE);
-            } else
-                snackTextView.setGravity(Gravity.CENTER_HORIZONTAL);
+            snackTextView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+            snackTextView.setTextColor(Color.WHITE);
             // show the snackbar
             snackView.show();
             emptyInputEditText();
@@ -132,11 +129,8 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
             // get textview inside snackbar view
             TextView snackTextView = snackbarView.findViewById(android.support.design.R.id.snackbar_text);
             // set text to center
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                snackTextView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-                snackTextView.setTextColor(Color.WHITE);
-            } else
-                snackTextView.setGravity(Gravity.CENTER_HORIZONTAL);
+            snackTextView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+            snackTextView.setTextColor(Color.WHITE);
             // show the snackbar
             snackView.show();
         }
