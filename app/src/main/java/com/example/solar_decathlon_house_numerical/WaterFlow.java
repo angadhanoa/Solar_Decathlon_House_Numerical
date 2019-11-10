@@ -16,8 +16,6 @@ import jcifs.smb.NtlmPasswordAuthentication;
 import jcifs.smb.SmbFile;
 
 public class WaterFlow extends AppCompatActivity {
-
-    private static final String TAG = WaterFlow.class.getSimpleName();
     Button refresh;
 
     String units = " Gallons";
@@ -58,66 +56,68 @@ public class WaterFlow extends AppCompatActivity {
         refresh.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
-                jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
-                try {
-                    //Creating a new thread for the file transfer, this takes the load off the main thread.
-                    thread = new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                        try {
-                            //To get Samba Shared file from the Raspberry Pi
-                            String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + fileName1;
-                            NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                            InputStream smbWater1ConsumeFile = new SmbFile(url1, auth1).getInputStream();
-                            //To create a List Array for Power Consumed
-                            CSVReader csv_water1_consumption = new CSVReader(smbWater1ConsumeFile, "water");//CSVReader(inputStream2);
-                            List<String[]> waterData = csv_water1_consumption.read();
+            jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
+            try {
+                //Creating a new thread for the file transfer, this takes the load off the main thread.
+                thread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                    try {
+                        //To get Samba Shared file from the Raspberry Pi
+                        String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + fileName1;
+                        NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                        InputStream smbWater1ConsumeFile = new SmbFile(url1, auth1).getInputStream();
+                        //To create a List Array for Power Consumed
+                        CSVReader csv_water1_consumption = new CSVReader(smbWater1ConsumeFile, "water");//CSVReader(inputStream2);
+                        List<String[]> waterData = csv_water1_consumption.read();
 
-                            double totalWaterSum;
-                            double totalSensor1WaterSum = 0.0;
-                            double totalSensor2WaterSum = 0.0;
+                        double totalWaterSum;
+                        double totalSensor1WaterSum = 0.0;
+                        double totalSensor2WaterSum = 0.0;
 
-                            for (int i = 0; i < waterData.size(); i++) {
-                                String[] rows = waterData.get(i);
-                                totalSensor1WaterSum += Double.parseDouble(rows[1]);
-                                totalSensor2WaterSum += Double.parseDouble(rows[2]);
-                            }
-
-                            totalWaterSum = totalSensor1WaterSum + totalSensor2WaterSum;
-
-                            totalWaterUsage = Math.round(totalWaterSum * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
-                            totalSensor1WaterUsage = Math.round(totalSensor1WaterSum * Math.pow(10, 2)) / Math.pow(10, 2);
-                            totalSensor2WaterUsage = Math.round(totalSensor2WaterSum * Math.pow(10, 2)) / Math.pow(10, 2);
-                        } catch (Exception e) {
-                            e.printStackTrace();
+                        for (int i = 0; i < waterData.size(); i++) {
+                            String[] rows = waterData.get(i);
+                            totalSensor1WaterSum += Double.parseDouble(rows[1]);
+                            totalSensor2WaterSum += Double.parseDouble(rows[2]);
                         }
-                        }
-                    });
-                    thread.start();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
 
-                while_boolean = true;
-                while(while_boolean) {
-                    if (!thread.isAlive()) {
-                        totalWaterUsage1 = Double.toString(totalWaterUsage);
-                        totalSensor1WaterUsage1 = Double.toString(totalSensor1WaterUsage);
-                        totalSensor2WaterUsage1 = Double.toString(totalSensor2WaterUsage);
+                        totalWaterSum = totalSensor1WaterSum + totalSensor2WaterSum;
 
-                        totalTextView.setVisibility(TextView.VISIBLE);
-                        string = totalWaterUsage1 + units;
-                        totalTextView.setText(string);
-                        totalSensor1TextView.setVisibility(TextView.VISIBLE);
-                        string = totalSensor1WaterUsage1 + units;
-                        totalSensor1TextView.setText(string);
-                        totalSensor2TextView.setVisibility(TextView.VISIBLE);
-                        string = totalSensor2WaterUsage1 + units;
-                        totalSensor2TextView.setText(string);
-
-                        while_boolean = false;
+                        totalWaterUsage = Math.round(totalWaterSum * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                        totalSensor1WaterUsage = Math.round(totalSensor1WaterSum * Math.pow(10, 2)) / Math.pow(10, 2);
+                        totalSensor2WaterUsage = Math.round(totalSensor2WaterSum * Math.pow(10, 2)) / Math.pow(10, 2);
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
+                    }
+                });
+                thread.start();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            while_boolean = true;
+            while(while_boolean) {
+                if (!thread.isAlive()) {
+                    totalWaterUsage1 = Double.toString(totalWaterUsage);
+                    totalSensor1WaterUsage1 = Double.toString(totalSensor1WaterUsage);
+                    totalSensor2WaterUsage1 = Double.toString(totalSensor2WaterUsage);
+
+                    totalTextView.setVisibility(TextView.VISIBLE);
+                    string = totalWaterUsage1 + units;
+                    totalTextView.setText(string);
+
+                    totalSensor1TextView.setVisibility(TextView.VISIBLE);
+                    string = totalSensor1WaterUsage1 + units;
+                    totalSensor1TextView.setText(string);
+
+                    totalSensor2TextView.setVisibility(TextView.VISIBLE);
+                    string = totalSensor2WaterUsage1 + units;
+                    totalSensor2TextView.setText(string);
+
+                    while_boolean = false;
                 }
+            }
             }
         });
     }
