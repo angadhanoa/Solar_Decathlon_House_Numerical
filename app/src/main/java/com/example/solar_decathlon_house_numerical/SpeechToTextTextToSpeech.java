@@ -2185,26 +2185,110 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                     if(Arrays.asList(keywords).contains("one")
                                             || Arrays.asList(keywords).contains("1"))
                                     {
-                                        if(Arrays.asList(keywords).contains("total"))
+                                        if(Arrays.asList(keywords).contains("total") || Arrays.asList(keywords).contains("average")
+                                                || Arrays.asList(keywords).contains("max") || Arrays.asList(keywords).contains("maximum")
+                                                || Arrays.asList(keywords).contains("min") || Arrays.asList(keywords).contains("minimum")
+                                                || Arrays.asList(keywords).contains("current"))
                                         {
+                                            jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
+                                            try{
+                                                //Creating a new thread for the file transfer, this takes the load off the main thread.
+                                                thread = new Thread(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        try
+                                                        {
+                                                            //To get Samba Shared file from the Raspberry Pi
+                                                            List<String[]> water;
 
-                                        }
-                                        else if(Arrays.asList(keywords).contains("average"))
-                                        {
+                                                            String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + waterFileName;
+                                                            NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                            InputStream smbWaterFile = new SmbFile(url1, auth1).getInputStream();
+                                                            CSVReader csv_water = new CSVReader(smbWaterFile, "water");//CSVReader(inputStream2);
+                                                            water = csv_water.read();
 
+                                                            double totalWater = 0.0;
+                                                            for (int i = 0; i < water.size(); i++) {
+                                                                String[] row = water.get(i);
+                                                                totalWater += Double.parseDouble(row[1]);
+                                                            }
+                                                            total = 0.0;
+                                                            total = Math.round(totalWater * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                                        } catch (Exception e) {
+                                                            e.printStackTrace();
+                                                        }
+                                                    }
+                                                });
+                                                thread.start();
+                                            }
+                                            catch(Exception e)
+                                            {
+                                                e.printStackTrace();
+                                            }
+                                            whilebool = true;
+                                            while(whilebool) {
+                                                if (!thread.isAlive()) {
+                                                    value =  Double.toString(current);
+                                                    toSpeak = "Total Water Consumption for sensor 1 is " + value + " Gallons";
+                                                    textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
+                                                    whilebool = false;
+                                                }
+                                            }
                                         }
                                     }
                                     else if(Arrays.asList(keywords).contains("two")
                                             || Arrays.asList(keywords).contains("2")
                                             || Arrays.asList(keywords).contains("too"))
                                     {
-                                        if(Arrays.asList(keywords).contains("total"))
+                                        if(Arrays.asList(keywords).contains("total") || Arrays.asList(keywords).contains("average")
+                                                || Arrays.asList(keywords).contains("max") || Arrays.asList(keywords).contains("maximum")
+                                                || Arrays.asList(keywords).contains("min") || Arrays.asList(keywords).contains("minimum")
+                                                || Arrays.asList(keywords).contains("current"))
                                         {
+                                            jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
+                                            try{
+                                                //Creating a new thread for the file transfer, this takes the load off the main thread.
+                                                thread = new Thread(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        try
+                                                        {
+                                                            //To get Samba Shared file from the Raspberry Pi
+                                                            List<String[]> water;
 
-                                        }
-                                        else if(Arrays.asList(keywords).contains("average"))
-                                        {
+                                                            String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + waterFileName;
+                                                            NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                            InputStream smbWaterFile = new SmbFile(url1, auth1).getInputStream();
+                                                            CSVReader csv_water = new CSVReader(smbWaterFile, "water");//CSVReader(inputStream2);
+                                                            water = csv_water.read();
 
+                                                            double totalWater = 0.0;
+                                                            for (int i = 0; i < water.size(); i++) {
+                                                                String[] row = water.get(i);
+                                                                totalWater += Double.parseDouble(row[2]);
+                                                            }
+                                                            total = 0.0;
+                                                            total = Math.round(totalWater * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                                        } catch (Exception e) {
+                                                            e.printStackTrace();
+                                                        }
+                                                    }
+                                                });
+                                                thread.start();
+                                            }
+                                            catch(Exception e)
+                                            {
+                                                e.printStackTrace();
+                                            }
+                                            whilebool = true;
+                                            while(whilebool) {
+                                                if (!thread.isAlive()) {
+                                                    value =  Double.toString(current);
+                                                    toSpeak = "Total Water Consumption for sensor 2 is " + value + " Gallons";
+                                                    textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
+                                                    whilebool = false;
+                                                }
+                                            }
                                         }
                                     }
                                 }
