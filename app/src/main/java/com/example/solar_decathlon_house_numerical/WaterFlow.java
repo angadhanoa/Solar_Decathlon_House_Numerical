@@ -34,12 +34,11 @@ public class WaterFlow extends AppCompatActivity {
     String totalSensor1WaterUsage1;
     String totalSensor2WaterUsage1;
 
-    String user = "rpihubteam6";  //Samba User name
-    String pass = "raspberrypi";   //Samba Password
+    String user = "rpihubteam6";    //Samba User name
+    String pass = "raspberrypi";    //Samba Password
     String sharedFolder = "share";  //Samba Shared folder
-    String domain = "rpihubteam6";    //Samba domain name
-    String fileName1 = "water1app.csv";
-    String fileName2 = "water2app.csv";
+    String domain = "rpihubteam6";  //Samba domain name
+    String fileName1 = "water1.csv";
     String ipAddressWireless = "192.168.1.10"; //IP address for rpihubteam6 when it is wirelessly connected with the router
     String ipAddressEthernet = "192.168.1.11"; //IP address for rpihubteam6 when it is connected with the router via ethernet
 

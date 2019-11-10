@@ -2395,14 +2395,6 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                     whilebool = false;
                                 }
                             }
-                            /*toSpeak = "For this project, we plan on " +
-                                    "creating a data display with analysis and home automation system " +
-                                    "for a solar powered 1000 sq. ft. smart house. It will be able to " +
-                                    "display utility consumption for daily home functions such as " +
-                                    "electrical power, water temperature, water flow using an interactive " +
-                                    "medium, so that the user is made aware of their consumption. " +
-                                    "When adequately integrated, these innovations can change people’s " +
-                                    "lifestyle for the better and establish sustainability for the future.";*/
                         }
                         else if(Arrays.asList(keywords).contains("welcome"))
                         {
@@ -2444,11 +2436,6 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                     whilebool = false;
                                 }
                             }
-
-                            /*toSpeak = "Welcome to the solar decathalon house " +
-                                    "Professor Vadhva and Professor Vogt. I hope that " +
-                                    "you are having a wonderful day. What can I do for you?";
-                            textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);*/
                         }
                     }
 
