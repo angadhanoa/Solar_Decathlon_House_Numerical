@@ -7,6 +7,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import java.io.InputStream;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -152,26 +153,38 @@ public class Power extends AppCompatActivity {
                         double currentKitchenOutlet = 0.0;
                         double currentRadiantFloorPump = 0.0;
 
+                        final DateFormat df = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy");
+                        int latestData = powerData.size() - 1; //To get the last row's #
+                        String[] latestRow = powerData.get(latestData); //To get data from the last row
+
+                        Date date = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy").parse(latestRow[0]); //Extract date
+                        String latestDate = df.format(date); //Date to String
+                        String latestDateSubstring = latestDate.substring(0, 9);    //Extract "EEE MMM dd" part to compare
+
+                        currentPowerProduction = Double.parseDouble(latestRow[1]);
+                        currentLighting = Double.parseDouble(latestRow[2]);
+                        currentAirConditioner = Double.parseDouble(latestRow[3]);
+                        currentWaterHeater = Double.parseDouble(latestRow[4]);
+                        currentRefrigerator = Double.parseDouble(latestRow[5]);
+                        currentKitchenOutlet = Double.parseDouble(latestRow[6]);
+                        currentRadiantFloorPump = Double.parseDouble(latestRow[7]);
+
                         for (int i = 0; i < powerData.size(); i++) {
                             String[] row = powerData.get(i);
 
-                            sumPowerProduction += Double.parseDouble(row[1]);
-                            sumLighting += Double.parseDouble(row[2]);
-                            sumAirConditioner += Double.parseDouble(row[3]);
-                            sumWaterHeater += Double.parseDouble(row[4]);
-                            sumRefrigerator += Double.parseDouble(row[5]);
-                            sumKitchenOutlet += Double.parseDouble(row[6]);
-                            sumRadiantFloorPump += Double.parseDouble(row[7]);
+                            date = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy").parse(row[0]); //Extract date
+                            String dateFound = df.format(date); //Date to String
+                            String dateFoundSubstring = dateFound.substring(0, 9);    //Extract "EEE MMM dd" part to compare
 
-                            if( i == powerData.size() - 1)
-                            {
-                                currentPowerProduction = Double.parseDouble(row[1]);
-                                currentLighting = Double.parseDouble(row[2]);
-                                currentAirConditioner = Double.parseDouble(row[3]);
-                                currentWaterHeater = Double.parseDouble(row[4]);
-                                currentRefrigerator = Double.parseDouble(row[5]);
-                                currentKitchenOutlet = Double.parseDouble(row[6]);
-                                currentRadiantFloorPump = Double.parseDouble(row[7]);
+                            //Only get the data if the day is the same.
+                            if(latestDateSubstring.equalsIgnoreCase(dateFoundSubstring)) {
+                                sumPowerProduction += Double.parseDouble(row[1]);
+                                sumLighting += Double.parseDouble(row[2]);
+                                sumAirConditioner += Double.parseDouble(row[3]);
+                                sumWaterHeater += Double.parseDouble(row[4]);
+                                sumRefrigerator += Double.parseDouble(row[5]);
+                                sumKitchenOutlet += Double.parseDouble(row[6]);
+                                sumRadiantFloorPump += Double.parseDouble(row[7]);
                             }
                         }
 

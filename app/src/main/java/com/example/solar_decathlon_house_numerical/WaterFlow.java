@@ -7,6 +7,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import java.io.InputStream;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -71,14 +72,30 @@ public class WaterFlow extends AppCompatActivity {
                                 CSVReader csv_water1_consumption = new CSVReader(smbWater1ConsumeFile, "water");//CSVReader(inputStream2);
                                 List<String[]> waterData = csv_water1_consumption.read();
 
+                                final DateFormat df = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy");
+
                                 double totalWaterSum;
                                 double totalSensor1WaterSum = 0.0;
                                 double totalSensor2WaterSum = 0.0;
 
+                                int latestData = waterData.size() - 1; //To get the last row's #
+                                String[] latestRow = waterData.get(latestData); //To get data from the last row
+                                Date date = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy").parse(latestRow[0]); //Extract date
+                                String latestDate = df.format(date); //Date to String
+                                String latestDateSubstring = latestDate.substring(0, 9);    //Extract "EEE MMM dd" part to compare
+
                                 for (int i = 0; i < waterData.size(); i++) {
                                     String[] rows = waterData.get(i);
-                                    totalSensor1WaterSum += Double.parseDouble(rows[1]);
-                                    totalSensor2WaterSum += Double.parseDouble(rows[2]);
+
+                                    date = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy").parse(rows[0]); //Extract date
+                                    String dateFound = df.format(date); //Date to String
+                                    String dateFoundSubstring = dateFound.substring(0, 9);    //Extract "EEE MMM dd" part to compare
+
+                                    //Only get the data if the day is the same.
+                                    if(latestDateSubstring.equalsIgnoreCase(dateFoundSubstring)) {
+                                        totalSensor1WaterSum += Double.parseDouble(rows[1]);
+                                        totalSensor2WaterSum += Double.parseDouble(rows[2]);
+                                    }
                                 }
 
                                 totalWaterSum = totalSensor1WaterSum + totalSensor2WaterSum;

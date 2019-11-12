@@ -478,7 +478,7 @@
                 android:layout_marginTop="35dp"
                 android:layout_marginEnd="50dp"
                 android:fontFamily="@font/digital_numericals_heavy"
-                android:text="@string/airconditioner"
+                android:text="@string/refrigerator"
                 android:textAlignment="center"
                 android:textColor="@color/colorOrange"
                 android:textSize="35sp"

@@ -7,6 +7,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import java.io.InputStream;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -181,51 +182,62 @@ public class Temperature extends AppCompatActivity {
                                 double miniWaterSolarCollectorTemperature = Double.parseDouble(rows[4]);
                                 double currentWaterSolarCollectorTemperature = 0.0;
 
+                                final DateFormat df = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy");
+                                int latestData = temperatureData.size() - 1; //To get the last row's #
+                                String[] latestRow = temperatureData.get(latestData); //To get data from the last row
+
+                                Date date = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy").parse(latestRow[0]); //Extract date
+                                String latestDate = df.format(date); //Date to String
+                                String latestDateSubstring = latestDate.substring(0, 9);    //Extract "EEE MMM dd" part to compare
+
+                                currentInteriorTemperature = Double.parseDouble(latestRow[1]);
+                                currentSolarPanelTemperature = Double.parseDouble(latestRow[2]);
+                                currentRoofTemperature = Double.parseDouble(latestRow[3]);
+                                currentExteriorTemperature = Double.parseDouble(latestRow[4]);
+                                currentNorthWallTemperature = Double.parseDouble(latestRow[5]);
+                                currentWaterTankTemperature = Double.parseDouble(latestRow[6]);
+                                currentWaterSolarCollectorTemperature = Double.parseDouble(latestRow[7]);
+
                                 for (int i = 0; i < temperatureData.size(); i++) {
                                     String[] row = temperatureData.get(i);
 
-                                    //Finding the Maximum Temperature
-                                    if(Double.parseDouble(row[1]) > maxiInteriorTemperature)
-                                        maxiInteriorTemperature = Double.parseDouble(row[1]);
-                                    if(Double.parseDouble(row[2]) > maxiSolarPanelTemperature)
-                                        maxiSolarPanelTemperature = Double.parseDouble(row[2]);
-                                    if(Double.parseDouble(row[3]) > maxiRoofTemperature)
-                                        maxiRoofTemperature = Double.parseDouble(row[3]);
-                                    if(Double.parseDouble(row[4]) > maxiExteriorTemperature)
-                                        maxiExteriorTemperature = Double.parseDouble(row[4]);
-                                    if(Double.parseDouble(row[5]) > maxiNorthWallTemperature)
-                                        maxiNorthWallTemperature = Double.parseDouble(row[5]);
-                                    if(Double.parseDouble(row[6]) > maxiWaterTankTemperature)
-                                        maxiWaterTankTemperature = Double.parseDouble(row[6]);
-                                    if(Double.parseDouble(row[7]) > maxiWaterSolarCollectorTemperature)
-                                        maxiWaterSolarCollectorTemperature = Double.parseDouble(row[7]);
+                                    date = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy").parse(row[0]); //Extract date
+                                    String dateFound = df.format(date); //Date to String
+                                    String dateFoundSubstring = dateFound.substring(0, 9);    //Extract "EEE MMM dd" part to compare
 
-                                    //Finding the Minimum Temperature
-                                    if(Double.parseDouble(row[1]) < miniInteriorTemperature)
-                                        miniInteriorTemperature = Double.parseDouble(row[1]);
-                                    if(Double.parseDouble(row[2]) < miniSolarPanelTemperature)
-                                        miniSolarPanelTemperature = Double.parseDouble(row[2]);
-                                    if(Double.parseDouble(row[3]) < miniRoofTemperature)
-                                        miniRoofTemperature = Double.parseDouble(row[3]);
-                                    if(Double.parseDouble(row[4]) < miniExteriorTemperature)
-                                        miniExteriorTemperature = Double.parseDouble(row[4]);
-                                    if(Double.parseDouble(row[5]) < miniNorthWallTemperature)
-                                        miniNorthWallTemperature = Double.parseDouble(row[5]);
-                                    if(Double.parseDouble(row[6]) < miniWaterTankTemperature)
-                                        miniWaterTankTemperature = Double.parseDouble(row[6]);
-                                    if(Double.parseDouble(row[7]) < miniWaterSolarCollectorTemperature)
-                                        miniWaterSolarCollectorTemperature = Double.parseDouble(row[7]);
+                                    //Only get the data if the day is the same.
+                                    if(latestDateSubstring.equalsIgnoreCase(dateFoundSubstring)) {
+                                        //Finding the Maximum Temperature
+                                        if (Double.parseDouble(row[1]) > maxiInteriorTemperature)
+                                            maxiInteriorTemperature = Double.parseDouble(row[1]);
+                                        if (Double.parseDouble(row[2]) > maxiSolarPanelTemperature)
+                                            maxiSolarPanelTemperature = Double.parseDouble(row[2]);
+                                        if (Double.parseDouble(row[3]) > maxiRoofTemperature)
+                                            maxiRoofTemperature = Double.parseDouble(row[3]);
+                                        if (Double.parseDouble(row[4]) > maxiExteriorTemperature)
+                                            maxiExteriorTemperature = Double.parseDouble(row[4]);
+                                        if (Double.parseDouble(row[5]) > maxiNorthWallTemperature)
+                                            maxiNorthWallTemperature = Double.parseDouble(row[5]);
+                                        if (Double.parseDouble(row[6]) > maxiWaterTankTemperature)
+                                            maxiWaterTankTemperature = Double.parseDouble(row[6]);
+                                        if (Double.parseDouble(row[7]) > maxiWaterSolarCollectorTemperature)
+                                            maxiWaterSolarCollectorTemperature = Double.parseDouble(row[7]);
 
-                                    //Finding Instantaneous temperature
-                                    if( i == temperatureData.size() - 1)
-                                    {
-                                        currentInteriorTemperature = Double.parseDouble(row[1]);
-                                        currentSolarPanelTemperature = Double.parseDouble(row[2]);
-                                        currentRoofTemperature = Double.parseDouble(row[3]);
-                                        currentExteriorTemperature = Double.parseDouble(row[4]);
-                                        currentNorthWallTemperature = Double.parseDouble(row[5]);
-                                        currentWaterTankTemperature = Double.parseDouble(row[6]);
-                                        currentWaterSolarCollectorTemperature = Double.parseDouble(row[7]);
+                                        //Finding the Minimum Temperature
+                                        if (Double.parseDouble(row[1]) < miniInteriorTemperature)
+                                            miniInteriorTemperature = Double.parseDouble(row[1]);
+                                        if (Double.parseDouble(row[2]) < miniSolarPanelTemperature)
+                                            miniSolarPanelTemperature = Double.parseDouble(row[2]);
+                                        if (Double.parseDouble(row[3]) < miniRoofTemperature)
+                                            miniRoofTemperature = Double.parseDouble(row[3]);
+                                        if (Double.parseDouble(row[4]) < miniExteriorTemperature)
+                                            miniExteriorTemperature = Double.parseDouble(row[4]);
+                                        if (Double.parseDouble(row[5]) < miniNorthWallTemperature)
+                                            miniNorthWallTemperature = Double.parseDouble(row[5]);
+                                        if (Double.parseDouble(row[6]) < miniWaterTankTemperature)
+                                            miniWaterTankTemperature = Double.parseDouble(row[6]);
+                                        if (Double.parseDouble(row[7]) < miniWaterSolarCollectorTemperature)
+                                            miniWaterSolarCollectorTemperature = Double.parseDouble(row[7]);
                                     }
                                 }
 
