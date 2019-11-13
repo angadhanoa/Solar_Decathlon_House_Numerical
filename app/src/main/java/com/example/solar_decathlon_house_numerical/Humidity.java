@@ -29,6 +29,7 @@ import jcifs.smb.SmbFile;
 public class Humidity extends AppCompatActivity {
     private static final String TAG = Humidity.class.getSimpleName();
     private GraphView lineGraph1;
+    String humidityFileName = "humiditysignature.csv";
     String user = "rpihubteam6";  //Samba User name
     String pass ="raspberrypi";   //Samba Password
     String sharedFolder="share";  //Samba Shared folder
@@ -57,7 +58,7 @@ public class Humidity extends AppCompatActivity {
                                 //To get Samba Shared file from the Raspberry Pi
                                 List<String[]> humidity;
 
-                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/humiditysignature.csv";
+                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + humidityFileName;
                                 NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
                                 InputStream smbHumidityFile = new SmbFile(url1, auth1).getInputStream();
                                 CSVReader csv_temperature = new CSVReader(smbHumidityFile, "humidity");//CSVReader(inputStream2);
@@ -95,7 +96,7 @@ public class Humidity extends AppCompatActivity {
             lineGraph1.getGridLabelRenderer().setLabelsSpace(10);
             lineGraph1.getGridLabelRenderer().setHorizontalLabelsAngle(135);
 
-            Date date = new Date();
+            Date date;
             final SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy");
             for (int i = 0; i < humidity.size(); i++) {
                 String[] rows = humidity.get(i);

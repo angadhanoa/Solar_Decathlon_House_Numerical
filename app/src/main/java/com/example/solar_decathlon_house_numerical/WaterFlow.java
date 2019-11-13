@@ -8,7 +8,6 @@ import android.widget.TextView;
 
 import java.io.InputStream;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -18,6 +17,7 @@ import jcifs.smb.SmbFile;
 
 public class WaterFlow extends AppCompatActivity {
     Button refresh;
+    String waterFileName = "water1and2app.csv";
 
     String units = " Gallons";
     String string;
@@ -37,7 +37,6 @@ public class WaterFlow extends AppCompatActivity {
     String pass = "raspberrypi";    //Samba Password
     String sharedFolder = "share";  //Samba Shared folder
     String domain = "rpihubteam6";  //Samba domain name
-    String fileName1 = "water1.csv";
     String ipAddressWireless = "192.168.1.10"; //IP address for rpihubteam6 when it is wirelessly connected with the router
     String ipAddressEthernet = "192.168.1.11"; //IP address for rpihubteam6 when it is connected with the router via ethernet
 
@@ -65,7 +64,7 @@ public class WaterFlow extends AppCompatActivity {
                         public void run() {
                             try {
                                 //To get Samba Shared file from the Raspberry Pi
-                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + fileName1;
+                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + waterFileName;
                                 NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
                                 InputStream smbWater1ConsumeFile = new SmbFile(url1, auth1).getInputStream();
                                 //To create a List Array for Power Consumed

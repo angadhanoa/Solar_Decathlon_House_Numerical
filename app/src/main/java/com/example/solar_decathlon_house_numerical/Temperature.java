@@ -8,7 +8,6 @@ import android.widget.TextView;
 
 import java.io.InputStream;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -19,6 +18,7 @@ import jcifs.smb.SmbFile;
 public class Temperature extends AppCompatActivity {
     private static final String TAG = Temperature.class.getSimpleName();
     Button refresh;
+    String temperatureFileName = "heatsignature.csv";
 
     TextView maxTextView1, maxTextView2, maxTextView3, maxTextView4,
             maxTextView5, maxTextView6, maxTextView7, maxTextView8;
@@ -68,7 +68,7 @@ public class Temperature extends AppCompatActivity {
     String sharedFolder="share";  //Samba Shared folder
     String domain = "rpihubteam6";    //Samba domain name
     String ipAddressWireless = "192.168.1.10"; //IP address for rpihubteam6 when it is wirelessly connected with the router
-    //String ipAddressEthernet = "192.168.1.11"; //IP address for rpihubteam6 when it is wired with the router
+    String ipAddressEthernet = "192.168.1.11"; //IP address for rpihubteam6 when it is wired with the router
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -153,7 +153,7 @@ public class Temperature extends AppCompatActivity {
                                 //To get Samba Shared file from the Raspberry Pi
                                 List<String[]> temperatureData;
 
-                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/heatsignature.csv";
+                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + temperatureFileName;
                                 NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
                                 InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
                                 CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");

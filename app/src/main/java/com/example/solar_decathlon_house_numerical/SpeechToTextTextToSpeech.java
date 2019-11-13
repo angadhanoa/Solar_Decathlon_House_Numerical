@@ -39,7 +39,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
     String ipAddressWireless = "192.168.1.10"; //IP address for rpihubteam6 when it is wirelessly connected with the router
     String powerFileName = "power.csv";
     String temperatureFileName = "heatsignature.csv";
-    String waterFileName = "water1.csv";
+    String waterFileName = "water1and2app.csv";
     String humidityFileName = "humiditysignature.csv";
     String houseIntro = "houseintro.txt";
     String houseWelcome = "housewelcome.txt";
