@@ -13,11 +13,11 @@
     <string name="error_message_password">Enter Password</string>
     <string name="success_message">Registration Successful</string>
     <string name="text_not_member">Register Here</string>
-    <string name="text_already_member">Already a member? Login</string>
+    <string name="text_already_member">Already a member? Login Here.</string>
     <string name="error_email_exists">Email Already Exists</string>
     <string name="error_password_match">Password Does Not Match</string>
     <string name="error_valid_email_password">Wrong Email/Password</string>
-    <string name="text_edit_user_password">Forgot Password?</string>
+    <string name="text_edit_user_password">Forgot Password ?</string>
     <string name="new_password">Enter New Password</string>
     <string name="confirm_new_password">Confirm New Password</string>
     <string name="change_password">Change Password</string>
@@ -25,7 +25,7 @@
     <string name="text_hello">Hello</string>
     <string name="text_welcome">Welcome</string>
     <string name="text_title">Solar Decathlon House</string>
-    <string name="fahrenheit">Fahrenheit</string>
+    <string name="fahrenheit">°F</string>
     <string name="refresh">Refresh</string>
     <string name="powerUnit">KW/hr</string>
     <string name="waterUnit">Gallons</string>

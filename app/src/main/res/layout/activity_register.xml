@@ -30,7 +30,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
             android:layout_marginEnd="20dp"
-            android:layout_marginTop="40dp">
+            android:layout_marginTop="30dp">
 
             <android.support.design.widget.TextInputEditText
                 android:id="@+id/textInputEditTextName"
@@ -40,6 +40,7 @@
                 android:fontFamily="@font/digital_numericals_heavy"
                 android:hint="@string/hint_name"
                 android:inputType="text"
+                android:textSize="25sp"
                 android:maxLines="1"
                 android:textColor="@android:color/white" />
         </android.support.design.widget.TextInputLayout>
@@ -50,7 +51,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
             android:layout_marginEnd="20dp"
-            android:layout_marginTop="20dp">
+            android:layout_marginTop="18dp">
 
             <android.support.design.widget.TextInputEditText
                 android:id="@+id/textInputEditTextEmail"
@@ -60,6 +61,7 @@
                 android:fontFamily="@font/digital_numericals_heavy"
                 android:hint="@string/hint_email"
                 android:inputType="text"
+                android:textSize="25sp"
                 android:maxLines="1"
                 android:textColor="@android:color/white" />
         </android.support.design.widget.TextInputLayout>
@@ -70,7 +72,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
             android:layout_marginEnd="20dp"
-            android:layout_marginTop="20dp">
+            android:layout_marginTop="18dp">
 
             <android.support.design.widget.TextInputEditText
                 android:id="@+id/textInputEditTextPassword"
@@ -79,9 +81,10 @@
                 android:gravity="center"
                 android:fontFamily="@font/digital_numericals_heavy"
                 android:hint="@string/hint_password"
-                android:inputType="textPassword"
+                android:inputType="text"
+                android:textSize="25sp"
                 android:maxLines="1"
-                android:textColor="@android:color/white" />
+                android:textColor="@android:color/white"/>
         </android.support.design.widget.TextInputLayout>
 
         <android.support.design.widget.TextInputLayout
@@ -90,7 +93,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
             android:layout_marginEnd="20dp"
-            android:layout_marginTop="20dp">
+            android:layout_marginTop="18dp">
 
             <android.support.design.widget.TextInputEditText
                 android:id="@+id/textInputEditTextConfirmPassword"
@@ -99,18 +102,11 @@
                 android:gravity="center"
                 android:fontFamily="@font/digital_numericals_heavy"
                 android:hint="@string/hint_confirm_password"
-                android:inputType="textPassword"
+                android:inputType="text"
+                android:textSize="25sp"
                 android:maxLines="1"
                 android:textColor="@android:color/white" />
         </android.support.design.widget.TextInputLayout>
-
-        <!--<android.support.v7.widget.AppCompatButton
-            android:id="@+id/appCompatButtonRegister"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="40dp"
-            android:background="@color/colorTextHint"
-            android:text="@string/text_register" /> -->
 
         <android.support.v7.widget.CardView
             android:layout_width="250dp"
@@ -121,7 +117,6 @@
             app:cardBackgroundColor="@color/colorAccent"
             app:cardCornerRadius="20dp"
             app:cardElevation="10dp">
-
 
             <RelativeLayout
                 android:id="@+id/cardview1"
@@ -137,17 +132,22 @@
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:textAlignment="center"
                     android:textAppearance="@style/TextAppearance.AppCompat"
-                    android:textSize="24sp" />
+                    android:textSize="35sp"
+                    android:textStyle="bold"/>
             </RelativeLayout>
         </android.support.v7.widget.CardView>
 
         <android.support.v7.widget.AppCompatTextView
             android:id="@+id/appCompatTextViewLoginLink"
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="30dp"
             android:gravity="center"
-            android:text="@string/alreadymember"
-            android:textSize="16sp" />
+            android:fontFamily="@font/digital_numericals_heavy"
+            android:inputType="text"
+            android:textSize="20sp"
+            android:maxLines="1"
+            android:layout_marginTop="30dp"
+            android:text="@string/alreadymember" />
+
     </android.support.v7.widget.LinearLayoutCompat>
 </android.support.v4.widget.NestedScrollView>

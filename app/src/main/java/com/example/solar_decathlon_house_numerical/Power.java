@@ -144,14 +144,6 @@ public class Power extends AppCompatActivity {
                         double sumKitchenOutlet = 0.0;
                         double sumRadiantFloorPump = 0.0;
 
-                        double currentPowerProduction = 0.0;
-                        double currentLighting = 0.0;
-                        double currentAirConditioner = 0.0;
-                        double currentWaterHeater = 0.0;
-                        double currentRefrigerator = 0.0;
-                        double currentKitchenOutlet = 0.0;
-                        double currentRadiantFloorPump = 0.0;
-
                         final DateFormat df = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy");
                         int latestData = powerData.size() - 1; //To get the last row's #
                         String[] latestRow = powerData.get(latestData); //To get data from the last row
@@ -160,13 +152,13 @@ public class Power extends AppCompatActivity {
                         String latestDate = df.format(date); //Date to String
                         String latestDateSubstring = latestDate.substring(0, 9);    //Extract "EEE MMM dd" part to compare
 
-                        currentPowerProduction = Double.parseDouble(latestRow[1]);
-                        currentLighting = Double.parseDouble(latestRow[2]);
-                        currentAirConditioner = Double.parseDouble(latestRow[3]);
-                        currentWaterHeater = Double.parseDouble(latestRow[4]);
-                        currentRefrigerator = Double.parseDouble(latestRow[5]);
-                        currentKitchenOutlet = Double.parseDouble(latestRow[6]);
-                        currentRadiantFloorPump = Double.parseDouble(latestRow[7]);
+                        double currentPowerProduction = Double.parseDouble(latestRow[1]);
+                        double currentLighting = Double.parseDouble(latestRow[2]);
+                        double currentAirConditioner = Double.parseDouble(latestRow[3]);
+                        double currentWaterHeater = Double.parseDouble(latestRow[4]);
+                        double currentRefrigerator = Double.parseDouble(latestRow[5]);
+                        double currentKitchenOutlet = Double.parseDouble(latestRow[6]);
+                        double currentRadiantFloorPump = Double.parseDouble(latestRow[7]);
 
                         for (int i = 0; i < powerData.size(); i++) {
                             String[] row = powerData.get(i);

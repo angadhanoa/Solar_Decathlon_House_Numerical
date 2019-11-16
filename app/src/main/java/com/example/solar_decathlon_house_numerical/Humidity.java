@@ -35,7 +35,7 @@ public class Humidity extends AppCompatActivity {
     String sharedFolder="share";  //Samba Shared folder
     String domain = "rpihubteam6";    //Samba domain name
     String ipAddressWireless = "192.168.1.10"; //IP address for rpihubteam6 when it is wirelessly connected with the router
-    //String ipAddressEthernet = "192.168.1.11"; //IP address for rpihubteam6 when it is wired with the router
+    String ipAddressEthernet = "192.168.1.11"; //IP address for rpihubteam6 when it is wired with the router
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,7 +58,7 @@ public class Humidity extends AppCompatActivity {
                                 //To get Samba Shared file from the Raspberry Pi
                                 List<String[]> humidity;
 
-                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + humidityFileName;
+                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + humidityFileName;
                                 NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
                                 InputStream smbHumidityFile = new SmbFile(url1, auth1).getInputStream();
                                 CSVReader csv_temperature = new CSVReader(smbHumidityFile, "humidity");//CSVReader(inputStream2);
@@ -92,7 +92,7 @@ public class Humidity extends AppCompatActivity {
             lineGraph1.getViewport().setScalable(true);
             lineGraph1.getViewport().setScalableY(true);
             lineGraph1.getGridLabelRenderer().setHorizontalAxisTitle("Time (Minutes)");
-            lineGraph1.getGridLabelRenderer().setVerticalAxisTitle("Humidity ( % )(grams per meter cube)");
+            lineGraph1.getGridLabelRenderer().setVerticalAxisTitle("Humidity ( % )");
             lineGraph1.getGridLabelRenderer().setLabelsSpace(10);
             lineGraph1.getGridLabelRenderer().setHorizontalLabelsAngle(135);
 
