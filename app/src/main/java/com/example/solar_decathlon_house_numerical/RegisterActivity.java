@@ -1,5 +1,6 @@
 package com.example.solar_decathlon_house_numerical;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -9,7 +10,9 @@ import android.support.design.widget.TextInputLayout;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatTextView;
+import android.text.method.PasswordTransformationMethod;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -56,7 +59,10 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         textInputEditTextName = findViewById(R.id.textInputEditTextName);
         textInputEditTextEmail = findViewById(R.id.textInputEditTextEmail);
         textInputEditTextPassword = findViewById(R.id.textInputEditTextPassword);
+        textInputEditTextPassword.setTransformationMethod(new HidePassword());
         textInputEditTextConfirmPassword = findViewById(R.id.textInputEditTextConfirmPassword);
+        textInputEditTextConfirmPassword.setTransformationMethod(new HidePassword());
+
         ButtonRegister = findViewById(R.id.button1);
         appCompatTextViewLoginLink = findViewById(R.id.appCompatTextViewLoginLink);
     }
@@ -76,6 +82,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.button1:
+                closeKeyboard();
                 postDataToSQLite();
                 break;
             case R.id.appCompatTextViewLoginLink:
@@ -139,5 +146,38 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         textInputEditTextEmail.setText(null);
         textInputEditTextPassword.setText(null);
         textInputEditTextConfirmPassword.setText(null);
+    }
+
+    private void closeKeyboard() {
+        View view = this.getCurrentFocus();
+
+        if(view != null){
+            InputMethodManager inputManager =(InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            inputManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
+    }
+
+    public class HidePassword extends PasswordTransformationMethod
+    {
+        @Override
+        public CharSequence getTransformation(CharSequence source, View view) {
+            return new PasswordCharSequence(source);
+        }
+
+        private class PasswordCharSequence implements CharSequence {
+            private CharSequence sourceOfPassword;
+            public PasswordCharSequence(CharSequence source) {
+                sourceOfPassword = source;
+            }
+            public char charAt(int index) {
+                return '*';
+            }
+            public int length() {
+                return sourceOfPassword.length();
+            }
+            public CharSequence subSequence(int start, int end) {
+                return sourceOfPassword.subSequence(start, end);
+            }
+        }
     }
 }

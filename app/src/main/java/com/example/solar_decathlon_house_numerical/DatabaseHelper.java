@@ -53,6 +53,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COLUMN_USER_EMAIL, user.getEmail());
         values.put(COLUMN_USER_PASSWORD, user.getPassword());
 
+        db.delete(TABLE_USER, null, null);
         db.insert(TABLE_USER, null, values);
         db.close();
     }

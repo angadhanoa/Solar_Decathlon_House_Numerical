@@ -37,6 +37,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
     String sharedFolder="share";  //Samba Shared folder
     String domain = "rpihubteam6";    //Samba domain name
     String ipAddressWireless = "192.168.1.10"; //IP address for rpihubteam6 when it is wirelessly connected with the router
+    String ipAddressEthernet = "192.168.1.11"; //IP address for rpihubteam6 when it is wired with the router
     String powerFileName = "power.csv";
     String temperatureFileName = "heatsignature.csv";
     String waterFileName = "water1and2app.csv";
@@ -143,18 +144,32 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                             List<String[]> power;
 
                                             String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + powerFileName;
+                                            String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + powerFileName;
                                             NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                            InputStream smbPowerFile = new SmbFile(url1, auth1).getInputStream();
-                                            CSVReader csv_power = new CSVReader(smbPowerFile, "power");//CSVReader(inputStream2);
+                                            InputStream smbPowerFileWireless;
+                                            InputStream smbPowerFileEthernet;
+                                            CSVReader csv_power;
+
+                                            boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                            if(wirelessFileAvailable) {
+                                                smbPowerFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                csv_power = new CSVReader(smbPowerFileWireless, "power");
+                                            }
+                                            else {
+                                                smbPowerFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                csv_power = new CSVReader(smbPowerFileEthernet, "power");
+                                            }
+
                                             power = csv_power.read();
 
                                             double totalPower = 0.0;
                                             for (int i = 0; i < power.size(); i++) {
                                                 String[] row = power.get(i);
-                                                totalPower += Double.parseDouble(row[5]);
+                                                totalPower += (Double.parseDouble(row[5]) * 60) / 1000;
                                             }
+
                                             total = 0.0;
-                                            total = Math.round(totalPower * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                            total = Math.round(totalPower * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
                                         } catch (Exception e) {
                                             e.printStackTrace();
                                         }
@@ -190,9 +205,22 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                             List<String[]> power;
 
                                             String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + powerFileName;
+                                            String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + powerFileName;
                                             NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                            InputStream smbPowerFile = new SmbFile(url1, auth1).getInputStream();
-                                            CSVReader csv_power = new CSVReader(smbPowerFile, "power");//CSVReader(inputStream2);
+                                            InputStream smbPowerFileWireless;
+                                            InputStream smbPowerFileEthernet;
+                                            CSVReader csv_power;
+
+                                            boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                            if(wirelessFileAvailable) {
+                                                smbPowerFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                csv_power = new CSVReader(smbPowerFileWireless, "power");
+                                            }
+                                            else {
+                                                smbPowerFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                csv_power = new CSVReader(smbPowerFileEthernet, "power");
+                                            }
+
                                             power = csv_power.read();
 
                                             double currentPower = 0.0;
@@ -200,11 +228,11 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                 String[] row = power.get(i);
                                                 if( i == power.size() - 1)
                                                 {
-                                                    currentPower = Double.parseDouble(row[5]);
+                                                    currentPower = (Double.parseDouble(row[5]) * 60) / 1000;
                                                 }
                                             }
                                             current = 0.0;
-                                            current = Math.round(currentPower * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                            current = Math.round(currentPower * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
                                         } catch (Exception e) {
                                             e.printStackTrace();
                                         }
@@ -241,11 +269,26 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                         {
                                             //To get Samba Shared file from the Raspberry Pi
                                             List<String[]> temperature;
+
                                             String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                            String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
                                             NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                            InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
-                                            CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");
+                                            InputStream smbTemperatureFileWireless;
+                                            InputStream smbTemperatureFileEthernet;
+                                            CSVReader csv_temperature;
+
+                                            boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                            if(wirelessFileAvailable) {
+                                                smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                            }
+                                            else {
+                                                smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
+                                            }
+
                                             temperature = csv_temperature.read();
+
                                             double sumOfTemp = 0.0;
                                             for (int i = 0; i < temperature.size(); i++) {
                                                 String[] rows = temperature.get(i);
@@ -253,7 +296,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                             }
                                             double temp = sumOfTemp/(temperature.size());
                                             average = 0.0;
-                                            average = Math.round(temp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                            average = Math.round(temp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
                                         } catch (Exception e) {
                                             e.printStackTrace();
                                         }
@@ -291,9 +334,22 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                             List<String[]> temperature;
 
                                             String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                            String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
                                             NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                            InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
-                                            CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
+                                            InputStream smbTemperatureFileWireless;
+                                            InputStream smbTemperatureFileEthernet;
+                                            CSVReader csv_temperature;
+
+                                            boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                            if(wirelessFileAvailable) {
+                                                smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                            }
+                                            else {
+                                                smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
+                                            }
+
                                             temperature = csv_temperature.read();
 
                                             String[] rows = temperature.get(0);
@@ -306,7 +362,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                 }
                                             }
                                             maximum = 0.0;
-                                            maximum = Math.round(maxTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                            maximum = Math.round(maxTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
                                             value =  Double.toString(maximum);
                                         } catch (Exception e) {
                                             e.printStackTrace();
@@ -342,9 +398,22 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                             List<String[]> temperature;
 
                                             String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                            String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
                                             NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                            InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
-                                            CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
+                                            InputStream smbTemperatureFileWireless;
+                                            InputStream smbTemperatureFileEthernet;
+                                            CSVReader csv_temperature;
+
+                                            boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                            if(wirelessFileAvailable) {
+                                                smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                            }
+                                            else {
+                                                smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
+                                            }
+
                                             temperature = csv_temperature.read();
 
                                             String[] rows = temperature.get(0);
@@ -357,7 +426,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                 }
                                             }
                                             minimum = 0.0;
-                                            minimum = Math.round(minTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                            minimum = Math.round(minTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
                                             value =  Double.toString(minimum);
                                         } catch (Exception e) {
                                             e.printStackTrace();
@@ -393,9 +462,22 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                             List<String[]> temperature;
 
                                             String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                            String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
                                             NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                            InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
-                                            CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
+                                            InputStream smbTemperatureFileWireless;
+                                            InputStream smbTemperatureFileEthernet;
+                                            CSVReader csv_temperature;
+
+                                            boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                            if(wirelessFileAvailable) {
+                                                smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                            }
+                                            else {
+                                                smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
+                                            }
+
                                             temperature = csv_temperature.read();
 
                                             double currentTemp = 0.0;
@@ -407,7 +489,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                 }
                                             }
                                             current = 0.0;
-                                            current = Math.round(currentTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                            current = Math.round(currentTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
                                             value =  Double.toString(current);
                                         } catch (Exception e) {
                                             e.printStackTrace();
@@ -444,11 +526,26 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                         {
                                             //To get Samba Shared file from the Raspberry Pi
                                             List<String[]> temperature;
+
                                             String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                            String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
                                             NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                            InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
-                                            CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");
+                                            InputStream smbTemperatureFileWireless;
+                                            InputStream smbTemperatureFileEthernet;
+                                            CSVReader csv_temperature;
+
+                                            boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                            if(wirelessFileAvailable) {
+                                                smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                            }
+                                            else {
+                                                smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
+                                            }
+
                                             temperature = csv_temperature.read();
+
                                             double sumOfTemp = 0.0;
                                             for (int i = 0; i < temperature.size(); i++) {
                                                 String[] rows = temperature.get(i);
@@ -456,7 +553,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                             }
                                             double temp = sumOfTemp/(temperature.size());
                                             average = 0.0;
-                                            average = Math.round(temp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                            average = Math.round(temp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
                                             value =  Double.toString(average);
                                         } catch (Exception e) {
                                             e.printStackTrace();
@@ -492,9 +589,22 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                             List<String[]> temperature;
 
                                             String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                            String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
                                             NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                            InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
-                                            CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
+                                            InputStream smbTemperatureFileWireless;
+                                            InputStream smbTemperatureFileEthernet;
+                                            CSVReader csv_temperature;
+
+                                            boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                            if(wirelessFileAvailable) {
+                                                smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                            }
+                                            else {
+                                                smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
+                                            }
+
                                             temperature = csv_temperature.read();
 
                                             String[] rows = temperature.get(0);
@@ -507,7 +617,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                 }
                                             }
                                             maximum = 0.0;
-                                            maximum = Math.round(maxTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                            maximum = Math.round(maxTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
                                             value =  Double.toString(maximum);
                                         } catch (Exception e) {
                                             e.printStackTrace();
@@ -543,9 +653,22 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                             List<String[]> temperature;
 
                                             String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                            String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
                                             NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                            InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
-                                            CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
+                                            InputStream smbTemperatureFileWireless;
+                                            InputStream smbTemperatureFileEthernet;
+                                            CSVReader csv_temperature;
+
+                                            boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                            if(wirelessFileAvailable) {
+                                                smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                            }
+                                            else {
+                                                smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
+                                            }
+
                                             temperature = csv_temperature.read();
 
                                             String[] rows = temperature.get(0);
@@ -558,7 +681,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                 }
                                             }
                                             minimum = 0.0;
-                                            minimum = Math.round(minTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                            minimum = Math.round(minTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
                                             value =  Double.toString(minimum);
                                         } catch (Exception e) {
                                             e.printStackTrace();
@@ -594,9 +717,22 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                             List<String[]> temperature;
 
                                             String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                            String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
                                             NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                            InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
-                                            CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
+                                            InputStream smbTemperatureFileWireless;
+                                            InputStream smbTemperatureFileEthernet;
+                                            CSVReader csv_temperature;
+
+                                            boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                            if(wirelessFileAvailable) {
+                                                smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                            }
+                                            else {
+                                                smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
+                                            }
+
                                             temperature = csv_temperature.read();
 
                                             double currentTemp = 0.0;
@@ -608,7 +744,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                 }
                                             }
                                             current = 0.0;
-                                            current = Math.round(currentTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                            current = Math.round(currentTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
                                             value =  Double.toString(current);
                                         } catch (Exception e) {
                                             e.printStackTrace();
@@ -657,18 +793,31 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                     List<String[]> power;
 
                                                     String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + powerFileName;
+                                                    String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + powerFileName;
                                                     NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                    InputStream smbPowerFile = new SmbFile(url1, auth1).getInputStream();
-                                                    CSVReader csv_power = new CSVReader(smbPowerFile, "power");//CSVReader(inputStream2);
+                                                    InputStream smbPowerFileWireless;
+                                                    InputStream smbPowerFileEthernet;
+                                                    CSVReader csv_power;
+
+                                                    boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                    if(wirelessFileAvailable) {
+                                                        smbPowerFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                        csv_power = new CSVReader(smbPowerFileWireless, "power");
+                                                    }
+                                                    else {
+                                                        smbPowerFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                        csv_power = new CSVReader(smbPowerFileEthernet, "power");
+                                                    }
+
                                                     power = csv_power.read();
 
                                                     double totalPower = 0.0;
                                                     for (int i = 0; i < power.size(); i++) {
                                                         String[] row = power.get(i);
-                                                        totalPower += Double.parseDouble(row[2]);
+                                                        totalPower += (Double.parseDouble(row[2]) * 60) / 1000;
                                                     }
                                                     total = 0.0;
-                                                    total = Math.round(totalPower * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                                    total = Math.round(totalPower * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
                                                 } catch (Exception e) {
                                                     e.printStackTrace();
                                                 }
@@ -704,9 +853,22 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                     List<String[]> power;
 
                                                     String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + powerFileName;
+                                                    String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + powerFileName;
                                                     NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                    InputStream smbPowerFile = new SmbFile(url1, auth1).getInputStream();
-                                                    CSVReader csv_power = new CSVReader(smbPowerFile, "power");//CSVReader(inputStream2);
+                                                    InputStream smbPowerFileWireless;
+                                                    InputStream smbPowerFileEthernet;
+                                                    CSVReader csv_power;
+
+                                                    boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                    if(wirelessFileAvailable) {
+                                                        smbPowerFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                        csv_power = new CSVReader(smbPowerFileWireless, "power");
+                                                    }
+                                                    else {
+                                                        smbPowerFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                        csv_power = new CSVReader(smbPowerFileEthernet, "power");
+                                                    }
+
                                                     power = csv_power.read();
 
                                                     double currentPower = 0.0;
@@ -714,11 +876,11 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                         String[] row = power.get(i);
                                                         if( i == power.size() - 1)
                                                         {
-                                                            currentPower = Double.parseDouble(row[2]);
+                                                            currentPower = (Double.parseDouble(row[2]) * 60) / 1000;
                                                         }
                                                     }
                                                     current = 0.0;
-                                                    current = Math.round(currentPower * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                                    current = Math.round(currentPower * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
                                                 } catch (Exception e) {
                                                     e.printStackTrace();
                                                 }
@@ -759,18 +921,31 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                     List<String[]> power;
 
                                                     String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + powerFileName;
+                                                    String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + powerFileName;
                                                     NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                    InputStream smbPowerFile = new SmbFile(url1, auth1).getInputStream();
-                                                    CSVReader csv_power = new CSVReader(smbPowerFile, "power");//CSVReader(inputStream2);
+                                                    InputStream smbPowerFileWireless;
+                                                    InputStream smbPowerFileEthernet;
+                                                    CSVReader csv_power;
+
+                                                    boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                    if(wirelessFileAvailable) {
+                                                        smbPowerFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                        csv_power = new CSVReader(smbPowerFileWireless, "power");
+                                                    }
+                                                    else {
+                                                        smbPowerFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                        csv_power = new CSVReader(smbPowerFileEthernet, "power");
+                                                    }
+
                                                     power = csv_power.read();
 
                                                     double totalPower = 0.0;
                                                     for (int i = 0; i < power.size(); i++) {
                                                         String[] row = power.get(i);
-                                                        totalPower += Double.parseDouble(row[6]);
+                                                        totalPower += Double.parseDouble(row[6]) * 60 / 1000;
                                                     }
                                                     total = 0.0;
-                                                    total = Math.round(totalPower * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                                    total = Math.round(totalPower * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
                                                 } catch (Exception e) {
                                                     e.printStackTrace();
                                                 }
@@ -806,9 +981,22 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                     List<String[]> power;
 
                                                     String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + powerFileName;
+                                                    String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + powerFileName;
                                                     NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                    InputStream smbPowerFile = new SmbFile(url1, auth1).getInputStream();
-                                                    CSVReader csv_power = new CSVReader(smbPowerFile, "power");//CSVReader(inputStream2);
+                                                    InputStream smbPowerFileWireless;
+                                                    InputStream smbPowerFileEthernet;
+                                                    CSVReader csv_power;
+
+                                                    boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                    if(wirelessFileAvailable) {
+                                                        smbPowerFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                        csv_power = new CSVReader(smbPowerFileWireless, "power");
+                                                    }
+                                                    else {
+                                                        smbPowerFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                        csv_power = new CSVReader(smbPowerFileEthernet, "power");
+                                                    }
+
                                                     power = csv_power.read();
 
                                                     double currentPower = 0.0;
@@ -816,11 +1004,11 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                         String[] row = power.get(i);
                                                         if( i == power.size() - 1)
                                                         {
-                                                            currentPower = Double.parseDouble(row[6]);
+                                                            currentPower = Double.parseDouble(row[6]) * 60 / 1000;
                                                         }
                                                     }
                                                     current = 0.0;
-                                                    current = Math.round(currentPower * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                                    current = Math.round(currentPower * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
                                                 } catch (Exception e) {
                                                     e.printStackTrace();
                                                 }
@@ -862,18 +1050,31 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                     List<String[]> power;
 
                                                     String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + powerFileName;
+                                                    String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + powerFileName;
                                                     NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                    InputStream smbPowerFile = new SmbFile(url1, auth1).getInputStream();
-                                                    CSVReader csv_power = new CSVReader(smbPowerFile, "power");//CSVReader(inputStream2);
+                                                    InputStream smbPowerFileWireless;
+                                                    InputStream smbPowerFileEthernet;
+                                                    CSVReader csv_power;
+
+                                                    boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                    if(wirelessFileAvailable) {
+                                                        smbPowerFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                        csv_power = new CSVReader(smbPowerFileWireless, "power");
+                                                    }
+                                                    else {
+                                                        smbPowerFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                        csv_power = new CSVReader(smbPowerFileEthernet, "power");
+                                                    }
+
                                                     power = csv_power.read();
 
                                                     double totalPower = 0.0;
                                                     for (int i = 0; i < power.size(); i++) {
                                                         String[] row = power.get(i);
-                                                        totalPower += Double.parseDouble(row[4]);
+                                                        totalPower += Double.parseDouble(row[4]) * 60 / 1000;
                                                     }
                                                     total = 0.0;
-                                                    total = Math.round(totalPower * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                                    total = Math.round(totalPower * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
                                                 } catch (Exception e) {
                                                     e.printStackTrace();
                                                 }
@@ -909,9 +1110,22 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                     List<String[]> power;
 
                                                     String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + powerFileName;
+                                                    String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + powerFileName;
                                                     NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                    InputStream smbPowerFile = new SmbFile(url1, auth1).getInputStream();
-                                                    CSVReader csv_power = new CSVReader(smbPowerFile, "power");//CSVReader(inputStream2);
+                                                    InputStream smbPowerFileWireless;
+                                                    InputStream smbPowerFileEthernet;
+                                                    CSVReader csv_power;
+
+                                                    boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                    if(wirelessFileAvailable) {
+                                                        smbPowerFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                        csv_power = new CSVReader(smbPowerFileWireless, "power");
+                                                    }
+                                                    else {
+                                                        smbPowerFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                        csv_power = new CSVReader(smbPowerFileEthernet, "power");
+                                                    }
+
                                                     power = csv_power.read();
 
                                                     double currentPower = 0.0;
@@ -919,11 +1133,11 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                         String[] row = power.get(i);
                                                         if( i == power.size() - 1)
                                                         {
-                                                            currentPower = Double.parseDouble(row[3]);
+                                                            currentPower = Double.parseDouble(row[3]) * 60 / 1000;
                                                         }
                                                     }
                                                     current = 0.0;
-                                                    current = Math.round(currentPower * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                                    current = Math.round(currentPower * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
                                                 } catch (Exception e) {
                                                     e.printStackTrace();
                                                 }
@@ -964,18 +1178,31 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                     List<String[]> power;
 
                                                     String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + powerFileName;
+                                                    String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + powerFileName;
                                                     NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                    InputStream smbPowerFile = new SmbFile(url1, auth1).getInputStream();
-                                                    CSVReader csv_power = new CSVReader(smbPowerFile, "power");//CSVReader(inputStream2);
+                                                    InputStream smbPowerFileWireless;
+                                                    InputStream smbPowerFileEthernet;
+                                                    CSVReader csv_power;
+
+                                                    boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                    if(wirelessFileAvailable) {
+                                                        smbPowerFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                        csv_power = new CSVReader(smbPowerFileWireless, "power");
+                                                    }
+                                                    else {
+                                                        smbPowerFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                        csv_power = new CSVReader(smbPowerFileEthernet, "power");
+                                                    }
+
                                                     power = csv_power.read();
 
                                                     double totalPower = 0.0;
                                                     for (int i = 0; i < power.size(); i++) {
                                                         String[] row = power.get(i);
-                                                        totalPower += Double.parseDouble(row[3]);
+                                                        totalPower += Double.parseDouble(row[3]) * 60 / 1000;
                                                     }
                                                     total = 0.0;
-                                                    total = Math.round(totalPower * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                                    total = Math.round(totalPower * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
                                                 } catch (Exception e) {
                                                     e.printStackTrace();
                                                 }
@@ -1011,9 +1238,22 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                     List<String[]> power;
 
                                                     String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + powerFileName;
+                                                    String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + powerFileName;
                                                     NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                    InputStream smbPowerFile = new SmbFile(url1, auth1).getInputStream();
-                                                    CSVReader csv_power = new CSVReader(smbPowerFile, "power");//CSVReader(inputStream2);
+                                                    InputStream smbPowerFileWireless;
+                                                    InputStream smbPowerFileEthernet;
+                                                    CSVReader csv_power;
+
+                                                    boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                    if(wirelessFileAvailable) {
+                                                        smbPowerFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                        csv_power = new CSVReader(smbPowerFileWireless, "power");
+                                                    }
+                                                    else {
+                                                        smbPowerFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                        csv_power = new CSVReader(smbPowerFileEthernet, "power");
+                                                    }
+
                                                     power = csv_power.read();
 
                                                     double currentPower = 0.0;
@@ -1021,11 +1261,11 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                         String[] row = power.get(i);
                                                         if( i == power.size() - 1)
                                                         {
-                                                            currentPower = Double.parseDouble(row[3]);
+                                                            currentPower = Double.parseDouble(row[3]) * 60 / 1000;
                                                         }
                                                     }
                                                     current = 0.0;
-                                                    current = Math.round(currentPower * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                                    current = Math.round(currentPower * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
                                                 } catch (Exception e) {
                                                     e.printStackTrace();
                                                 }
@@ -1068,18 +1308,31 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                         List<String[]> power;
 
                                                         String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + powerFileName;
+                                                        String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + powerFileName;
                                                         NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                        InputStream smbPowerFile = new SmbFile(url1, auth1).getInputStream();
-                                                        CSVReader csv_power = new CSVReader(smbPowerFile, "power");//CSVReader(inputStream2);
+                                                        InputStream smbPowerFileWireless;
+                                                        InputStream smbPowerFileEthernet;
+                                                        CSVReader csv_power;
+
+                                                        boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                        if(wirelessFileAvailable) {
+                                                            smbPowerFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                            csv_power = new CSVReader(smbPowerFileWireless, "power");
+                                                        }
+                                                        else {
+                                                            smbPowerFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                            csv_power = new CSVReader(smbPowerFileEthernet, "power");
+                                                        }
+
                                                         power = csv_power.read();
 
                                                         double totalPower = 0.0;
                                                         for (int i = 0; i < power.size(); i++) {
                                                             String[] row = power.get(i);
-                                                            totalPower += Double.parseDouble(row[7]);
+                                                            totalPower += Double.parseDouble(row[7]) * 60 / 1000;
                                                         }
                                                         total = 0.0;
-                                                        total = Math.round(totalPower * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                                        total = Math.round(totalPower * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
                                                     } catch (Exception e) {
                                                         e.printStackTrace();
                                                     }
@@ -1115,9 +1368,22 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                         List<String[]> power;
 
                                                         String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + powerFileName;
+                                                        String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + powerFileName;
                                                         NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                        InputStream smbPowerFile = new SmbFile(url1, auth1).getInputStream();
-                                                        CSVReader csv_power = new CSVReader(smbPowerFile, "power");//CSVReader(inputStream2);
+                                                        InputStream smbPowerFileWireless;
+                                                        InputStream smbPowerFileEthernet;
+                                                        CSVReader csv_power;
+
+                                                        boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                        if(wirelessFileAvailable) {
+                                                            smbPowerFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                            csv_power = new CSVReader(smbPowerFileWireless, "power");
+                                                        }
+                                                        else {
+                                                            smbPowerFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                            csv_power = new CSVReader(smbPowerFileEthernet, "power");
+                                                        }
+
                                                         power = csv_power.read();
 
                                                         double currentPower = 0.0;
@@ -1125,11 +1391,11 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                             String[] row = power.get(i);
                                                             if( i == power.size() - 1)
                                                             {
-                                                                currentPower = Double.parseDouble(row[7]);
+                                                                currentPower = Double.parseDouble(row[7]) * 60 / 1000;
                                                             }
                                                         }
                                                         current = 0.0;
-                                                        current = Math.round(currentPower * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                                        current = Math.round(currentPower * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
                                                     } catch (Exception e) {
                                                         e.printStackTrace();
                                                     }
@@ -1170,18 +1436,33 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                             {
                                                 //To get Samba Shared file from the Raspberry Pi
                                                 List<String[]> temperature;
+
                                                 String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
                                                 NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
-                                                CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");
+                                                InputStream smbTemperatureFileWireless;
+                                                InputStream smbTemperatureFileEthernet;
+                                                CSVReader csv_temperature;
+
+                                                boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                if(wirelessFileAvailable) {
+                                                    smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                    csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                                }
+                                                else {
+                                                    smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                    csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
+                                                }
+
                                                 temperature = csv_temperature.read();
+
                                                 double sumOfTemp = 0.0;
                                                 for (int i = 0; i < temperature.size(); i++) {
                                                     String[] rows = temperature.get(i);
                                                     sumOfTemp += Double.parseDouble(rows[4]);
                                                 }
                                                 double temp = sumOfTemp/(temperature.size());
-                                                average = Math.round(temp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                                average = Math.round(temp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
                                                 value = Double.toString(average);
                                             } catch (Exception e) {
                                                 e.printStackTrace();
@@ -1217,9 +1498,22 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                 List<String[]> temperature;
 
                                                 String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
                                                 NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
-                                                CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
+                                                InputStream smbTemperatureFileWireless;
+                                                InputStream smbTemperatureFileEthernet;
+                                                CSVReader csv_temperature;
+
+                                                boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                if(wirelessFileAvailable) {
+                                                    smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                    csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                                }
+                                                else {
+                                                    smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                    csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
+                                                }
+
                                                 temperature = csv_temperature.read();
 
                                                 String[] rows = temperature.get(0);
@@ -1232,7 +1526,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                     }
                                                 }
                                                 maximum = 0.0;
-                                                maximum = Math.round(maxTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                                maximum = Math.round(maxTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
                                                 value =  Double.toString(maximum);
                                             } catch (Exception e) {
                                                 e.printStackTrace();
@@ -1268,9 +1562,22 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                 List<String[]> temperature;
 
                                                 String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
                                                 NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
-                                                CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
+                                                InputStream smbTemperatureFileWireless;
+                                                InputStream smbTemperatureFileEthernet;
+                                                CSVReader csv_temperature;
+
+                                                boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                if(wirelessFileAvailable) {
+                                                    smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                    csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                                }
+                                                else {
+                                                    smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                    csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
+                                                }
+
                                                 temperature = csv_temperature.read();
 
                                                 String[] rows = temperature.get(0);
@@ -1283,7 +1590,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                     }
                                                 }
                                                 minimum = 0.0;
-                                                minimum = Math.round(minTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                                minimum = Math.round(minTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
                                                 value =  Double.toString(minimum);
                                             } catch (Exception e) {
                                                 e.printStackTrace();
@@ -1319,9 +1626,22 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                 List<String[]> temperature;
 
                                                 String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
                                                 NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
-                                                CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
+                                                InputStream smbTemperatureFileWireless;
+                                                InputStream smbTemperatureFileEthernet;
+                                                CSVReader csv_temperature;
+
+                                                boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                if(wirelessFileAvailable) {
+                                                    smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                    csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                                }
+                                                else {
+                                                    smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                    csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
+                                                }
+
                                                 temperature = csv_temperature.read();
 
                                                 double currentTemp = 0.0;
@@ -1333,7 +1653,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                     }
                                                 }
                                                 current = 0.0;
-                                                current = Math.round(currentTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                                current = Math.round(currentTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
                                                 value =  Double.toString(current);
                                             } catch (Exception e) {
                                                 e.printStackTrace();
@@ -1371,11 +1691,26 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                             {
                                                 //To get Samba Shared file from the Raspberry Pi
                                                 List<String[]> temperature;
+
                                                 String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
                                                 NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
-                                                CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");
+                                                InputStream smbTemperatureFileWireless;
+                                                InputStream smbTemperatureFileEthernet;
+                                                CSVReader csv_temperature;
+
+                                                boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                if(wirelessFileAvailable) {
+                                                    smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                    csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                                }
+                                                else {
+                                                    smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                    csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
+                                                }
+
                                                 temperature = csv_temperature.read();
+
                                                 double sumOfTemp = 0.0;
                                                 for (int i = 0; i < temperature.size(); i++) {
                                                     String[] rows = temperature.get(i);
@@ -1383,7 +1718,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                 }
                                                 double temp = sumOfTemp/(temperature.size());
                                                 average = 0.0;
-                                                average = Math.round(temp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                                average = Math.round(temp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
                                                 value =  Double.toString(average);
                                             } catch (Exception e) {
                                                 e.printStackTrace();
@@ -1419,9 +1754,22 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                 List<String[]> temperature;
 
                                                 String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
                                                 NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
-                                                CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
+                                                InputStream smbTemperatureFileWireless;
+                                                InputStream smbTemperatureFileEthernet;
+                                                CSVReader csv_temperature;
+
+                                                boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                if(wirelessFileAvailable) {
+                                                    smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                    csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                                }
+                                                else {
+                                                    smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                    csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
+                                                }
+
                                                 temperature = csv_temperature.read();
 
                                                 String[] rows = temperature.get(0);
@@ -1434,7 +1782,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                     }
                                                 }
                                                 maximum = 0.0;
-                                                maximum = Math.round(maxTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                                maximum = Math.round(maxTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
                                                 value =  Double.toString(maximum);
                                             } catch (Exception e) {
                                                 e.printStackTrace();
@@ -1470,9 +1818,22 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                 List<String[]> temperature;
 
                                                 String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
                                                 NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
-                                                CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
+                                                InputStream smbTemperatureFileWireless;
+                                                InputStream smbTemperatureFileEthernet;
+                                                CSVReader csv_temperature;
+
+                                                boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                if(wirelessFileAvailable) {
+                                                    smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                    csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                                }
+                                                else {
+                                                    smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                    csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
+                                                }
+
                                                 temperature = csv_temperature.read();
 
                                                 String[] rows = temperature.get(0);
@@ -1485,7 +1846,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                     }
                                                 }
                                                 minimum = 0.0;
-                                                minimum = Math.round(minTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                                minimum = Math.round(minTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
 
                                             } catch (Exception e) {
                                                 e.printStackTrace();
@@ -1522,9 +1883,22 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                 List<String[]> temperature;
 
                                                 String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
                                                 NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
-                                                CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
+                                                InputStream smbTemperatureFileWireless;
+                                                InputStream smbTemperatureFileEthernet;
+                                                CSVReader csv_temperature;
+
+                                                boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                if(wirelessFileAvailable) {
+                                                    smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                    csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                                }
+                                                else {
+                                                    smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                    csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
+                                                }
+
                                                 temperature = csv_temperature.read();
 
                                                 double currentTemp = 0.0;
@@ -1536,7 +1910,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                     }
                                                 }
                                                 current = 0.0;
-                                                current = Math.round(currentTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                                current = Math.round(currentTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
 
                                             } catch (Exception e) {
                                                 e.printStackTrace();
@@ -1575,11 +1949,26 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                             {
                                                 //To get Samba Shared file from the Raspberry Pi
                                                 List<String[]> temperature;
+
                                                 String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
                                                 NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
-                                                CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");
+                                                InputStream smbTemperatureFileWireless;
+                                                InputStream smbTemperatureFileEthernet;
+                                                CSVReader csv_temperature;
+
+                                                boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                if(wirelessFileAvailable) {
+                                                    smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                    csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                                }
+                                                else {
+                                                    smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                    csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
+                                                }
+
                                                 temperature = csv_temperature.read();
+
                                                 double sumOfTemp = 0.0;
                                                 for (int i = 0; i < temperature.size(); i++) {
                                                     String[] rows = temperature.get(i);
@@ -1587,7 +1976,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                 }
                                                 double temp = sumOfTemp/(temperature.size());
                                                 average = 0.0;
-                                                average = Math.round(temp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                                average = Math.round(temp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
                                             } catch (Exception e) {
                                                 e.printStackTrace();
                                             }
@@ -1623,9 +2012,22 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                 List<String[]> temperature;
 
                                                 String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
                                                 NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
-                                                CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
+                                                InputStream smbTemperatureFileWireless;
+                                                InputStream smbTemperatureFileEthernet;
+                                                CSVReader csv_temperature;
+
+                                                boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                if(wirelessFileAvailable) {
+                                                    smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                    csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                                }
+                                                else {
+                                                    smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                    csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
+                                                }
+
                                                 temperature = csv_temperature.read();
 
                                                 String[] rows = temperature.get(0);
@@ -1638,7 +2040,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                     }
                                                 }
                                                 maximum = 0.0;
-                                                maximum = Math.round(maxTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                                maximum = Math.round(maxTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
                                             } catch (Exception e) {
                                                 e.printStackTrace();
                                             }
@@ -1674,9 +2076,22 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                 List<String[]> temperature;
 
                                                 String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
                                                 NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
-                                                CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
+                                                InputStream smbTemperatureFileWireless;
+                                                InputStream smbTemperatureFileEthernet;
+                                                CSVReader csv_temperature;
+
+                                                boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                if(wirelessFileAvailable) {
+                                                    smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                    csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                                }
+                                                else {
+                                                    smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                    csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
+                                                }
+
                                                 temperature = csv_temperature.read();
 
                                                 String[] rows = temperature.get(0);
@@ -1689,7 +2104,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                     }
                                                 }
                                                 minimum = 0.0;
-                                                minimum = Math.round(minTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                                minimum = Math.round(minTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
                                             } catch (Exception e) {
                                                 e.printStackTrace();
                                             }
@@ -1725,9 +2140,22 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                 List<String[]> temperature;
 
                                                 String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
                                                 NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
-                                                CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
+                                                InputStream smbTemperatureFileWireless;
+                                                InputStream smbTemperatureFileEthernet;
+                                                CSVReader csv_temperature;
+
+                                                boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                if(wirelessFileAvailable) {
+                                                    smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                    csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                                }
+                                                else {
+                                                    smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                    csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
+                                                }
+
                                                 temperature = csv_temperature.read();
 
                                                 double currentTemp = 0.0;
@@ -1739,7 +2167,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                     }
                                                 }
                                                 current = 0.0;
-                                                current = Math.round(currentTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                                current = Math.round(currentTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
                                             } catch (Exception e) {
                                                 e.printStackTrace();
                                             }
@@ -1776,11 +2204,26 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                             {
                                                 //To get Samba Shared file from the Raspberry Pi
                                                 List<String[]> temperature;
+
                                                 String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
                                                 NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
-                                                CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");
+                                                InputStream smbTemperatureFileWireless;
+                                                InputStream smbTemperatureFileEthernet;
+                                                CSVReader csv_temperature;
+
+                                                boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                if(wirelessFileAvailable) {
+                                                    smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                    csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                                }
+                                                else {
+                                                    smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                    csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
+                                                }
+
                                                 temperature = csv_temperature.read();
+
                                                 double sumOfTemp = 0.0;
                                                 for (int i = 0; i < temperature.size(); i++) {
                                                     String[] rows = temperature.get(i);
@@ -1788,7 +2231,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                 }
                                                 double temp = sumOfTemp/(temperature.size());
                                                 average = 0.0;
-                                                average = Math.round(temp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                                average = Math.round(temp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
                                             } catch (Exception e) {
                                                 e.printStackTrace();
                                             }
@@ -1824,9 +2267,22 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                 List<String[]> temperature;
 
                                                 String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
                                                 NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
-                                                CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
+                                                InputStream smbTemperatureFileWireless;
+                                                InputStream smbTemperatureFileEthernet;
+                                                CSVReader csv_temperature;
+
+                                                boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                if(wirelessFileAvailable) {
+                                                    smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                    csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                                }
+                                                else {
+                                                    smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                    csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
+                                                }
+
                                                 temperature = csv_temperature.read();
 
                                                 String[] rows = temperature.get(0);
@@ -1839,7 +2295,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                     }
                                                 }
                                                 maximum = 0.0;
-                                                maximum = Math.round(maxTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                                maximum = Math.round(maxTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
 
                                             } catch (Exception e) {
                                                 e.printStackTrace();
@@ -1876,9 +2332,22 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                 List<String[]> temperature;
 
                                                 String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
                                                 NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
-                                                CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
+                                                InputStream smbTemperatureFileWireless;
+                                                InputStream smbTemperatureFileEthernet;
+                                                CSVReader csv_temperature;
+
+                                                boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                if(wirelessFileAvailable) {
+                                                    smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                    csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                                }
+                                                else {
+                                                    smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                    csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
+                                                }
+
                                                 temperature = csv_temperature.read();
 
                                                 String[] rows = temperature.get(0);
@@ -1891,7 +2360,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                     }
                                                 }
                                                 minimum = 0.0;
-                                                minimum = Math.round(minTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                                minimum = Math.round(minTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
 
                                             } catch (Exception e) {
                                                 e.printStackTrace();
@@ -1928,9 +2397,22 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                 List<String[]> temperature;
 
                                                 String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
                                                 NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
-                                                CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
+                                                InputStream smbTemperatureFileWireless;
+                                                InputStream smbTemperatureFileEthernet;
+                                                CSVReader csv_temperature;
+
+                                                boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                if(wirelessFileAvailable) {
+                                                    smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                    csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                                }
+                                                else {
+                                                    smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                    csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
+                                                }
+
                                                 temperature = csv_temperature.read();
 
                                                 double currentTemp = 0.0;
@@ -1942,7 +2424,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                     }
                                                 }
                                                 current = 0.0;
-                                                current = Math.round(currentTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                                current = Math.round(currentTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
 
                                             } catch (Exception e) {
                                                 e.printStackTrace();
@@ -1980,10 +2462,24 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                             {
                                                 //To get Samba Shared file from the Raspberry Pi
                                                 List<String[]> temperature;
+
                                                 String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
                                                 NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
-                                                CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");
+                                                InputStream smbTemperatureFileWireless;
+                                                InputStream smbTemperatureFileEthernet;
+                                                CSVReader csv_temperature;
+
+                                                boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                if(wirelessFileAvailable) {
+                                                    smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                    csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                                }
+                                                else {
+                                                    smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                    csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
+                                                }
+
                                                 temperature = csv_temperature.read();
                                                 double sumOfTemp = 0.0;
                                                 for (int i = 0; i < temperature.size(); i++) {
@@ -1992,7 +2488,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                 }
                                                 double temp = sumOfTemp/(temperature.size());
                                                 average = 0.0;
-                                                average = Math.round(temp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                                average = Math.round(temp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
                                             } catch (Exception e) {
                                                 e.printStackTrace();
                                             }
@@ -2028,9 +2524,22 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                 List<String[]> temperature;
 
                                                 String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
                                                 NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
-                                                CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
+                                                InputStream smbTemperatureFileWireless;
+                                                InputStream smbTemperatureFileEthernet;
+                                                CSVReader csv_temperature;
+
+                                                boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                if(wirelessFileAvailable) {
+                                                    smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                    csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                                }
+                                                else {
+                                                    smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                    csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
+                                                }
+
                                                 temperature = csv_temperature.read();
 
                                                 String[] rows = temperature.get(0);
@@ -2043,7 +2552,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                     }
                                                 }
                                                 maximum = 0.0;
-                                                maximum = Math.round(maxTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                                maximum = Math.round(maxTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
 
                                             } catch (Exception e) {
                                                 e.printStackTrace();
@@ -2080,9 +2589,22 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                 List<String[]> temperature;
 
                                                 String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
                                                 NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
-                                                CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
+                                                InputStream smbTemperatureFileWireless;
+                                                InputStream smbTemperatureFileEthernet;
+                                                CSVReader csv_temperature;
+
+                                                boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                if(wirelessFileAvailable) {
+                                                    smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                    csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                                }
+                                                else {
+                                                    smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                    csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
+                                                }
+
                                                 temperature = csv_temperature.read();
 
                                                 String[] rows = temperature.get(0);
@@ -2095,7 +2617,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                     }
                                                 }
                                                 minimum = 0.0;
-                                                minimum = Math.round(minTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                                minimum = Math.round(minTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
 
                                             } catch (Exception e) {
                                                 e.printStackTrace();
@@ -2132,9 +2654,22 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                 List<String[]> temperature;
 
                                                 String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
                                                 NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                InputStream smbTemperatureFile = new SmbFile(url1, auth1).getInputStream();
-                                                CSVReader csv_temperature = new CSVReader(smbTemperatureFile, "heat");//CSVReader(inputStream2);
+                                                InputStream smbTemperatureFileWireless;
+                                                InputStream smbTemperatureFileEthernet;
+                                                CSVReader csv_temperature;
+
+                                                boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                if(wirelessFileAvailable) {
+                                                    smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                    csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                                }
+                                                else {
+                                                    smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                    csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
+                                                }
+
                                                 temperature = csv_temperature.read();
 
                                                 double currentTemp = 0.0;
@@ -2146,7 +2681,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                     }
                                                 }
                                                 current = 0.0;
-                                                current = Math.round(currentTemp * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                                current = Math.round(currentTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
                                             } catch (Exception e) {
                                                 e.printStackTrace();
                                             }
@@ -2202,9 +2737,22 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                             List<String[]> water;
 
                                                             String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + waterFileName;
+                                                            String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + waterFileName;
                                                             NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                            InputStream smbWaterFile = new SmbFile(url1, auth1).getInputStream();
-                                                            CSVReader csv_water = new CSVReader(smbWaterFile, "water");//CSVReader(inputStream2);
+                                                            InputStream smbWaterFileWireless;
+                                                            InputStream smbWaterFileEthernet;
+                                                            CSVReader csv_water;
+
+                                                            boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                            if(wirelessFileAvailable) {
+                                                                smbWaterFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                                csv_water = new CSVReader(smbWaterFileWireless, "water");
+                                                            }
+                                                            else {
+                                                                smbWaterFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                                csv_water = new CSVReader(smbWaterFileEthernet, "water");
+                                                            }
+
                                                             water = csv_water.read();
 
                                                             double totalWater = 0.0;
@@ -2213,7 +2761,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                                 totalWater += Double.parseDouble(row[1]);
                                                             }
                                                             total = 0.0;
-                                                            total = Math.round(totalWater * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                                            total = Math.round(totalWater * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
                                                         } catch (Exception e) {
                                                             e.printStackTrace();
                                                         }
@@ -2257,9 +2805,22 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                             List<String[]> water;
 
                                                             String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + waterFileName;
+                                                            String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + waterFileName;
                                                             NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                            InputStream smbWaterFile = new SmbFile(url1, auth1).getInputStream();
-                                                            CSVReader csv_water = new CSVReader(smbWaterFile, "water");//CSVReader(inputStream2);
+                                                            InputStream smbWaterFileWireless;
+                                                            InputStream smbWaterFileEthernet;
+                                                            CSVReader csv_water;
+
+                                                            boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                            if(wirelessFileAvailable) {
+                                                                smbWaterFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                                csv_water = new CSVReader(smbWaterFileWireless, "water");
+                                                            }
+                                                            else {
+                                                                smbWaterFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                                csv_water = new CSVReader(smbWaterFileEthernet, "water");
+                                                            }
+
                                                             water = csv_water.read();
 
                                                             double totalWater = 0.0;
@@ -2268,7 +2829,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                                 totalWater += Double.parseDouble(row[2]);
                                                             }
                                                             total = 0.0;
-                                                            total = Math.round(totalWater * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                                            total = Math.round(totalWater * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
                                                         } catch (Exception e) {
                                                             e.printStackTrace();
                                                         }
@@ -2313,9 +2874,22 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                 List<String[]> humidity;
 
                                                 String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + humidityFileName;
+                                                String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + humidityFileName;
                                                 NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                InputStream smbPowerFile = new SmbFile(url1, auth1).getInputStream();
-                                                CSVReader csv_humidity = new CSVReader(smbPowerFile, "humidity");//CSVReader(inputStream2);
+                                                InputStream smbHumidityFileWireless;
+                                                InputStream smbHumidityFileEthernet;
+                                                CSVReader csv_humidity;
+
+                                                boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                if(wirelessFileAvailable) {
+                                                    smbHumidityFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                    csv_humidity = new CSVReader(smbHumidityFileWireless, "water");
+                                                }
+                                                else {
+                                                    smbHumidityFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                    csv_humidity = new CSVReader(smbHumidityFileEthernet, "water");
+                                                }
+
                                                 humidity = csv_humidity.read();
 
                                                 double currentHumidity = 0.0;
@@ -2327,7 +2901,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                     }
                                                 }
                                                 current = 0.0;
-                                                current = Math.round(currentHumidity * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                                current = Math.round(currentHumidity * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
                                             } catch (Exception e) {
                                                 e.printStackTrace();
                                             }
@@ -2367,8 +2941,18 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                     {
                                         toSpeak = "";
                                         String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + houseIntro;
+                                        String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + houseIntro;
                                         NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                        SmbFile houseInfo = new SmbFile(url1, auth1);
+                                        SmbFile houseInfo;
+
+                                        boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                        if(wirelessFileAvailable) {
+                                            houseInfo  = new SmbFile(url1, auth1);
+                                        }
+                                        else {
+                                            houseInfo = new SmbFile(url2, auth1);
+                                        }
+
                                         try (BufferedReader reader = new BufferedReader(new InputStreamReader(new SmbFileInputStream(houseInfo)))) {
                                             String line = reader.readLine();
                                             while (line != null) {
@@ -2407,9 +2991,21 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                     try
                                     {
                                         toSpeak = "";
-                                        String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + houseWelcome;
+                                        /*String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + houseWelcome;
                                         NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                        SmbFile houseInfo = new SmbFile(url1, auth1);
+                                        SmbFile houseInfo = new SmbFile(url1, auth1);*/
+                                        String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + houseWelcome;
+                                        String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + houseWelcome;
+                                        NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                        SmbFile houseInfo;
+
+                                        boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                        if(wirelessFileAvailable) {
+                                            houseInfo  = new SmbFile(url1, auth1);
+                                        }
+                                        else {
+                                            houseInfo = new SmbFile(url2, auth1);
+                                        }
                                         try (BufferedReader reader = new BufferedReader(new InputStreamReader(new SmbFileInputStream(houseInfo)))) {
                                             String line = reader.readLine();
                                             while (line != null) {

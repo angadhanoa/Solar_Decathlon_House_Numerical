@@ -12,12 +12,12 @@
     <string name="error_message_age">Enter Age</string>
     <string name="error_message_password">Enter Password</string>
     <string name="success_message">Registration Successful</string>
-    <string name="text_not_member">Register Here</string>
+    <string name="text_not_member">New User? Register Here</string>
     <string name="text_already_member">Already a member? Login Here.</string>
     <string name="error_email_exists">Email Already Exists</string>
     <string name="error_password_match">Password Does Not Match</string>
     <string name="error_valid_email_password">Wrong Email/Password</string>
-    <string name="text_edit_user_password">Forgot Password ?</string>
+    <string name="text_edit_user_password">Forgot Password?</string>
     <string name="new_password">Enter New Password</string>
     <string name="confirm_new_password">Confirm New Password</string>
     <string name="change_password">Change Password</string>
@@ -55,9 +55,19 @@
     <string name="lightingsensor">Lighting Sensor</string>
 
     <string name="sensorusage">Total Water Usage</string>
-    <string name="sensor1usage">Total Sensor 1 Water Usage</string>
-    <string name="sensor2usage">Total Sensor 2 Water Usage</string>
-    <string name="alreadymember">Already a member? Login</string>
+    <string name="sensor1usage">Total Water Usage - Sensor 1</string>
+    <string name="sensor2usage">Total Water Usage - Sensor 2</string>
 
     <string name="humidity">Humidity</string>
+
+    <string name="r_value">R-Value = h*[ft^2]*F/Btu</string>
+    <string name="ambient_temperature">Ambient Temperature = °F</string>
+    <string name="internal_temperature">Internal Temperature = °F</string>
+    <string name="q1">q1 = Btu/h*[ft^2]</string>
+    <string name="q2">q2 = Btu/hr</string>
+    <string name="q3">q3 = kW</string>
+    <string name="q4">q4 = $/kWh</string>
+    <string name="length">Length = ft</string>
+    <string name="width">Width = ft</string>
+
 </resources>

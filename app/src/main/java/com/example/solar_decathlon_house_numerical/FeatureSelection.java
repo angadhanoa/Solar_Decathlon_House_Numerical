@@ -7,7 +7,7 @@ import android.view.View;
 import android.widget.ImageButton;
 
 public class FeatureSelection extends AppCompatActivity {
-    private ImageButton button1, button2, button3, button4, button5;
+    private ImageButton button1, button2, button3, button4, button5, button6;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +50,14 @@ public class FeatureSelection extends AppCompatActivity {
         this.button5 = findViewById(R.id.button5);
         button5.setOnClickListener(new View.OnClickListener() {
             Intent intent = new Intent(FeatureSelection.this, SpeechToTextTextToSpeech.class);
+            @Override
+            public void onClick(View button) { startActivity(intent); }
+        });
+
+        //To create the activity for Analysis.
+        this.button6 = findViewById(R.id.button6);
+        button6.setOnClickListener(new View.OnClickListener() {
+            Intent intent = new Intent(FeatureSelection.this, Analysis.class);
             @Override
             public void onClick(View button) { startActivity(intent); }
         });

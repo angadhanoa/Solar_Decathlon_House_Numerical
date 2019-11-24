@@ -6,7 +6,7 @@
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
+        android:label="Solar Decathlon House"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
@@ -21,7 +21,16 @@
             android:parentActivityName=".LoginActivity"
             android:theme="@style/AppTheme">
             <intent-filter>
-                <action android:name="com.example.solar_decathlon_house_numerical.activities.RegisterActivity" />
+                <action android:name="com.example.solar_decathlon_house_numerical.RegisterActivity" />
+                <category android:name="android.intent.category.default" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".EditPassword"
+            android:parentActivityName=".LoginActivity"
+            android:theme="@style/AppTheme">
+            <intent-filter>
+                <action android:name="com.example.solar_decathlon_house_numerical.EditPassword" />
                 <category android:name="android.intent.category.default" />
             </intent-filter>
         </activity>

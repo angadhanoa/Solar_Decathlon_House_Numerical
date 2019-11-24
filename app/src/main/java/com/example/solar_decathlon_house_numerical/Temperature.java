@@ -154,7 +154,7 @@ public class Temperature extends AppCompatActivity {
                                 }
                                 else {
                                     smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
-                                    csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");;
+                                    csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
                                 }
 
                                 temperatureData = csv_temperature.read();
@@ -202,13 +202,13 @@ public class Temperature extends AppCompatActivity {
                                     }
                                 }
 
-                                maxExteriorTemperature = Math.round(maxiExteriorTemperature * Math.pow(10, 2)) / Math.pow(10, 2);
-                                maxInteriorTemperature = Math.round(maxiInteriorTemperature * Math.pow(10, 2)) / Math.pow(10, 2);
-                                maxNorthWallTemperature = Math.round(maxiNorthWallTemperature * Math.pow(10, 2)) / Math.pow(10, 2);
-                                maxSolarPanelTemperature = Math.round(maxiSolarPanelTemperature * Math.pow(10, 2)) / Math.pow(10, 2);
-                                maxRoofTemperature = Math.round(maxiRoofTemperature * Math.pow(10, 2)) / Math.pow(10, 2);
-                                maxWaterTankTemperature = Math.round(maxiWaterTankTemperature * Math.pow(10, 2)) / Math.pow(10, 2);
-                                maxWaterSolarCollectorTemperature = Math.round(maxiWaterSolarCollectorTemperature * Math.pow(10, 2)) / Math.pow(10, 2);
+                                maxExteriorTemperature = Math.round(maxiExteriorTemperature * Math.pow(10, 1)) / Math.pow(10, 1);
+                                maxInteriorTemperature = Math.round(maxiInteriorTemperature * Math.pow(10, 1)) / Math.pow(10, 1);
+                                maxNorthWallTemperature = Math.round(maxiNorthWallTemperature * Math.pow(10, 1)) / Math.pow(10, 1);
+                                maxSolarPanelTemperature = Math.round(maxiSolarPanelTemperature * Math.pow(10, 1)) / Math.pow(10, 1);
+                                maxRoofTemperature = Math.round(maxiRoofTemperature * Math.pow(10, 1)) / Math.pow(10, 1);
+                                maxWaterTankTemperature = Math.round(maxiWaterTankTemperature * Math.pow(10, 1)) / Math.pow(10, 1);
+                                maxWaterSolarCollectorTemperature = Math.round(maxiWaterSolarCollectorTemperature * Math.pow(10, 1)) / Math.pow(10, 1);
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
@@ -285,13 +285,13 @@ public class Temperature extends AppCompatActivity {
                                     }
                                 }
 
-                                minExteriorTemperature = Math.round(miniExteriorTemperature * Math.pow(10, 2)) / Math.pow(10, 2);
-                                minInteriorTemperature = Math.round(miniInteriorTemperature * Math.pow(10, 2)) / Math.pow(10, 2);
-                                minNorthWallTemperature = Math.round(miniNorthWallTemperature * Math.pow(10, 2)) / Math.pow(10, 2);
-                                minSolarPanelTemperature = Math.round(miniSolarPanelTemperature * Math.pow(10, 2)) / Math.pow(10, 2);
-                                minRoofTemperature = Math.round(miniRoofTemperature * Math.pow(10, 2)) / Math.pow(10, 2);
-                                minWaterTankTemperature = Math.round(miniWaterTankTemperature * Math.pow(10, 2)) / Math.pow(10, 2);
-                                minWaterSolarCollectorTemperature = Math.round(miniWaterSolarCollectorTemperature * Math.pow(10, 2)) / Math.pow(10, 2);
+                                minExteriorTemperature = Math.round(miniExteriorTemperature * Math.pow(10, 1)) / Math.pow(10, 1);
+                                minInteriorTemperature = Math.round(miniInteriorTemperature * Math.pow(10, 1)) / Math.pow(10, 1);
+                                minNorthWallTemperature = Math.round(miniNorthWallTemperature * Math.pow(10, 1)) / Math.pow(10, 1);
+                                minSolarPanelTemperature = Math.round(miniSolarPanelTemperature * Math.pow(10, 1)) / Math.pow(10, 1);
+                                minRoofTemperature = Math.round(miniRoofTemperature * Math.pow(10, 1)) / Math.pow(10, 1);
+                                minWaterTankTemperature = Math.round(miniWaterTankTemperature * Math.pow(10, 1)) / Math.pow(10, 1);
+                                minWaterSolarCollectorTemperature = Math.round(miniWaterSolarCollectorTemperature * Math.pow(10, 1)) / Math.pow(10, 1);
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
@@ -340,13 +340,13 @@ public class Temperature extends AppCompatActivity {
                                 double currentWaterTankTemperature = Double.parseDouble(latestRow[6]);
                                 double currentWaterSolarCollectorTemperature = Double.parseDouble(latestRow[7]);
 
-                                instantaneousExteriorTemperature = Math.round(currentExteriorTemperature * Math.pow(10, 2)) / Math.pow(10, 2);
-                                instantaneousInteriorTemperature = Math.round(currentInteriorTemperature * Math.pow(10, 2)) / Math.pow(10, 2);
-                                instantaneousNorthWallTemperature = Math.round(currentNorthWallTemperature * Math.pow(10, 2)) / Math.pow(10, 2);
-                                instantaneousSolarPanelTemperature = Math.round(currentSolarPanelTemperature * Math.pow(10, 2)) / Math.pow(10, 2);
-                                instantaneousRoofTemperature = Math.round(currentRoofTemperature * Math.pow(10, 2)) / Math.pow(10, 2);
-                                instantaneousWaterTankTemperature = Math.round(currentWaterTankTemperature * Math.pow(10, 2)) / Math.pow(10, 2);
-                                instantaneousWaterSolarCollectorTemperature = Math.round(currentWaterSolarCollectorTemperature * Math.pow(10, 2)) / Math.pow(10, 2);
+                                instantaneousExteriorTemperature = Math.round(currentExteriorTemperature * Math.pow(10, 1)) / Math.pow(10, 1);
+                                instantaneousInteriorTemperature = Math.round(currentInteriorTemperature * Math.pow(10, 1)) / Math.pow(10, 1);
+                                instantaneousNorthWallTemperature = Math.round(currentNorthWallTemperature * Math.pow(10, 1)) / Math.pow(10, 1);
+                                instantaneousSolarPanelTemperature = Math.round(currentSolarPanelTemperature * Math.pow(10, 1)) / Math.pow(10, 1);
+                                instantaneousRoofTemperature = Math.round(currentRoofTemperature * Math.pow(10, 1)) / Math.pow(10, 1);
+                                instantaneousWaterTankTemperature = Math.round(currentWaterTankTemperature * Math.pow(10, 1)) / Math.pow(10, 1);
+                                instantaneousWaterSolarCollectorTemperature = Math.round(currentWaterSolarCollectorTemperature * Math.pow(10, 1)) / Math.pow(10, 1);
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }

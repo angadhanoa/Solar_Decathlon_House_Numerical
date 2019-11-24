@@ -56,16 +56,29 @@ public class Humidity extends AppCompatActivity {
                             try
                             {
                                 //To get Samba Shared file from the Raspberry Pi
-                                List<String[]> humidity;
+                                List<String[]> humidityData;
 
                                 String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + humidityFileName;
+                                String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + humidityFileName;
                                 NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                InputStream smbHumidityFile = new SmbFile(url1, auth1).getInputStream();
-                                CSVReader csv_temperature = new CSVReader(smbHumidityFile, "humidity");//CSVReader(inputStream2);
-                                humidity = csv_temperature.read();
+                                InputStream smbHumidityFileWireless;
+                                InputStream smbHumidityFileEthernet;
+                                CSVReader csv_humidity;
+
+                                boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                if(wirelessFileAvailable) {
+                                    smbHumidityFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                    csv_humidity = new CSVReader(smbHumidityFileWireless, "humidity");
+                                }
+                                else {
+                                    smbHumidityFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                    csv_humidity = new CSVReader(smbHumidityFileEthernet, "humidity");
+                                }
+
+                                humidityData = csv_humidity.read();
 
                                 //Creating line graphs
-                                createLineGraph(humidity, "humidity");
+                                createLineGraph(humidityData, "humidity");
 
                             } catch (Exception e) {
                                 e.printStackTrace();
