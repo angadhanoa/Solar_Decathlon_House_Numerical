@@ -27,6 +27,7 @@
     <string name="text_title">Solar Decathlon House</string>
     <string name="fahrenheit">°F</string>
     <string name="refresh">Refresh</string>
+    <string name="calculate">Calculate</string>
     <string name="powerUnit">KW/hr</string>
     <string name="waterUnit">Gallons</string>
     <string name="maximum">Maximum</string>
@@ -60,14 +61,34 @@
 
     <string name="humidity">Humidity</string>
 
-    <string name="r_value">R-Value = h*[ft^2]*F/Btu</string>
-    <string name="ambient_temperature">Ambient Temperature = °F</string>
-    <string name="internal_temperature">Internal Temperature = °F</string>
-    <string name="q1">q1 = Btu/h*[ft^2]</string>
-    <string name="q2">q2 = Btu/hr</string>
-    <string name="q3">q3 = kW</string>
-    <string name="q4">q4 = $/kWh</string>
-    <string name="length">Length = ft</string>
-    <string name="width">Width = ft</string>
+    <string name="r_value_auto">R-Value = h*[ft^2]*F/Btu</string>
+    <string name="ambient_temperature_auto">Ambient Temperature = °F</string>
+    <string name="internal_temperature_auto">Internal Temperature = °F</string>
+    <string name="q1_auto">q1 = Btu/h*[ft^2]</string>
+    <string name="q2_auto">q2 = Btu/hr</string>
+    <string name="q3_auto">q3 = kW</string>
+    <string name="q4_auto">q4 = $/kWh</string>
+    <string name="length_auto">Length = ft</string>
+    <string name="width_auto">Width = ft</string>
+
+    <string name="r_value_manual">R-Value - [h*[ft^2]*F/Btu]</string>
+    <string name="ambient_temperature_manual">Ambient Temperature - [°F]</string>
+    <string name="internal_temperature_manual">Internal Temperature - [°F]</string>
+    <string name="q1_manual">q1 - [Btu/h*[ft^2]]</string>
+    <string name="q2_manual">q2 - [Btu/hr]</string>
+    <string name="q3_manual">q3 - [kW]</string>
+    <string name="q4_manual">q4 - [$/kWh]</string>
+    <string name="length_manual">Length - [ft]</string>
+    <string name="width_manual">Width - [ft]</string>
+
+    <string name="r_value_unit">h*[ft^2]*F/Btu</string>
+    <string name="ambient_temperature_unit">°F</string>
+    <string name="internal_temperature_unit">°F</string>
+    <string name="q1_unit">Btu/h*[ft^2]</string>
+    <string name="q2_unit">Btu/hr</string>
+    <string name="q3_unit">kW</string>
+    <string name="q4_unit">$/kWh</string>
+    <string name="length_unit">ft</string>
+    <string name="width_unit">ft</string>
 
 </resources>

@@ -42,8 +42,8 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
     String temperatureFileName = "heatsignature.csv";
     String waterFileName = "water1and2app.csv";
     String humidityFileName = "humiditysignature.csv";
-    String houseIntro = "houseintro.txt";
-    String houseWelcome = "housewelcome.txt";
+    String houseInfo = "house1.txt";
+    String houseWelcome = "house2.txt";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -2940,8 +2940,8 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                     try
                                     {
                                         toSpeak = "";
-                                        String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + houseIntro;
-                                        String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + houseIntro;
+                                        String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + houseInfo;
+                                        String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + houseInfo;
                                         NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
                                         SmbFile houseInfo;
 
@@ -3050,7 +3050,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
         int tempCount;  //Serves as index for other arrays.
 
         // Arrays Related to the Solar Decathlon House
-        String house[] = {"house", "welcome"};
+        String house[] = {"house", "welcome", "info", "information", "intro", "introduction"};
 
         // Arrays Related to the Senior Year Design
         String major[]       = {"power", "temperature", "water", "humidity"};
