@@ -9,10 +9,10 @@ import android.database.sqlite.SQLiteOpenHelper;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DatabaseHelper extends SQLiteOpenHelper {
-
+public class DatabaseHelper extends SQLiteOpenHelper
+{
     private static final int DATABASE_VERSION = 1;
-    private static final String DATABASE_NAME = "UserManager.db";
+    private static final String DATABASE_NAME = "SolarDecathlonUsers.db";
     private static final String TABLE_USER = "user";
 
     // User Table Columns names
@@ -29,12 +29,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     // drop table sql query
     private String DROP_USER_TABLE = "DROP TABLE IF EXISTS " + TABLE_USER;
 
-    public DatabaseHelper(Context context) {
+    public DatabaseHelper(Context context)
+    {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
     @Override
-    public void onCreate(SQLiteDatabase db) {
+    public void onCreate(SQLiteDatabase db)
+    {
         db.execSQL(CREATE_USER_TABLE);
     }
 
@@ -46,7 +48,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public void addUser(User user) {
+    public void addUser(User user)
+    {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COLUMN_USER_NAME, user.getName());
@@ -58,7 +61,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
     }
 
-    public List<User> getAllUser() {
+    public List<User> getAllUser()
+    {
         // array of columns to fetch
         String[] columns = {
                 COLUMN_USER_ID,
@@ -81,8 +85,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 sortOrder); //The sort order
 
         // Traversing through all rows and adding to list
-        if (cursor.moveToFirst()) {
-            do {
+        if (cursor.moveToFirst())
+        {
+            do
+            {
                 User user = new User();
                 user.setId(Integer.parseInt(cursor.getString(cursor.getColumnIndex(COLUMN_USER_ID))));
                 user.setName(cursor.getString(cursor.getColumnIndex(COLUMN_USER_NAME)));
@@ -97,29 +103,29 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return userList;
     }
 
-    public void updateUser(User user) {
+    public void updateUser(User user)
+    {
         SQLiteDatabase db = this.getWritableDatabase();
-
         ContentValues values = new ContentValues();
         values.put(COLUMN_USER_NAME, user.getName());
         values.put(COLUMN_USER_EMAIL, user.getEmail());
         values.put(COLUMN_USER_PASSWORD, user.getPassword());
 
         // updating row
-        db.update(TABLE_USER, values, COLUMN_USER_ID + " = ?",
-                new String[]{String.valueOf(user.getId())});
+        db.update(TABLE_USER, values, COLUMN_USER_ID + " = ?", new String[]{String.valueOf(user.getId())});
         db.close();
     }
 
-    public void deleteUser(User user) {
+    public void deleteUser(User user)
+    {
         SQLiteDatabase db = this.getWritableDatabase();
         // delete user record by id
-        db.delete(TABLE_USER, COLUMN_USER_ID + " = ?",
-                new String[]{String.valueOf(user.getId())});
+        db.delete(TABLE_USER, COLUMN_USER_ID + " = ?", new String[]{String.valueOf(user.getId())});
         db.close();
     }
 
-    public boolean checkUser(String email) {
+    public boolean checkUser(String email)
+    {
         // array of columns to fetch
         String[] columns = {
                 COLUMN_USER_ID
@@ -149,7 +155,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         cursor.close();
         db.close();
 
-        if (cursorCount > 0) {
+        if (cursorCount > 0)
+        {
             return true;
         }
         return false;
@@ -158,7 +165,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     /**
      * This method to check user exist or not
      */
-    public boolean checkUser(String email, String password) {
+    public boolean checkUser(String email, String password)
+    {
 
         // array of columns to fetch
         String[] columns = {
@@ -188,9 +196,68 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         int cursorCount = cursor.getCount();
         cursor.close();
         db.close();
-        if (cursorCount > 0) {
+        if (cursorCount > 0)
+        {
             return true;
         }
         return false;
+    }
+
+    /**
+     * This method is to fetch user by email id and return the user record
+     *
+     * @return user object
+     */
+    public User getUserByEmail(String email)
+    {
+        // user object
+        User user = null;
+
+        // array of columns to fetch
+        String[] columns = {
+                COLUMN_USER_ID,
+                COLUMN_USER_EMAIL,
+                COLUMN_USER_NAME,
+                COLUMN_USER_PASSWORD
+        };
+
+        // selection criteria
+        String selection = COLUMN_USER_EMAIL + " = ?";
+
+        // selection argument
+        String[] selectionArgs = {email};
+
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        // query the user table
+        /**
+        * Here query function is used to fetch records from user table this function works like we use sql query.
+        * SQL query equivalent to this query function is
+         * SELECT user_id,user_name,user_email,user_password FROM user ORDER BY user_name;
+        */
+        Cursor cursor = db.query(TABLE_USER, //Table to query
+                columns, //columns to return
+                selection, //columns for the WHERE clause
+                selectionArgs, //The values for the WHERE clause
+                null, //group the rows
+                null, //filter by row groups
+                null); //The sort order
+
+
+        // moving cursor to first position
+        if (cursor.moveToFirst())
+        {
+            // initializing the user object
+            user = new User();
+            user.setId(Integer.parseInt(cursor.getString(cursor.getColumnIndex(COLUMN_USER_ID))));
+            user.setName(cursor.getString(cursor.getColumnIndex(COLUMN_USER_NAME)));
+            user.setEmail(cursor.getString(cursor.getColumnIndex(COLUMN_USER_EMAIL)));
+            user.setPassword(cursor.getString(cursor.getColumnIndex(COLUMN_USER_PASSWORD)));
+        }
+        cursor.close();
+        db.close();
+
+        // return user
+        return user;
     }
 }

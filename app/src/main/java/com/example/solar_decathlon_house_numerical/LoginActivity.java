@@ -16,7 +16,8 @@ import android.widget.Button;
 import android.view.View;
 import android.widget.TextView;
 
-public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
+public class LoginActivity extends AppCompatActivity implements View.OnClickListener
+{
     private final AppCompatActivity activity = LoginActivity.this;
     private NestedScrollView nestedScrollView;
     private TextInputLayout textInputLayoutEmail;
@@ -30,7 +31,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private DatabaseHelper databaseHelper;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         getSupportActionBar().hide();
@@ -39,7 +41,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         initObjects();
     }
 
-    private void initViews() {
+    private void initViews()
+    {
         nestedScrollView = findViewById(R.id.nestedScrollView);
         textInputLayoutEmail = findViewById(R.id.textInputLayoutEmail);
         textInputLayoutPassword = findViewById(R.id.textInputLayoutPassword);
@@ -51,20 +54,24 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         textViewLinkForgotPassword = findViewById(R.id.textViewLinkForgotPassword);
     }
 
-    private void initListeners() {
+    private void initListeners()
+    {
         button1.setOnClickListener(this);
         textViewLinkRegister.setOnClickListener(this);
         textViewLinkForgotPassword.setOnClickListener(this);
     }
 
-    private void initObjects() {
+    private void initObjects()
+    {
         databaseHelper = new DatabaseHelper(activity);
         inputValidation = new InputValidation(activity);
     }
 
     @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
+    public void onClick(View v)
+    {
+        switch (v.getId())
+        {
             case R.id.button1:
                 closeKeyboard();
                 verifyFromSQLite();
@@ -80,33 +87,41 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         }
     }
 
-    private void closeKeyboard() {
+    private void closeKeyboard()
+    {
         View view = this.getCurrentFocus();
 
-        if(view != null){
+        if(view != null)
+        {
             InputMethodManager inputManager =(InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             inputManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
     }
 
-    private void verifyFromSQLite() {
-        if (!inputValidation.isInputEditTextFilled(textInputEditTextEmail, textInputLayoutEmail, getString(R.string.error_message_email))) {
+    private void verifyFromSQLite()
+    {
+        if (!inputValidation.isInputEditTextFilled(textInputEditTextEmail, textInputLayoutEmail, getString(R.string.error_message_email)))
+        {
             return;
         }
-        if (!inputValidation.isInputEditTextEmail(textInputEditTextEmail, textInputLayoutEmail, getString(R.string.error_message_email))) {
+        if (!inputValidation.isInputEditTextEmail(textInputEditTextEmail, textInputLayoutEmail, getString(R.string.error_message_email)))
+        {
             return;
         }
-        if (!inputValidation.isInputEditTextFilled(password, textInputLayoutPassword, getString(R.string.error_message_email))) {
+        if (!inputValidation.isInputEditTextFilled(password, textInputLayoutPassword, getString(R.string.error_message_email)))
+        {
             return;
         }
 
-        if (databaseHelper.checkUser(textInputEditTextEmail.getText().toString().trim()
-                , password.getText().toString().trim())) {
+        if (databaseHelper.checkUser(textInputEditTextEmail.getText().toString().trim(), password.getText().toString().trim()))
+        {
             Intent intentLogin = new Intent(getApplicationContext(), FeatureSelection.class);
             intentLogin.putExtra("EMAIL", textInputEditTextEmail.getText().toString().trim());
             emptyInputEditText();
             startActivity(intentLogin);
-        } else {
+        }
+        else
+        {
             // Snack Bar to show success message that record is wrong
             Snackbar snackView = Snackbar.make(nestedScrollView, getString(R.string.error_valid_email_password), Snackbar.LENGTH_LONG);
             View snackbarView = snackView.getView();
@@ -120,7 +135,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         }
     }
 
-    private void emptyInputEditText() {
+    private void emptyInputEditText()
+    {
         textInputEditTextEmail.setText(null);
         password.setText(null);
     }
@@ -128,11 +144,13 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     public class HidePassword extends PasswordTransformationMethod
     {
         @Override
-        public CharSequence getTransformation(CharSequence source, View view) {
+        public CharSequence getTransformation(CharSequence source, View view)
+        {
             return new PasswordCharSequence(source);
         }
 
-        private class PasswordCharSequence implements CharSequence {
+        private class PasswordCharSequence implements CharSequence
+        {
             private CharSequence sourceOfPassword;
             public PasswordCharSequence(CharSequence source) {
                 sourceOfPassword = source;

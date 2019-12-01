@@ -2926,10 +2926,17 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                         }
                     }
                     else if(Arrays.asList(keywords).contains("nomajor") &&
-                                   (Arrays.asList(keywords).contains("house")) ||
-                                    Arrays.asList(keywords).contains("welcome"))
+                                   Arrays.asList(keywords).contains("house") ||
+                                    Arrays.asList(keywords).contains("welcome") ||
+                                    Arrays.asList(keywords).contains("info") ||
+                                    Arrays.asList(keywords).contains("information") ||
+                                    Arrays.asList(keywords).contains("intro") ||
+                                    Arrays.asList(keywords).contains("introduction"))
                     {
-                        if(Arrays.asList(keywords).contains("house"))
+                        if(Arrays.asList(keywords).contains("house") &&
+                                (Arrays.asList(keywords).contains("info") || Arrays.asList(keywords).contains("information") ||
+                                        Arrays.asList(keywords).contains("intro") || Arrays.asList(keywords).contains("introduction")) &&
+                                !Arrays.asList(keywords).contains("welcome"))
                         {
                             jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
                             try{
@@ -2991,9 +2998,6 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                     try
                                     {
                                         toSpeak = "";
-                                        /*String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + houseWelcome;
-                                        NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                        SmbFile houseInfo = new SmbFile(url1, auth1);*/
                                         String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + houseWelcome;
                                         String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + houseWelcome;
                                         NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
@@ -3063,7 +3067,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                 "one", "1", "two", "2", "too"};
 
         // Arrays to store various keywords.
-        String[] keywords           = new String[(words.length + 5)];
+        String[] keywords           = new String[(words.length + 7)];
         String[] houseKeywords      = new String[house.length];
         String[] majorKeywords      = new String[major.length];
         String[] quantityKeywords   = new String[quantity.length];

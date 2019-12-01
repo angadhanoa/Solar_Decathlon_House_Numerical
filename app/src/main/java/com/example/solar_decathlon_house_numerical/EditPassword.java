@@ -2,8 +2,6 @@ package com.example.solar_decathlon_house_numerical;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.inputmethodservice.Keyboard;
-import android.inputmethodservice.KeyboardView;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
@@ -11,14 +9,14 @@ import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.AppCompatTextView;
 import android.text.method.PasswordTransformationMethod;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.TextView;
 
-public class EditPassword extends AppCompatActivity implements View.OnClickListener {
+public class EditPassword extends AppCompatActivity implements View.OnClickListener
+{
     private final AppCompatActivity activity = EditPassword.this;
 
     private NestedScrollView nestedScrollView;
@@ -35,10 +33,11 @@ public class EditPassword extends AppCompatActivity implements View.OnClickListe
 
     private InputValidation inputValidation;
     private DatabaseHelper databaseHelper;
-    private User user;
+    private User user, userToDelete;
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_password);
         getSupportActionBar().hide();
@@ -47,7 +46,8 @@ public class EditPassword extends AppCompatActivity implements View.OnClickListe
         initObjects();
     }
 
-    private void initViews() {
+    private void initViews()
+    {
         nestedScrollView = findViewById(R.id.nestedScrollView);
         textInputLayoutEmail = findViewById(R.id.textInputLayoutEmail);
         textInputLayoutNewPassword = findViewById(R.id.textInputLayoutNewPassword);
@@ -95,36 +95,31 @@ public class EditPassword extends AppCompatActivity implements View.OnClickListe
             return;
         }
 
-        if (databaseHelper.checkUser(textInputEditTextEmail.getText().toString().trim())) {
-            String nameOfUser = user.getName();
-            databaseHelper.deleteUser(user);
+        if (databaseHelper.checkUser(textInputEditTextEmail.getText().toString().trim()))
+        {
+            userToDelete = new User();
+            userToDelete = databaseHelper.getUserByEmail(textInputEditTextEmail.getText().toString().trim());
+            String name = userToDelete.getName();
+            databaseHelper.deleteUser(userToDelete);
 
-            user.setName(nameOfUser);
+            user.setName(name);
             user.setEmail(textInputEditTextEmail.getText().toString().trim());
             user.setPassword(textInputEditTextNewPassword.getText().toString().trim());
-            databaseHelper.updateUser(user);
+            databaseHelper.addUser(user);
 
-            // Snack Bar to show success message that record saved successfully
             Snackbar snackView = Snackbar.make(nestedScrollView, "Password Change Successful", Snackbar.LENGTH_LONG);
             View snackbarView = snackView.getView();
-            // get textview inside snackbar view
             TextView snackTextView = snackbarView.findViewById(android.support.design.R.id.snackbar_text);
-            // set text to center
             snackTextView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
             snackTextView.setTextColor(Color.WHITE);
-            // show the snackbar
             snackView.show();
             emptyInputEditText();
         } else {
-            // Snack Bar to show error message that record already exists
             Snackbar snackView = Snackbar.make(nestedScrollView, "Could not find the Email", Snackbar.LENGTH_LONG);
             View snackbarView = snackView.getView();
-            // get textview inside snackbar view
             TextView snackTextView = snackbarView.findViewById(android.support.design.R.id.snackbar_text);
-            // set text to center
             snackTextView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
             snackTextView.setTextColor(Color.WHITE);
-            // show the snackbar
             snackView.show();
         }
     }
