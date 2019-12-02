@@ -1,6 +1,7 @@
 package com.example.solar_decathlon_house_numerical;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -97,6 +98,7 @@ public class EditPassword extends AppCompatActivity implements View.OnClickListe
 
         if (databaseHelper.checkUser(textInputEditTextEmail.getText().toString().trim()))
         {
+            Intent intentLogin = new Intent(getApplicationContext(), LoginActivity.class);
             userToDelete = new User();
             userToDelete = databaseHelper.getUserByEmail(textInputEditTextEmail.getText().toString().trim());
             String name = userToDelete.getName();
@@ -107,15 +109,17 @@ public class EditPassword extends AppCompatActivity implements View.OnClickListe
             user.setPassword(textInputEditTextNewPassword.getText().toString().trim());
             databaseHelper.addUser(user);
 
-            Snackbar snackView = Snackbar.make(nestedScrollView, "Password Change Successful", Snackbar.LENGTH_LONG);
+            Snackbar snackView = Snackbar.make(nestedScrollView, R.string.password_change_successful, Snackbar.LENGTH_LONG);
             View snackbarView = snackView.getView();
             TextView snackTextView = snackbarView.findViewById(android.support.design.R.id.snackbar_text);
             snackTextView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
             snackTextView.setTextColor(Color.WHITE);
             snackView.show();
             emptyInputEditText();
+
+            startActivity(intentLogin);
         } else {
-            Snackbar snackView = Snackbar.make(nestedScrollView, "Could not find the Email", Snackbar.LENGTH_LONG);
+            Snackbar snackView = Snackbar.make(nestedScrollView, R.string.error_message_email, Snackbar.LENGTH_LONG);
             View snackbarView = snackView.getView();
             TextView snackTextView = snackbarView.findViewById(android.support.design.R.id.snackbar_text);
             snackTextView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
@@ -143,7 +147,7 @@ public class EditPassword extends AppCompatActivity implements View.OnClickListe
                 sourceOfPassword = source;
             }
             public char charAt(int index) {
-                return '*';
+                return '-';
             }
             public int length() {
                 return sourceOfPassword.length();

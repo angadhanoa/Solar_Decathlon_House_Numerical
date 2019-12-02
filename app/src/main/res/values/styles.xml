@@ -9,4 +9,15 @@
         <item name="colorControlNormal">@color/colorText</item>
         <item name="colorControlActivated">@color/colorText</item>
     </style>
+
+    <style name="Divider">
+        <item name="android:layout_width">1dip</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:background">@color/colorAccent</item>
+    </style>
+
+    <style name="Divider_invisible">
+        <item name="android:layout_width">1dip</item>
+        <item name="android:layout_height">match_parent</item>
+    </style>
 </resources>

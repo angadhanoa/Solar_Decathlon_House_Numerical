@@ -100,7 +100,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     private void verifyFromSQLite()
     {
-        if (!inputValidation.isInputEditTextFilled(textInputEditTextEmail, textInputLayoutEmail, getString(R.string.error_message_email)))
+        if (!inputValidation.isInputEditTextFilled(textInputEditTextEmail, textInputLayoutEmail, getString(R.string.error_message_filled_email)))
         {
             return;
         }
@@ -108,29 +108,35 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         {
             return;
         }
-        if (!inputValidation.isInputEditTextFilled(password, textInputLayoutPassword, getString(R.string.error_message_email)))
+        if (!inputValidation.isInputEditTextFilled(password, textInputLayoutPassword, getString(R.string.error_message_filled_password)))
         {
             return;
         }
 
         if (databaseHelper.checkUser(textInputEditTextEmail.getText().toString().trim(), password.getText().toString().trim()))
         {
-            Intent intentLogin = new Intent(getApplicationContext(), FeatureSelection.class);
-            intentLogin.putExtra("EMAIL", textInputEditTextEmail.getText().toString().trim());
+            Intent intentFeatureSelection = new Intent(getApplicationContext(), FeatureSelection.class);
+            intentFeatureSelection.putExtra("EMAIL", textInputEditTextEmail.getText().toString().trim());
             emptyInputEditText();
-            startActivity(intentLogin);
+
+            // Snack Bar to show success message
+            Snackbar snackView = Snackbar.make(nestedScrollView, getString(R.string.text_welcome), Snackbar.LENGTH_LONG);
+            View snackbarView = snackView.getView();
+            TextView snackTextView = snackbarView.findViewById(android.support.design.R.id.snackbar_text);
+            snackTextView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+            snackTextView.setTextColor(Color.WHITE);
+            snackView.show();
+
+            startActivity(intentFeatureSelection);
         }
         else
         {
-            // Snack Bar to show success message that record is wrong
+            // Snack Bar to show message that record is wrong.
             Snackbar snackView = Snackbar.make(nestedScrollView, getString(R.string.error_valid_email_password), Snackbar.LENGTH_LONG);
             View snackbarView = snackView.getView();
-            // get textview inside snackbar view
             TextView snackTextView = snackbarView.findViewById(android.support.design.R.id.snackbar_text);
-            // set text to center
             snackTextView.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
             snackTextView.setTextColor(Color.WHITE);
-            // show the snackbar
             snackView.show();
         }
     }
@@ -156,7 +162,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 sourceOfPassword = source;
             }
             public char charAt(int index) {
-                return '*';
+                return '-';
             }
             public int length() {
                 return sourceOfPassword.length();
