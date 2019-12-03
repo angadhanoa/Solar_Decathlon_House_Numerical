@@ -113,9 +113,9 @@ public class Humidity extends AppCompatActivity {
             final SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy");
             for (int i = 0; i < humidity.size(); i++) {
                 String[] rows = humidity.get(i);
-                Log.d(TAG, "Humidity: " + rows[0] + " " + Double.parseDouble(rows[1]));
+                Log.d(TAG, "Humidity: " + rows[0] + " " + Double.parseDouble(rows[2]));
                 date = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy").parse(rows[0]);
-                humidity_dataPoints[i] = new DataPoint(date, Double.parseDouble(rows[1]));
+                humidity_dataPoints[i] = new DataPoint(date, Double.parseDouble(rows[2]));
             }
             LineGraphSeries<DataPoint> series1 = new LineGraphSeries<DataPoint>(humidity_dataPoints);
             series1.setTitle("Humidity");

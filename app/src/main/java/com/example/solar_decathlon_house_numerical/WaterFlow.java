@@ -17,10 +17,10 @@ import jcifs.smb.SmbFile;
 
 public class WaterFlow extends AppCompatActivity {
     Button refresh;
-    String water1FileName = "water1app.csv";
-    String water2FileName = "water2app.csv";
+    String water1FileName = "water1.csv";
+    String water2FileName = "water2.csv";
 
-    String units = " Gallons";
+    String units = "Gallons";
     String string;
     boolean while_boolean = true;
     Thread threadSensor1 = new Thread();
@@ -102,7 +102,7 @@ public class WaterFlow extends AppCompatActivity {
 
                                     //Only get the data if the day is the same.
                                     if(latestDateSubstringSensor1.equalsIgnoreCase(dateFoundSubstringSensor1)) {
-                                        totalSensor1WaterSum += Double.parseDouble(rows[1]);
+                                        totalSensor1WaterSum += Double.parseDouble(rows[2]);
                                     }
                                 }
 
@@ -157,7 +157,7 @@ public class WaterFlow extends AppCompatActivity {
 
                                     //Only get the data if the day is the same.
                                     if(latestDateSubstringSensor2.equalsIgnoreCase(dateFoundSubstringSensor2)) {
-                                        totalSensor2WaterSum += Double.parseDouble(rows[1]);
+                                        totalSensor2WaterSum += Double.parseDouble(rows[2]);
                                     }
                                 }
 
@@ -176,6 +176,8 @@ public class WaterFlow extends AppCompatActivity {
 
                 while(while_boolean) {
                     if (!threadSensor1.isAlive() && !threadSensor2.isAlive()) {
+                        totalSensor1WaterUsage = totalSensor1WaterUsage*0.264172; //Converting Litres to Gallons
+                        totalSensor2WaterUsage = totalSensor2WaterUsage*0.264172; //Converting Litres to Gallons
                         totalWaterUsage = totalSensor1WaterUsage + totalSensor2WaterUsage;
                         totalSensor1WaterUsage1 = Double.toString(totalSensor1WaterUsage);
                         string = totalSensor1WaterUsage1 + units;

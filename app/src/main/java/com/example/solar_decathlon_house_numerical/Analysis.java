@@ -579,13 +579,13 @@ public class Analysis extends AppCompatActivity {
                 double width_editText = Double.parseDouble(editText6.getText().toString().trim())*1.00;
 
                 double q1           = (exterior_temperature_editText - interior_temperature_editText) / r_value_editText; // Btu/[h*ft^2]
-                double q2           = 2*q1*length_editText*width_editText;        // Btu/hr
-                double q3           = q2*constantKWhr;            // kW
-                double q4           = q3*constantDollarsPerKWhr;  // $/kWh
+                double q2           = 2 * q1 * length_editText * width_editText;        // Btu/hr
+                double q3           = q2 * constantKWhr;            // kW
+                double q4           = q3 * constantDollarsPerKWhr;  // $/kWh
                 double q1rounded    = Math.round(q1 * Math.pow(10, 2)) / Math.pow(10, 2);
                 double q2rounded    = Math.round(q2 * Math.pow(10, 2)) / Math.pow(10, 2);
-                double q3rounded    = Math.round(q3 * Math.pow(10, 2)) / Math.pow(10, 2);
-                double q4rounded    = Math.abs(Math.round(q4 * Math.pow(10, 2)) / Math.pow(10, 2));
+                double q3rounded    = Math.abs(Math.round(q3 * Math.pow(10, 4)) / Math.pow(10, 4));
+                double q4rounded    = Math.abs(Math.round(q4 * Math.pow(10, 4)) / Math.pow(10, 4));
 
                 editText4.setText(Double.toString(q1rounded), TextView.BufferType.EDITABLE);
                 editText7.setText(Double.toString(q2rounded), TextView.BufferType.EDITABLE);
