@@ -885,7 +885,7 @@
                                 android:id="@+id/textView60"
                                 android:layout_width="150dp"
                                 android:layout_height="50dp"
-                                android:background="@drawable/table_shape"
+                                android:background="@drawable/table_cell_empty"
                                 android:fontFamily="@font/digital_numericals_heavy"
                                 android:padding="5dp"
                                 android:textAlignment="center"
@@ -899,7 +899,7 @@
                                 android:id="@+id/textView61"
                                 android:layout_width="150dp"
                                 android:layout_height="50dp"
-                                android:background="@drawable/table_shape"
+                                android:background="@drawable/table_cell_empty"
                                 android:fontFamily="@font/digital_numericals_heavy"
                                 android:lineSpacingExtra="8sp"
                                 android:padding="5dp"
@@ -914,7 +914,7 @@
                                 android:id="@+id/textView62"
                                 android:layout_width="160dp"
                                 android:layout_height="50dp"
-                                android:background="@drawable/table_shape"
+                                android:background="@drawable/table_cell_empty"
                                 android:fontFamily="@font/digital_numericals_heavy"
                                 android:padding="5dp"
                                 android:scaleType="fitCenter"
@@ -929,7 +929,7 @@
                                 android:id="@+id/textView63"
                                 android:layout_width="160dp"
                                 android:layout_height="50dp"
-                                android:background="@drawable/table_shape"
+                                android:background="@drawable/table_cell_empty"
                                 android:fontFamily="@font/digital_numericals_heavy"
                                 android:padding="5dp"
                                 android:scaleType="fitCenter"
@@ -944,7 +944,7 @@
                                 android:id="@+id/textView64"
                                 android:layout_width="100dp"
                                 android:layout_height="50dp"
-                                android:background="@drawable/table_shape"
+                                android:background="@drawable/table_cell_empty"
                                 android:fontFamily="@font/digital_numericals_heavy"
                                 android:padding="5dp"
                                 android:scaleType="fitCenter"
@@ -965,7 +965,7 @@
                                 android:scaleType="fitCenter"
                                 android:textAlignment="center"
                                 android:lineSpacingExtra="8sp"
-                                android:text=" "
+                                android:text="Total"
                                 android:textColor="@color/colorPrimaryDark"
                                 android:textSize="20sp"
                                 android:textStyle="bold"></TextView>
@@ -979,7 +979,7 @@
                                 android:padding="5dp"
                                 android:scaleType="fitCenter"
                                 android:textAlignment="center"
-                                android:text="Total"
+                                android:text=""
                                 android:textColor="@color/colorPrimaryDark"
                                 android:textSize="20sp"
                                 android:textStyle="bold"></TextView>
@@ -1880,7 +1880,7 @@
                                 android:id="@+id/textView60Manual"
                                 android:layout_width="150dp"
                                 android:layout_height="50dp"
-                                android:background="@drawable/table_shape"
+                                android:background="@drawable/table_cell_empty"
                                 android:fontFamily="@font/digital_numericals_heavy"
                                 android:padding="5dp"
                                 android:textAlignment="center"
@@ -1895,7 +1895,7 @@
                                 android:id="@+id/textView61Manual"
                                 android:layout_width="150dp"
                                 android:layout_height="50dp"
-                                android:background="@drawable/table_shape"
+                                android:background="@drawable/table_cell_empty"
                                 android:fontFamily="@font/digital_numericals_heavy"
                                 android:lineSpacingExtra="8sp"
                                 android:padding="5dp"
@@ -1911,7 +1911,7 @@
                                 android:id="@+id/textView62Manual"
                                 android:layout_width="160dp"
                                 android:layout_height="50dp"
-                                android:background="@drawable/table_shape"
+                                android:background="@drawable/table_cell_empty"
                                 android:fontFamily="@font/digital_numericals_heavy"
                                 android:padding="5dp"
                                 android:scaleType="fitCenter"
@@ -1927,7 +1927,7 @@
                                 android:id="@+id/textView63Manual"
                                 android:layout_width="160dp"
                                 android:layout_height="50dp"
-                                android:background="@drawable/table_shape"
+                                android:background="@drawable/table_cell_empty"
                                 android:fontFamily="@font/digital_numericals_heavy"
                                 android:padding="5dp"
                                 android:scaleType="fitCenter"
@@ -1943,7 +1943,7 @@
                                 android:id="@+id/textView64Manual"
                                 android:layout_width="100dp"
                                 android:layout_height="50dp"
-                                android:background="@drawable/table_shape"
+                                android:background="@drawable/table_cell_empty"
                                 android:fontFamily="@font/digital_numericals_heavy"
                                 android:padding="5dp"
                                 android:scaleType="fitCenter"
@@ -2052,11 +2052,29 @@
                 android:scaleType="fitCenter"
                 android:text="@string/calculate"
                 android:textColor="@color/colorPrimaryDark"
-                android:textSize="25sp"
+                android:textSize="35sp"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/scrollView3" />
+
+            <TextView
+                android:id="@+id/manual_Single_Analysis"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="50dp"
+                android:layout_marginTop="35dp"
+                android:layout_marginEnd="50dp"
+                android:fontFamily="@font/digital_numericals_heavy"
+                android:text="Analysis of Specific Area"
+                android:textAlignment="center"
+                android:textColor="@color/colorOrange"
+                android:textSize="55sp"
+                android:textStyle="bold"
+                android:visibility="visible"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/calculate_for_manual_table" />
 
             <TextView
                 android:id="@+id/r_value_manual"
@@ -2074,7 +2092,7 @@
                 android:visibility="visible"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/calculate_for_manual_table" />
+                app:layout_constraintTop_toBottomOf="@id/manual_Single_Analysis" />
 
             <EditText
                 android:id="@+id/r_value_edit"
@@ -2094,7 +2112,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/calculate_for_manual_table"
+                app:layout_constraintTop_toBottomOf="@id/manual_Single_Analysis"
                 app:layout_constraintVertical_bias="0.0" />
 
             <TextView
@@ -2397,7 +2415,7 @@
                 android:layout_height="40dp"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginStart="16dp"
-                android:layout_marginTop="25dp"
+                android:layout_marginTop="45dp"
                 android:layout_marginBottom="16dp"
                 android:background="@color/colorAccent"
                 android:fontFamily="@font/digital_numericals_heavy"
@@ -2410,7 +2428,6 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/q4_manual" />
-
 
         </android.support.constraint.ConstraintLayout>
     </ScrollView>

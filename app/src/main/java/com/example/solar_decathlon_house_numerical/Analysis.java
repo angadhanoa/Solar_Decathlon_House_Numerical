@@ -237,50 +237,54 @@ public class Analysis extends AppCompatActivity {
                     if (!threadInstant.isAlive()) {
 
                         //Calculations for Wall 1, 3
-                        double q1Wall13           = (exteriorTemperature - interiorTemperature)/(rValueRoom); // Btu/[h*ft^2]
-                        double q2Wall13           = 2 * q1Wall13 * length1 * width1;        // Btu/hr
-                        double q3Wall13           = q2Wall13 * constantKWhr;            // kW
-                        double q4Wall13           = Math.abs(q3Wall13 * constantDollarsPerKWhr);  // $/kWh
+                        double q1Wall13           = (exteriorTemperature - interiorTemperature)/(rValueRoom);   // Btu/[h*ft^2]
+                        double q2Wall13           = 2 * q1Wall13 * length1 * width1;                            // Btu/hr
+                        double q3Wall13           = q2Wall13 * constantKWhr;                                    // kW
+                        double q4Wall13           = Math.abs(q3Wall13 * constantDollarsPerKWhr);                // $/kWh
                         double q1roundedWall13    = Math.round(q1Wall13 * Math.pow(10, 4)) / Math.pow(10, 4);
                         double q2roundedWall13    = Math.round(q2Wall13 * Math.pow(10, 4)) / Math.pow(10, 4);
                         double q3roundedWall13    = Math.abs(Math.round(q3Wall13 * Math.pow(10, 4)) / Math.pow(10, 4));
                         double q4roundedWall13    = Math.abs(Math.round(q4Wall13 * Math.pow(10, 4)) / Math.pow(10, 4));
 
                         //Calculations for Wall 2, 4
-                        double q1Wall24           = (exteriorTemperature - interiorTemperature)/(rValueRoom); // Btu/[h*ft^2]
-                        double q2Wall24           = 2 * q1Wall24 * length2 * width1;        // Btu/hr
-                        double q3Wall24           = q2Wall24 * constantKWhr;            // kW
-                        double q4Wall24           = Math.abs(q3Wall24 * constantDollarsPerKWhr);  // $/kWh
+                        double q1Wall24           = (exteriorTemperature - interiorTemperature)/(rValueRoom);   // Btu/[h*ft^2]
+                        double q2Wall24           = 2 * q1Wall24 * length2 * width1;                            // Btu/hr
+                        double q3Wall24           = q2Wall24 * constantKWhr;                                    // kW
+                        double q4Wall24           = Math.abs(q3Wall24 * constantDollarsPerKWhr);                // $/kWh
                         double q1roundedWall24    = Math.round(q1Wall24 * Math.pow(10, 4)) / Math.pow(10, 4);
                         double q2roundedWall24    = Math.round(q2Wall24 * Math.pow(10, 4)) / Math.pow(10, 4);
                         double q3roundedWall24    = Math.abs(Math.round(q3Wall24 * Math.pow(10, 4)) / Math.pow(10, 4));
                         double q4roundedWall24    = Math.abs(Math.round(q4Wall24 * Math.pow(10, 4)) / Math.pow(10, 4));
 
                         //Calculations for roof
-                        double q1Roof           = (exteriorTemperature - roofTemperature)/(rValueRoof); // Btu/[h*ft^2]
-                        double q2Roof           = 2 * q1Roof * length1 * width2;        // Btu/hr
-                        double q3Roof           = q2Roof * constantKWhr;            // kW
-                        double q4Roof           = Math.abs(q3Roof * constantDollarsPerKWhr);  // $/kWh
+                        double q1Roof           = (exteriorTemperature - roofTemperature)/(rValueRoof);     // Btu/[h*ft^2]
+                        double q2Roof           = 2 * q1Roof * length1 * width2;                            // Btu/hr
+                        double q3Roof           = q2Roof * constantKWhr;                                    // kW
+                        double q4Roof           = Math.abs(q3Roof * constantDollarsPerKWhr);                // $/kWh
                         double q1roundedRoof    = Math.round(q1Roof * Math.pow(10, 4)) / Math.pow(10, 4);
                         double q2roundedRoof    = Math.round(q2Roof * Math.pow(10, 4)) / Math.pow(10, 4);
                         double q3roundedRoof    = Math.abs(Math.round(q3Roof * Math.pow(10, 4)) / Math.pow(10, 4));
                         double q4roundedRoof    = Math.abs(Math.round(q4Roof * Math.pow(10, 4)) / Math.pow(10, 4));
 
                         //Calculations for floor
-                        double q1Floor           = (exteriorTemperature - interiorTemperature)/(rValueFloor); // Btu/[h*ft^2]
-                        double q2Floor           = 2 * q1Floor * length1 * width2;        // Btu/hr
-                        double q3Floor           = q2Floor * constantKWhr;            // kW
-                        double q4Floor           = Math.abs(q3Floor * constantDollarsPerKWhr);  // $/kWh
+                        double q1Floor           = (exteriorTemperature - interiorTemperature)/(rValueFloor);   // Btu/[h*ft^2]
+                        double q2Floor           = 2 * q1Floor * length1 * width2;                              // Btu/hr
+                        double q3Floor           = q2Floor * constantKWhr;                                      // kW
+                        double q4Floor           = Math.abs(q3Floor * constantDollarsPerKWhr);                  // $/kWh
                         double q1roundedFloor    = Math.round(q1Floor * Math.pow(10, 4)) / Math.pow(10, 4);
                         double q2roundedFloor    = Math.round(q2Floor * Math.pow(10, 4)) / Math.pow(10, 4);
                         double q3roundedFloor    = Math.abs(Math.round(q3Floor * Math.pow(10, 4)) / Math.pow(10, 4));
                         double q4roundedFloor    = Math.abs(Math.round(q4Floor * Math.pow(10, 4)) / Math.pow(10, 4));
 
                         //Calculations for Q Totals
-                        double q1Total           = q1roundedWall13 + q1roundedWall24 + q1roundedRoof + q1roundedFloor; // Btu/[h*ft^2]
-                        double q2Total           = q2roundedWall13 + q2roundedWall24 + q2roundedRoof + q2roundedFloor;        // Btu/hr
-                        double q3Total           = q3roundedWall13 + q3roundedWall24 + q3roundedRoof + q3roundedFloor;            // kW
-                        double q4Total           = q4roundedWall13 + q4roundedWall24 + q4roundedRoof + q4roundedFloor;  // $/kWh
+                        double q1Total           = q1Wall13 + q1Wall24 + q1Roof + q1Floor; // Btu/[h*ft^2]
+                        double q2Total           = q2Wall13 + q2Wall24 + q2Roof + q2Floor; // Btu/hr
+                        double q3Total           = q3Wall13 + q3Wall24 + q3Roof + q3Floor; // kW
+                        double q4Total           = q4Wall13 + q4Wall24 + q4Roof + q4Floor; // $/kWh
+                        double q1TotalRounded    = Math.round(q1Total * Math.pow(10, 4)) / Math.pow(10, 4);
+                        double q2TotalRounded    = Math.round(q2Total * Math.pow(10, 4)) / Math.pow(10, 4);
+                        double q3TotalRounded    = Math.abs(Math.round(q3Total * Math.pow(10, 4)) / Math.pow(10, 4));
+                        double q4TotalRounded    = Math.abs(Math.round(q4Total * Math.pow(10, 4)) / Math.pow(10, 4));
 
                         //Converting Double to String
 
@@ -329,10 +333,10 @@ public class Analysis extends AppCompatActivity {
                         String q4stringFloor            = Double.toString(q4roundedFloor);
 
                         //Total
-                        String q1stringTotal = Double.toString(q1Total);
-                        String q2stringTotal = Double.toString(q2Total);
-                        String q3stringTotal = Double.toString(q3Total);
-                        String q4stringTotal = Double.toString(q4Total);
+                        String q1stringTotal = Double.toString(q1TotalRounded);
+                        String q2stringTotal = Double.toString(q2TotalRounded);
+                        String q3stringTotal = Double.toString(q3TotalRounded);
+                        String q4stringTotal = Double.toString(q4TotalRounded);
 
                         //Populating the Table cells
 
@@ -397,26 +401,46 @@ public class Analysis extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
+                if(editText21.getText().length() == 0){ editText21.setText("0"); }
+                if(editText31.getText().length() == 0){ editText31.setText("0"); }
+                if(editText41.getText().length() == 0){ editText41.setText("0"); }
+                if(editText51.getText().length() == 0){ editText51.setText("0"); }
                 double r_value_wall13 = Double.parseDouble(editText21.getText().toString().trim())*1.00;
                 double r_value_wall24 = Double.parseDouble(editText31.getText().toString().trim())*1.00;
                 double r_value_roof   = Double.parseDouble(editText41.getText().toString().trim())*1.00;
                 double r_value_floor  = Double.parseDouble(editText51.getText().toString().trim())*1.00;
 
+                if(editText22.getText().length() == 0){ editText22.setText("0"); }
+                if(editText32.getText().length() == 0){ editText32.setText("0"); }
+                if(editText42.getText().length() == 0){ editText42.setText("0"); }
+                if(editText52.getText().length() == 0){ editText52.setText("0"); }
                 double exterior_temperature_wall13 = Double.parseDouble(editText22.getText().toString().trim())*1.00;
                 double exterior_temperature_wall24 = Double.parseDouble(editText32.getText().toString().trim())*1.00;
                 double exterior_temperature_roof   = Double.parseDouble(editText42.getText().toString().trim())*1.00;
                 double exterior_temperature_floor  = Double.parseDouble(editText52.getText().toString().trim())*1.00;
 
+                if(editText23.getText().length() == 0){ editText23.setText("0"); }
+                if(editText33.getText().length() == 0){ editText33.setText("0"); }
+                if(editText43.getText().length() == 0){ editText43.setText("0"); }
+                if(editText53.getText().length() == 0){ editText53.setText("0"); }
                 double interior_temperature_wall13 = Double.parseDouble(editText23.getText().toString().trim())*1.00;
                 double interior_temperature_wall24 = Double.parseDouble(editText33.getText().toString().trim())*1.00;
                 double roof_temperature            = Double.parseDouble(editText43.getText().toString().trim())*1.00;
                 double floor_temperature           = Double.parseDouble(editText53.getText().toString().trim())*1.00;
 
+                if(editText24.getText().length() == 0){ editText24.setText("0"); }
+                if(editText34.getText().length() == 0){ editText34.setText("0"); }
+                if(editText44.getText().length() == 0){ editText44.setText("0"); }
+                if(editText54.getText().length() == 0){ editText54.setText("0"); }
                 double length_wall13 = Double.parseDouble(editText24.getText().toString().trim())*1.00;
                 double length_wall24 = Double.parseDouble(editText34.getText().toString().trim())*1.00;
                 double length_roof   = Double.parseDouble(editText44.getText().toString().trim())*1.00;
                 double length_floor  = Double.parseDouble(editText54.getText().toString().trim())*1.00;
 
+                if(editText25.getText().length() == 0){ editText25.setText("0"); }
+                if(editText35.getText().length() == 0){ editText35.setText("0"); }
+                if(editText45.getText().length() == 0){ editText45.setText("0"); }
+                if(editText55.getText().length() == 0){ editText55.setText("0"); }
                 double width_wall13 = Double.parseDouble(editText25.getText().toString().trim())*1.00;
                 double width_wall24 = Double.parseDouble(editText35.getText().toString().trim())*1.00;
                 double width_roof   = Double.parseDouble(editText45.getText().toString().trim())*1.00;
@@ -539,6 +563,15 @@ public class Analysis extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
+                if(editText1.getText().length() == 0){ editText1.setText("0"); }
+                if(editText2.getText().length() == 0){ editText2.setText("0"); }
+                if(editText3.getText().length() == 0){ editText3.setText("0"); }
+                if(editText5.getText().length() == 0){ editText5.setText("0"); }
+                if(editText6.getText().length() == 0){ editText6.setText("0"); }
+                editText4.setText("0");
+                editText7.setText("0");
+                editText8.setText("0");
+                editText9.setText("0");
                 double r_value_editText = Double.parseDouble(editText1.getText().toString().trim())*1.00;
                 double exterior_temperature_editText = Double.parseDouble(editText2.getText().toString().trim())*1.00;
                 double interior_temperature_editText = Double.parseDouble(editText3.getText().toString().trim())*1.00;
