@@ -29,7 +29,7 @@
     <string name="fahrenheit">°F</string>
     <string name="refresh">Refresh</string>
     <string name="calculate">Calculate</string>
-    <string name="powerUnit">KW/hr</string>
+    <string name="powerUnit">kWh</string>
     <string name="waterUnit">Gallons</string>
     <string name="maximum">Maximum</string>
     <string name="minimum">Minimum</string>
@@ -69,6 +69,7 @@
     <string name="q2_auto">q2 (Btu/hr)</string>
     <string name="q3_auto">q3 (kW)</string>
     <string name="q4_auto">q4 ($/kWh)</string>
+    <string name="q4_auto_one_hour"> Last One Hour ($/kWh)</string>
     <string name="length_auto">Length (ft)</string>
     <string name="width_auto">Width (ft)</string>
 

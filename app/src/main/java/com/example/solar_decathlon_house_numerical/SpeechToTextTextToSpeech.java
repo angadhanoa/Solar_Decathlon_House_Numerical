@@ -43,8 +43,8 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
     String water1FileName = "water1.csv";
     String water2FileName = "water2.csv";
     String humidityFileName = "humiditysignature.csv";
-    String houseInfo = "houseSummary.txt";
-    String houseWelcome = "houseWelcome.txt";
+    String houseInfo = "housesummary.txt";
+    String houseWelcome = "housewelcome.txt";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,7 +56,8 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-                intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+                intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                        RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
                 intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.US);
                 intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Please, speak for me to assist you.");
                 try {
@@ -74,11 +75,11 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
             public void onInit(int status) {
                 if(status != TextToSpeech.ERROR) {
                     textToSpeech.setLanguage(Locale.US);
-                    textToSpeech.setSpeechRate((float) 0.90);
                 }
             }
         });
     }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -107,404 +108,356 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                      *    along with the major house keywords. If found one then we dive into other
                      *    information related to the house.
                      */
-                    if(Arrays.asList(keywords).contains("nomajor") && Arrays.asList(keywords).contains("nohouse"))
-                    {
+                    if (Arrays.asList(keywords).contains("nomajor") && Arrays.asList(keywords).contains("nohouse")) {
                         toSpeak = "No major sensors or anything about the house was requested. " +
                                 "For major sensors, please, choose between Power, Temperature, " +
                                 "Water, or Humidity. For anything related to house, you can welcome " +
                                 "new guests or give brief Information about the house.";
                         textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
-                    }
-                    else if(Arrays.asList(keywords).contains("nohouse") && (Arrays.asList(keywords).contains("power") ||
-                                    Arrays.asList(keywords).contains("temperature") ||
-                                    Arrays.asList(keywords).contains("water") ||
-                                    Arrays.asList(keywords).contains("humidity")))
-                    {
-                        if(Arrays.asList(keywords).contains("twomajors"))
-                        {
+                    } else if (Arrays.asList(keywords).contains("nohouse") && (Arrays.asList(keywords).contains("power") ||
+                            Arrays.asList(keywords).contains("temperature") ||
+                            Arrays.asList(keywords).contains("water") ||
+                            Arrays.asList(keywords).contains("humidity"))) {
+                        if (Arrays.asList(keywords).contains("twomajors")) {
                             toSpeak = "Information about more than one major sensors was " +
                                     "requested. Please choose just one out of Power, Temperature, " +
                                     "Water, or Humidity.";
                             textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
-                        }
-                        else if(Arrays.asList(keywords).contains("waterheater"))
-                        {
-                            if(Arrays.asList(keywords).contains("total") || Arrays.asList(keywords).contains("average")
-                              || Arrays.asList(keywords).contains("max") || Arrays.asList(keywords).contains("maximum")
-                              || Arrays.asList(keywords).contains("min") || Arrays.asList(keywords).contains("minimum"))
-                            {
+                        } else if (Arrays.asList(keywords).contains("waterheater")) {
+                            if (Arrays.asList(keywords).contains("total") || Arrays.asList(keywords).contains("average")
+                                    || Arrays.asList(keywords).contains("max") || Arrays.asList(keywords).contains("maximum")
+                                    || Arrays.asList(keywords).contains("min") || Arrays.asList(keywords).contains("minimum")) {
                                 jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
-                                try{
+                                try {
                                     //Creating a new thread for the file transfer, this takes the load off the main thread.
                                     thread = new Thread(new Runnable() {
                                         @Override
                                         public void run() {
-                                        try
-                                        {
-                                            //To get Samba Shared file from the Raspberry Pi
-                                            List<String[]> power;
+                                            try {
+                                                //To get Samba Shared file from the Raspberry Pi
+                                                List<String[]> power;
 
-                                            String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + powerFileName;
-                                            String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + powerFileName;
-                                            NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                            InputStream smbPowerFileWireless;
-                                            InputStream smbPowerFileEthernet;
-                                            CSVReader csv_power;
+                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + powerFileName;
+                                                String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + powerFileName;
+                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                InputStream smbPowerFileWireless;
+                                                InputStream smbPowerFileEthernet;
+                                                CSVReader csv_power;
 
-                                            boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
-                                            if(wirelessFileAvailable) {
-                                                smbPowerFileWireless = new SmbFile(url1, auth1).getInputStream();
-                                                csv_power = new CSVReader(smbPowerFileWireless, "power");
-                                            }
-                                            else {
-                                                smbPowerFileEthernet = new SmbFile(url2, auth1).getInputStream();
-                                                csv_power = new CSVReader(smbPowerFileEthernet, "power");
-                                            }
-
-                                            power = csv_power.read();
-
-                                            double totalPower = 0.0;
-                                            for (int i = 0; i < power.size(); i++) {
-                                                String[] row = power.get(i);
-                                                totalPower += (Double.parseDouble(row[5]) * 60) / 1000;
-                                            }
-
-                                            total = 0.0;
-                                            total = Math.round(totalPower * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
-                                        } catch (Exception e) {
-                                            e.printStackTrace();
-                                        }
-                                        }
-                                    });
-                                    thread.start();
-                                }
-                                catch(Exception e)
-                                {
-                                    e.printStackTrace();
-                                }
-                                whilebool = true;
-                                while(whilebool) {
-                                    if (!thread.isAlive()) {
-                                        value =  Double.toString(total);
-                                        toSpeak = "Total Power Consumption of the Water Heater is " + value + " Watts Per Hour";
-                                        textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
-                                        whilebool = false;
-                                    }
-                                }
-                            }
-                            else if(Arrays.asList(keywords).contains("current"))
-                            {
-                                jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
-                                try{
-                                    //Creating a new thread for the file transfer, this takes the load off the main thread.
-                                    thread = new Thread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                        try
-                                        {
-                                            //To get Samba Shared file from the Raspberry Pi
-                                            List<String[]> power;
-
-                                            String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + powerFileName;
-                                            String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + powerFileName;
-                                            NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                            InputStream smbPowerFileWireless;
-                                            InputStream smbPowerFileEthernet;
-                                            CSVReader csv_power;
-
-                                            boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
-                                            if(wirelessFileAvailable) {
-                                                smbPowerFileWireless = new SmbFile(url1, auth1).getInputStream();
-                                                csv_power = new CSVReader(smbPowerFileWireless, "power");
-                                            }
-                                            else {
-                                                smbPowerFileEthernet = new SmbFile(url2, auth1).getInputStream();
-                                                csv_power = new CSVReader(smbPowerFileEthernet, "power");
-                                            }
-
-                                            power = csv_power.read();
-
-                                            double currentPower = 0.0;
-                                            for (int i = 0; i < power.size(); i++) {
-                                                String[] row = power.get(i);
-                                                if( i == power.size() - 1)
-                                                {
-                                                    currentPower = (Double.parseDouble(row[5]) * 60) / 1000;
+                                                boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                if (wirelessFileAvailable) {
+                                                    smbPowerFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                    csv_power = new CSVReader(smbPowerFileWireless, "power");
+                                                } else {
+                                                    smbPowerFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                    csv_power = new CSVReader(smbPowerFileEthernet, "power");
                                                 }
+
+                                                power = csv_power.read();
+
+                                                double totalPower = 0.0;
+                                                for (int i = 0; i < power.size(); i++) {
+                                                    String[] row = power.get(i);
+                                                    totalPower += (Double.parseDouble(row[5]) / 3600000);
+                                                }
+
+                                                total = 0.0;
+                                                total = Math.round(totalPower * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
                                             }
-                                            current = 0.0;
-                                            current = Math.round(currentPower * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
-                                        } catch (Exception e) {
-                                            e.printStackTrace();
-                                        }
                                         }
                                     });
                                     thread.start();
-                                }
-                                catch(Exception e)
-                                {
+                                } catch (Exception e) {
                                     e.printStackTrace();
                                 }
                                 whilebool = true;
-                                while(whilebool) {
+                                while (whilebool) {
                                     if (!thread.isAlive()) {
-                                        value =  Double.toString(current);
-                                        toSpeak = "Current Power Consumption of the Water Heater is " + value + " Watts Per Hour";
+                                        value = Double.toString(total);
+                                        toSpeak = "Total Power Consumption of the Water Heater is " + value + " killowatt Hour";
+                                        textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
+                                        whilebool = false;
+                                    }
+                                }
+                            } else if (Arrays.asList(keywords).contains("current")) {
+                                jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
+                                try {
+                                    //Creating a new thread for the file transfer, this takes the load off the main thread.
+                                    thread = new Thread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            try {
+                                                //To get Samba Shared file from the Raspberry Pi
+                                                List<String[]> power;
+
+                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + powerFileName;
+                                                String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + powerFileName;
+                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                InputStream smbPowerFileWireless;
+                                                InputStream smbPowerFileEthernet;
+                                                CSVReader csv_power;
+
+                                                boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                if (wirelessFileAvailable) {
+                                                    smbPowerFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                    csv_power = new CSVReader(smbPowerFileWireless, "power");
+                                                } else {
+                                                    smbPowerFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                    csv_power = new CSVReader(smbPowerFileEthernet, "power");
+                                                }
+
+                                                power = csv_power.read();
+
+                                                double currentPower = 0.0;
+                                                for (int i = 0; i < power.size(); i++) {
+                                                    String[] row = power.get(i);
+                                                    if (i == power.size() - 1) {
+                                                        currentPower = (Double.parseDouble(row[5]) / 3600000);
+                                                    }
+                                                }
+                                                current = 0.0;
+                                                current = Math.round(currentPower * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
+                                            }
+                                        }
+                                    });
+                                    thread.start();
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                                whilebool = true;
+                                while (whilebool) {
+                                    if (!thread.isAlive()) {
+                                        value = Double.toString(current);
+                                        toSpeak = "Current Power Consumption of the Water Heater is " + value + " killowatt hours";
                                         textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
                                         whilebool = false;
                                     }
                                 }
                             }
-                        }
-                        else if(Arrays.asList(keywords).contains("watertank"))
-                        {
-                            if(Arrays.asList(keywords).contains("average") || Arrays.asList(keywords).contains("total"))
-                            {
+                        } else if (Arrays.asList(keywords).contains("watertank")) {
+                            if (Arrays.asList(keywords).contains("average") || Arrays.asList(keywords).contains("total")) {
                                 jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
-                                try{
+                                try {
                                     //Creating a new thread for the file transfer, this takes the load off the main thread.
                                     thread = new Thread(new Runnable() {
                                         @Override
                                         public void run() {
-                                        try
-                                        {
-                                            //To get Samba Shared file from the Raspberry Pi
-                                            List<String[]> temperature;
+                                            try {
+                                                //To get Samba Shared file from the Raspberry Pi
+                                                List<String[]> temperature;
 
-                                            String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
-                                            String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
-                                            NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                            InputStream smbTemperatureFileWireless;
-                                            InputStream smbTemperatureFileEthernet;
-                                            CSVReader csv_temperature;
+                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
+                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                InputStream smbTemperatureFileWireless;
+                                                InputStream smbTemperatureFileEthernet;
+                                                CSVReader csv_temperature;
 
-                                            boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
-                                            if(wirelessFileAvailable) {
-                                                smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
-                                                csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                                boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                if (wirelessFileAvailable) {
+                                                    smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                    csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                                } else {
+                                                    smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                    csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
+                                                }
+
+                                                temperature = csv_temperature.read();
+
+                                                double sumOfTemp = 0.0;
+                                                for (int i = 0; i < temperature.size(); i++) {
+                                                    String[] rows = temperature.get(i);
+                                                    sumOfTemp += Double.parseDouble(rows[7]);
+                                                }
+                                                double temp = sumOfTemp / (temperature.size());
+                                                average = 0.0;
+                                                average = Math.round(temp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
                                             }
-                                            else {
-                                                smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
-                                                csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
-                                            }
-
-                                            temperature = csv_temperature.read();
-
-                                            double sumOfTemp = 0.0;
-                                            for (int i = 0; i < temperature.size(); i++) {
-                                                String[] rows = temperature.get(i);
-                                                sumOfTemp += Double.parseDouble(rows[7]);
-                                            }
-                                            double temp = sumOfTemp/(temperature.size());
-                                            average = 0.0;
-                                            average = Math.round(temp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
-                                        } catch (Exception e) {
-                                            e.printStackTrace();
-                                        }
                                         }
                                     });
                                     thread.start();
-                                }
-                                catch(Exception e)
-                                {
+                                } catch (Exception e) {
                                     e.printStackTrace();
                                 }
                                 whilebool = true;
-                                while(whilebool)
-                                {
-                                    if(!thread.isAlive())
-                                    {
+                                while (whilebool) {
+                                    if (!thread.isAlive()) {
                                         value = Double.toString(average);
                                         toSpeak = "Average Temperature of the Water Tank is " + value + " Fahrenheit";
                                         textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
                                         whilebool = false;
                                     }
                                 }
-                            }
-                            else if(Arrays.asList(keywords).contains("max") || Arrays.asList(keywords).contains("maximum"))
-                            {
+                            } else if (Arrays.asList(keywords).contains("max") || Arrays.asList(keywords).contains("maximum")) {
                                 jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
-                                try{
+                                try {
                                     //Creating a new thread for the file transfer, this takes the load off the main thread.
                                     thread = new Thread(new Runnable() {
                                         @Override
                                         public void run() {
-                                        try
-                                        {
-                                            //To get Samba Shared file from the Raspberry Pi
-                                            List<String[]> temperature;
+                                            try {
+                                                //To get Samba Shared file from the Raspberry Pi
+                                                List<String[]> temperature;
 
-                                            String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
-                                            String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
-                                            NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                            InputStream smbTemperatureFileWireless;
-                                            InputStream smbTemperatureFileEthernet;
-                                            CSVReader csv_temperature;
+                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
+                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                InputStream smbTemperatureFileWireless;
+                                                InputStream smbTemperatureFileEthernet;
+                                                CSVReader csv_temperature;
 
-                                            boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
-                                            if(wirelessFileAvailable) {
-                                                smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
-                                                csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
-                                            }
-                                            else {
-                                                smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
-                                                csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
-                                            }
-
-                                            temperature = csv_temperature.read();
-
-                                            String[] rows = temperature.get(0);
-                                            double maxTemp = Double.parseDouble(rows[7]);
-                                            for (int i = 0; i < temperature.size(); i++) {
-                                                String[] row = temperature.get(i);
-                                                if(Double.parseDouble(row[7]) > maxTemp)
-                                                {
-                                                    maxTemp = Double.parseDouble(row[7]);
+                                                boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                if (wirelessFileAvailable) {
+                                                    smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                    csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                                } else {
+                                                    smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                    csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
                                                 }
+
+                                                temperature = csv_temperature.read();
+
+                                                String[] rows = temperature.get(0);
+                                                double maxTemp = Double.parseDouble(rows[7]);
+                                                for (int i = 0; i < temperature.size(); i++) {
+                                                    String[] row = temperature.get(i);
+                                                    if (Double.parseDouble(row[7]) > maxTemp) {
+                                                        maxTemp = Double.parseDouble(row[7]);
+                                                    }
+                                                }
+                                                maximum = 0.0;
+                                                maximum = Math.round(maxTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
+                                                value = Double.toString(maximum);
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
                                             }
-                                            maximum = 0.0;
-                                            maximum = Math.round(maxTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
-                                            value =  Double.toString(maximum);
-                                        } catch (Exception e) {
-                                            e.printStackTrace();
-                                        }
                                         }
                                     });
                                     thread.start();
-                                }
-                                catch(Exception e)
-                                {
+                                } catch (Exception e) {
                                     e.printStackTrace();
                                 }
                                 whilebool = true;
-                                while(whilebool) {
+                                while (whilebool) {
                                     if (!thread.isAlive()) {
                                         toSpeak = "Maximum Temperature of the Water Tank is " + value + " Fahrenheit";
                                         textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
                                         whilebool = false;
                                     }
                                 }
-                            }
-                            else if(Arrays.asList(keywords).contains("min") || Arrays.asList(keywords).contains("minimum"))
-                            {
+                            } else if (Arrays.asList(keywords).contains("min") || Arrays.asList(keywords).contains("minimum")) {
                                 jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
-                                try{
+                                try {
                                     //Creating a new thread for the file transfer, this takes the load off the main thread.
                                     thread = new Thread(new Runnable() {
                                         @Override
                                         public void run() {
-                                        try
-                                        {
-                                            //To get Samba Shared file from the Raspberry Pi
-                                            List<String[]> temperature;
+                                            try {
+                                                //To get Samba Shared file from the Raspberry Pi
+                                                List<String[]> temperature;
 
-                                            String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
-                                            String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
-                                            NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                            InputStream smbTemperatureFileWireless;
-                                            InputStream smbTemperatureFileEthernet;
-                                            CSVReader csv_temperature;
+                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
+                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                InputStream smbTemperatureFileWireless;
+                                                InputStream smbTemperatureFileEthernet;
+                                                CSVReader csv_temperature;
 
-                                            boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
-                                            if(wirelessFileAvailable) {
-                                                smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
-                                                csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
-                                            }
-                                            else {
-                                                smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
-                                                csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
-                                            }
-
-                                            temperature = csv_temperature.read();
-
-                                            String[] rows = temperature.get(0);
-                                            double minTemp = Double.parseDouble(rows[7]);
-                                            for (int i = 0; i < temperature.size(); i++) {
-                                                String[] row = temperature.get(i);
-                                                if(Double.parseDouble(row[7]) < minTemp)
-                                                {
-                                                    minTemp = Double.parseDouble(row[6]);
+                                                boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                if (wirelessFileAvailable) {
+                                                    smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                    csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                                } else {
+                                                    smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                    csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
                                                 }
+
+                                                temperature = csv_temperature.read();
+
+                                                String[] rows = temperature.get(0);
+                                                double minTemp = Double.parseDouble(rows[7]);
+                                                for (int i = 0; i < temperature.size(); i++) {
+                                                    String[] row = temperature.get(i);
+                                                    if (Double.parseDouble(row[7]) < minTemp) {
+                                                        minTemp = Double.parseDouble(row[6]);
+                                                    }
+                                                }
+                                                minimum = 0.0;
+                                                minimum = Math.round(minTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
+                                                value = Double.toString(minimum);
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
                                             }
-                                            minimum = 0.0;
-                                            minimum = Math.round(minTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
-                                            value =  Double.toString(minimum);
-                                        } catch (Exception e) {
-                                            e.printStackTrace();
-                                        }
                                         }
                                     });
                                     thread.start();
-                                }
-                                catch(Exception e)
-                                {
+                                } catch (Exception e) {
                                     e.printStackTrace();
                                 }
                                 whilebool = true;
-                                while(whilebool) {
+                                while (whilebool) {
                                     if (!thread.isAlive()) {
                                         toSpeak = "Minimum Temperature of the Water Tank is " + value + " Fahrenheit";
                                         textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
                                         whilebool = false;
                                     }
                                 }
-                            }
-                            else if(Arrays.asList(keywords).contains("current"))
-                            {
+                            } else if (Arrays.asList(keywords).contains("current")) {
                                 jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
-                                try{
+                                try {
                                     //Creating a new thread for the file transfer, this takes the load off the main thread.
                                     thread = new Thread(new Runnable() {
                                         @Override
                                         public void run() {
-                                        try
-                                        {
-                                            //To get Samba Shared file from the Raspberry Pi
-                                            List<String[]> temperature;
+                                            try {
+                                                //To get Samba Shared file from the Raspberry Pi
+                                                List<String[]> temperature;
 
-                                            String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
-                                            String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
-                                            NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                            InputStream smbTemperatureFileWireless;
-                                            InputStream smbTemperatureFileEthernet;
-                                            CSVReader csv_temperature;
+                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
+                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                InputStream smbTemperatureFileWireless;
+                                                InputStream smbTemperatureFileEthernet;
+                                                CSVReader csv_temperature;
 
-                                            boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
-                                            if(wirelessFileAvailable) {
-                                                smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
-                                                csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
-                                            }
-                                            else {
-                                                smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
-                                                csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
-                                            }
-
-                                            temperature = csv_temperature.read();
-
-                                            double currentTemp = 0.0;
-                                            for (int i = 0; i < temperature.size(); i++) {
-                                                String[] row = temperature.get(i);
-                                                if( i == temperature.size() - 1)
-                                                {
-                                                    currentTemp = Double.parseDouble(row[7]);
+                                                boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                if (wirelessFileAvailable) {
+                                                    smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                    csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                                } else {
+                                                    smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                    csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
                                                 }
+
+                                                temperature = csv_temperature.read();
+
+                                                double currentTemp = 0.0;
+                                                for (int i = 0; i < temperature.size(); i++) {
+                                                    String[] row = temperature.get(i);
+                                                    if (i == temperature.size() - 1) {
+                                                        currentTemp = Double.parseDouble(row[7]);
+                                                    }
+                                                }
+                                                current = 0.0;
+                                                current = Math.round(currentTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
+                                                value = Double.toString(current);
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
                                             }
-                                            current = 0.0;
-                                            current = Math.round(currentTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
-                                            value =  Double.toString(current);
-                                        } catch (Exception e) {
-                                            e.printStackTrace();
-                                        }
                                         }
                                     });
                                     thread.start();
-                                }
-                                catch(Exception e)
-                                {
+                                } catch (Exception e) {
                                     e.printStackTrace();
                                 }
                                 whilebool = true;
-                                while(whilebool) {
+                                while (whilebool) {
                                     if (!thread.isAlive()) {
                                         toSpeak = "Current Temperature of the Water Tank is " + value + " Fahrenheit";
                                         textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
@@ -512,254 +465,226 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                     }
                                 }
                             }
-                        }
-                        else if(Arrays.asList(keywords).contains("watersolarcollector"))
-                        {
-                            if(Arrays.asList(keywords).contains("average") || Arrays.asList(keywords).contains("total"))
-                            {
+                        } else if (Arrays.asList(keywords).contains("watersolarcollector")) {
+                            if (Arrays.asList(keywords).contains("average") || Arrays.asList(keywords).contains("total")) {
                                 jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
-                                try{
+                                try {
                                     //Creating a new thread for the file transfer, this takes the load off the main thread.
                                     thread = new Thread(new Runnable() {
                                         @Override
                                         public void run() {
-                                        try
-                                        {
-                                            //To get Samba Shared file from the Raspberry Pi
-                                            List<String[]> temperature;
+                                            try {
+                                                //To get Samba Shared file from the Raspberry Pi
+                                                List<String[]> temperature;
 
-                                            String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
-                                            String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
-                                            NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                            InputStream smbTemperatureFileWireless;
-                                            InputStream smbTemperatureFileEthernet;
-                                            CSVReader csv_temperature;
+                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
+                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                InputStream smbTemperatureFileWireless;
+                                                InputStream smbTemperatureFileEthernet;
+                                                CSVReader csv_temperature;
 
-                                            boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
-                                            if(wirelessFileAvailable) {
-                                                smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
-                                                csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                                boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                if (wirelessFileAvailable) {
+                                                    smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                    csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                                } else {
+                                                    smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                    csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
+                                                }
+
+                                                temperature = csv_temperature.read();
+
+                                                double sumOfTemp = 0.0;
+                                                for (int i = 0; i < temperature.size(); i++) {
+                                                    String[] rows = temperature.get(i);
+                                                    sumOfTemp += Double.parseDouble(rows[8]);
+                                                }
+                                                double temp = sumOfTemp / (temperature.size());
+                                                average = 0.0;
+                                                average = Math.round(temp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
+                                                value = Double.toString(average);
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
                                             }
-                                            else {
-                                                smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
-                                                csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
-                                            }
-
-                                            temperature = csv_temperature.read();
-
-                                            double sumOfTemp = 0.0;
-                                            for (int i = 0; i < temperature.size(); i++) {
-                                                String[] rows = temperature.get(i);
-                                                sumOfTemp += Double.parseDouble(rows[8]);
-                                            }
-                                            double temp = sumOfTemp/(temperature.size());
-                                            average = 0.0;
-                                            average = Math.round(temp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
-                                            value =  Double.toString(average);
-                                        } catch (Exception e) {
-                                            e.printStackTrace();
-                                        }
                                         }
                                     });
                                     thread.start();
-                                }
-                                catch(Exception e)
-                                {
+                                } catch (Exception e) {
                                     e.printStackTrace();
                                 }
                                 whilebool = true;
-                                while(whilebool) {
+                                while (whilebool) {
                                     if (!thread.isAlive()) {
                                         toSpeak = "Average Temperature of the Water Solar Collector is " + value + " Fahrenheit";
                                         textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
                                         whilebool = false;
                                     }
                                 }
-                            }
-                            else if(Arrays.asList(keywords).contains("max") || Arrays.asList(keywords).contains("maximum"))
-                            {
+                            } else if (Arrays.asList(keywords).contains("max") || Arrays.asList(keywords).contains("maximum")) {
                                 jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
-                                try{
+                                try {
                                     //Creating a new thread for the file transfer, this takes the load off the main thread.
                                     thread = new Thread(new Runnable() {
                                         @Override
                                         public void run() {
-                                        try
-                                        {
-                                            //To get Samba Shared file from the Raspberry Pi
-                                            List<String[]> temperature;
+                                            try {
+                                                //To get Samba Shared file from the Raspberry Pi
+                                                List<String[]> temperature;
 
-                                            String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
-                                            String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
-                                            NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                            InputStream smbTemperatureFileWireless;
-                                            InputStream smbTemperatureFileEthernet;
-                                            CSVReader csv_temperature;
+                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
+                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                InputStream smbTemperatureFileWireless;
+                                                InputStream smbTemperatureFileEthernet;
+                                                CSVReader csv_temperature;
 
-                                            boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
-                                            if(wirelessFileAvailable) {
-                                                smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
-                                                csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
-                                            }
-                                            else {
-                                                smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
-                                                csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
-                                            }
-
-                                            temperature = csv_temperature.read();
-
-                                            String[] rows = temperature.get(0);
-                                            double maxTemp = Double.parseDouble(rows[8]);
-                                            for (int i = 0; i < temperature.size(); i++) {
-                                                String[] row = temperature.get(i);
-                                                if(Double.parseDouble(row[8]) > maxTemp)
-                                                {
-                                                    maxTemp = Double.parseDouble(row[8]);
+                                                boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                if (wirelessFileAvailable) {
+                                                    smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                    csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                                } else {
+                                                    smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                    csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
                                                 }
+
+                                                temperature = csv_temperature.read();
+
+                                                String[] rows = temperature.get(0);
+                                                double maxTemp = Double.parseDouble(rows[8]);
+                                                for (int i = 0; i < temperature.size(); i++) {
+                                                    String[] row = temperature.get(i);
+                                                    if (Double.parseDouble(row[8]) > maxTemp) {
+                                                        maxTemp = Double.parseDouble(row[8]);
+                                                    }
+                                                }
+                                                maximum = 0.0;
+                                                maximum = Math.round(maxTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
+                                                value = Double.toString(maximum);
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
                                             }
-                                            maximum = 0.0;
-                                            maximum = Math.round(maxTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
-                                            value =  Double.toString(maximum);
-                                        } catch (Exception e) {
-                                            e.printStackTrace();
-                                        }
                                         }
                                     });
                                     thread.start();
-                                }
-                                catch(Exception e)
-                                {
+                                } catch (Exception e) {
                                     e.printStackTrace();
                                 }
                                 whilebool = true;
-                                while(whilebool) {
+                                while (whilebool) {
                                     if (!thread.isAlive()) {
                                         toSpeak = "Maximum Temperature of the Water Solar Collector is " + value + " Fahrenheit";
                                         textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
                                         whilebool = false;
                                     }
                                 }
-                            }
-                            else if(Arrays.asList(keywords).contains("min") || Arrays.asList(keywords).contains("minimum"))
-                            {
+                            } else if (Arrays.asList(keywords).contains("min") || Arrays.asList(keywords).contains("minimum")) {
                                 jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
-                                try{
+                                try {
                                     //Creating a new thread for the file transfer, this takes the load off the main thread.
                                     thread = new Thread(new Runnable() {
                                         @Override
                                         public void run() {
-                                        try
-                                        {
-                                            //To get Samba Shared file from the Raspberry Pi
-                                            List<String[]> temperature;
+                                            try {
+                                                //To get Samba Shared file from the Raspberry Pi
+                                                List<String[]> temperature;
 
-                                            String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
-                                            String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
-                                            NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                            InputStream smbTemperatureFileWireless;
-                                            InputStream smbTemperatureFileEthernet;
-                                            CSVReader csv_temperature;
+                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
+                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                InputStream smbTemperatureFileWireless;
+                                                InputStream smbTemperatureFileEthernet;
+                                                CSVReader csv_temperature;
 
-                                            boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
-                                            if(wirelessFileAvailable) {
-                                                smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
-                                                csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
-                                            }
-                                            else {
-                                                smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
-                                                csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
-                                            }
-
-                                            temperature = csv_temperature.read();
-
-                                            String[] rows = temperature.get(0);
-                                            double minTemp = Double.parseDouble(rows[8]);
-                                            for (int i = 0; i < temperature.size(); i++) {
-                                                String[] row = temperature.get(i);
-                                                if(Double.parseDouble(row[8]) < minTemp)
-                                                {
-                                                    minTemp = Double.parseDouble(row[8]);
+                                                boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                if (wirelessFileAvailable) {
+                                                    smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                    csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                                } else {
+                                                    smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                    csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
                                                 }
+
+                                                temperature = csv_temperature.read();
+
+                                                String[] rows = temperature.get(0);
+                                                double minTemp = Double.parseDouble(rows[8]);
+                                                for (int i = 0; i < temperature.size(); i++) {
+                                                    String[] row = temperature.get(i);
+                                                    if (Double.parseDouble(row[8]) < minTemp) {
+                                                        minTemp = Double.parseDouble(row[8]);
+                                                    }
+                                                }
+                                                minimum = 0.0;
+                                                minimum = Math.round(minTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
+                                                value = Double.toString(minimum);
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
                                             }
-                                            minimum = 0.0;
-                                            minimum = Math.round(minTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
-                                            value =  Double.toString(minimum);
-                                        } catch (Exception e) {
-                                            e.printStackTrace();
-                                        }
                                         }
                                     });
                                     thread.start();
-                                }
-                                catch(Exception e)
-                                {
+                                } catch (Exception e) {
                                     e.printStackTrace();
                                 }
                                 whilebool = true;
-                                while(whilebool) {
+                                while (whilebool) {
                                     if (!thread.isAlive()) {
                                         toSpeak = "Minimum Temperature of the Water Solar Collector is " + value + " Fahrenheit";
                                         textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
                                         whilebool = false;
                                     }
                                 }
-                            }
-                            else if(Arrays.asList(keywords).contains("current"))
-                            {
+                            } else if (Arrays.asList(keywords).contains("current")) {
                                 jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
-                                try{
+                                try {
                                     //Creating a new thread for the file transfer, this takes the load off the main thread.
                                     thread = new Thread(new Runnable() {
                                         @Override
                                         public void run() {
-                                        try
-                                        {
-                                            //To get Samba Shared file from the Raspberry Pi
-                                            List<String[]> temperature;
+                                            try {
+                                                //To get Samba Shared file from the Raspberry Pi
+                                                List<String[]> temperature;
 
-                                            String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
-                                            String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
-                                            NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                            InputStream smbTemperatureFileWireless;
-                                            InputStream smbTemperatureFileEthernet;
-                                            CSVReader csv_temperature;
+                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
+                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                InputStream smbTemperatureFileWireless;
+                                                InputStream smbTemperatureFileEthernet;
+                                                CSVReader csv_temperature;
 
-                                            boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
-                                            if(wirelessFileAvailable) {
-                                                smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
-                                                csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
-                                            }
-                                            else {
-                                                smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
-                                                csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
-                                            }
-
-                                            temperature = csv_temperature.read();
-
-                                            double currentTemp = 0.0;
-                                            for (int i = 0; i < temperature.size(); i++) {
-                                                String[] row = temperature.get(i);
-                                                if( i == temperature.size() - 1)
-                                                {
-                                                    currentTemp = Double.parseDouble(row[8]);
+                                                boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                if (wirelessFileAvailable) {
+                                                    smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                    csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                                } else {
+                                                    smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                    csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
                                                 }
+
+                                                temperature = csv_temperature.read();
+
+                                                double currentTemp = 0.0;
+                                                for (int i = 0; i < temperature.size(); i++) {
+                                                    String[] row = temperature.get(i);
+                                                    if (i == temperature.size() - 1) {
+                                                        currentTemp = Double.parseDouble(row[8]);
+                                                    }
+                                                }
+                                                current = 0.0;
+                                                current = Math.round(currentTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
+                                                value = Double.toString(current);
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
                                             }
-                                            current = 0.0;
-                                            current = Math.round(currentTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
-                                            value =  Double.toString(current);
-                                        } catch (Exception e) {
-                                            e.printStackTrace();
-                                        }
                                         }
                                     });
                                     thread.start();
-                                }
-                                catch(Exception e)
-                                {
+                                } catch (Exception e) {
                                     e.printStackTrace();
                                 }
                                 whilebool = true;
-                                while(whilebool) {
+                                while (whilebool) {
                                     if (!thread.isAlive()) {
                                         toSpeak = "Current Temperature of the Water Solar Collector is " + value + " Fahrenheit";
                                         textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
@@ -767,29 +692,19 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                     }
                                 }
                             }
-                        }
-                        else if(Arrays.asList(keywords).contains("power"))
-                        {
-                            if(Arrays.asList(keywords).contains("production"))
+                        } else if (Arrays.asList(keywords).contains("power")) {
+                            if (Arrays.asList(keywords).contains("production"))
                             {
-
-                            }
-                            else if(Arrays.asList(keywords).contains("consumption"))
-                            {
-                                if(Arrays.asList(keywords).contains("lighting"))
-                                {
-                                    if(Arrays.asList(keywords).contains("total") || Arrays.asList(keywords).contains("average")
-                                            || Arrays.asList(keywords).contains("max") || Arrays.asList(keywords).contains("maximum")
-                                            || Arrays.asList(keywords).contains("min") || Arrays.asList(keywords).contains("minimum"))
-                                    {
-                                        jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
-                                        try{
-                                            //Creating a new thread for the file transfer, this takes the load off the main thread.
-                                            thread = new Thread(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                try
-                                                {
+                                if (Arrays.asList(keywords).contains("total") || Arrays.asList(keywords).contains("average")
+                                        || Arrays.asList(keywords).contains("max") || Arrays.asList(keywords).contains("maximum")
+                                        || Arrays.asList(keywords).contains("min") || Arrays.asList(keywords).contains("minimum")) {
+                                    jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
+                                    try {
+                                        //Creating a new thread for the file transfer, this takes the load off the main thread.
+                                        thread = new Thread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                try {
                                                     //To get Samba Shared file from the Raspberry Pi
                                                     List<String[]> power;
 
@@ -801,11 +716,10 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                     CSVReader csv_power;
 
                                                     boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
-                                                    if(wirelessFileAvailable) {
+                                                    if (wirelessFileAvailable) {
                                                         smbPowerFileWireless = new SmbFile(url1, auth1).getInputStream();
                                                         csv_power = new CSVReader(smbPowerFileWireless, "power");
-                                                    }
-                                                    else {
+                                                    } else {
                                                         smbPowerFileEthernet = new SmbFile(url2, auth1).getInputStream();
                                                         csv_power = new CSVReader(smbPowerFileEthernet, "power");
                                                     }
@@ -815,41 +729,36 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                     double totalPower = 0.0;
                                                     for (int i = 0; i < power.size(); i++) {
                                                         String[] row = power.get(i);
-                                                        totalPower += (Double.parseDouble(row[2]) * 60) / 1000;
+                                                        totalPower += Double.parseDouble(row[1]) / 3600000;
                                                     }
                                                     total = 0.0;
-                                                    total = Math.round(totalPower * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
+                                                    total = Math.round(totalPower * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
                                                 } catch (Exception e) {
                                                     e.printStackTrace();
                                                 }
-                                                }
-                                            });
-                                            thread.start();
-                                        }
-                                        catch(Exception e)
-                                        {
-                                            e.printStackTrace();
-                                        }
-                                        whilebool = true;
-                                        while(whilebool) {
-                                            if (!thread.isAlive()) {
-                                                value =  Double.toString(total);
-                                                toSpeak = "Total Power Consumption of the Lighting Sensor is " + value + " Watts Per Hour";
-                                                textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
-                                                whilebool = false;
                                             }
+                                        });
+                                        thread.start();
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                    whilebool = true;
+                                    while (whilebool) {
+                                        if (!thread.isAlive()) {
+                                            value = Double.toString(total);
+                                            toSpeak = "Total Power Produced by Solar Panels is " + value + " killowatt hours";
+                                            textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
+                                            whilebool = false;
                                         }
                                     }
-                                    else if(Arrays.asList(keywords).contains("current"))
-                                    {
-                                        jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
-                                        try{
-                                            //Creating a new thread for the file transfer, this takes the load off the main thread.
-                                            thread = new Thread(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                try
-                                                {
+                                } else if (Arrays.asList(keywords).contains("current")) {
+                                    jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
+                                    try {
+                                        //Creating a new thread for the file transfer, this takes the load off the main thread.
+                                        thread = new Thread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                try {
                                                     //To get Samba Shared file from the Raspberry Pi
                                                     List<String[]> power;
 
@@ -861,11 +770,10 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                     CSVReader csv_power;
 
                                                     boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
-                                                    if(wirelessFileAvailable) {
+                                                    if (wirelessFileAvailable) {
                                                         smbPowerFileWireless = new SmbFile(url1, auth1).getInputStream();
                                                         csv_power = new CSVReader(smbPowerFileWireless, "power");
-                                                    }
-                                                    else {
+                                                    } else {
                                                         smbPowerFileEthernet = new SmbFile(url2, auth1).getInputStream();
                                                         csv_power = new CSVReader(smbPowerFileEthernet, "power");
                                                     }
@@ -875,436 +783,43 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                     double currentPower = 0.0;
                                                     for (int i = 0; i < power.size(); i++) {
                                                         String[] row = power.get(i);
-                                                        if( i == power.size() - 1)
-                                                        {
-                                                            currentPower = (Double.parseDouble(row[2]) * 60) / 1000;
+                                                        if (i == power.size() - 1) {
+                                                            currentPower = Double.parseDouble(row[1]) / 3600000;
                                                         }
                                                     }
                                                     current = 0.0;
-                                                    current = Math.round(currentPower * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
+                                                    current = Math.round(currentPower * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
                                                 } catch (Exception e) {
                                                     e.printStackTrace();
                                                 }
-                                                }
-                                            });
-                                            thread.start();
-                                        }
-                                        catch(Exception e)
-                                        {
-                                            e.printStackTrace();
-                                        }
-                                        whilebool = true;
-                                        while(whilebool) {
-                                            if (!thread.isAlive()) {
-                                                value =  Double.toString(current);
-                                                toSpeak = "Current Power Consumption of the Lighting Sensor is " + value + " Watts Per Hour";
-                                                textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
-                                                whilebool = false;
                                             }
+                                        });
+                                        thread.start();
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                    whilebool = true;
+                                    while (whilebool) {
+                                        if (!thread.isAlive()) {
+                                            value = Double.toString(current);
+                                            toSpeak = "Current Power Produced by the Solar Panels is " + value + " killowatt hours";
+                                            textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
+                                            whilebool = false;
                                         }
                                     }
                                 }
-                                else if(Arrays.asList(keywords).contains("refrigerator"))
-                                {
-                                    if(Arrays.asList(keywords).contains("total") || Arrays.asList(keywords).contains("average")
+                            } else if (Arrays.asList(keywords).contains("consumption")) {
+                                if (Arrays.asList(keywords).contains("lighting")) {
+                                    if (Arrays.asList(keywords).contains("total") || Arrays.asList(keywords).contains("average")
                                             || Arrays.asList(keywords).contains("max") || Arrays.asList(keywords).contains("maximum")
-                                            || Arrays.asList(keywords).contains("min") || Arrays.asList(keywords).contains("minimum"))
-                                    {
+                                            || Arrays.asList(keywords).contains("min") || Arrays.asList(keywords).contains("minimum")) {
                                         jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
-                                        try{
+                                        try {
                                             //Creating a new thread for the file transfer, this takes the load off the main thread.
                                             thread = new Thread(new Runnable() {
                                                 @Override
                                                 public void run() {
-                                                try
-                                                {
-                                                    //To get Samba Shared file from the Raspberry Pi
-                                                    List<String[]> power;
-
-                                                    String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + powerFileName;
-                                                    String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + powerFileName;
-                                                    NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                    InputStream smbPowerFileWireless;
-                                                    InputStream smbPowerFileEthernet;
-                                                    CSVReader csv_power;
-
-                                                    boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
-                                                    if(wirelessFileAvailable) {
-                                                        smbPowerFileWireless = new SmbFile(url1, auth1).getInputStream();
-                                                        csv_power = new CSVReader(smbPowerFileWireless, "power");
-                                                    }
-                                                    else {
-                                                        smbPowerFileEthernet = new SmbFile(url2, auth1).getInputStream();
-                                                        csv_power = new CSVReader(smbPowerFileEthernet, "power");
-                                                    }
-
-                                                    power = csv_power.read();
-
-                                                    double totalPower = 0.0;
-                                                    for (int i = 0; i < power.size(); i++) {
-                                                        String[] row = power.get(i);
-                                                        totalPower += Double.parseDouble(row[6]) * 60 / 1000;
-                                                    }
-                                                    total = 0.0;
-                                                    total = Math.round(totalPower * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
-                                                } catch (Exception e) {
-                                                    e.printStackTrace();
-                                                }
-                                                }
-                                            });
-                                            thread.start();
-                                        }
-                                        catch(Exception e)
-                                        {
-                                            e.printStackTrace();
-                                        }
-                                        whilebool = true;
-                                        while(whilebool) {
-                                            if (!thread.isAlive()) {
-                                                value =  Double.toString(total);
-                                                toSpeak = "Total Power Consumption of the Refrigerator Sensor is " + value + " Watts Per Hour";
-                                                textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
-                                                whilebool = false;
-                                            }
-                                        }
-                                    }
-                                    else if(Arrays.asList(keywords).contains("current"))
-                                    {
-                                        jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
-                                        try{
-                                            //Creating a new thread for the file transfer, this takes the load off the main thread.
-                                            thread = new Thread(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                try
-                                                {
-                                                    //To get Samba Shared file from the Raspberry Pi
-                                                    List<String[]> power;
-
-                                                    String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + powerFileName;
-                                                    String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + powerFileName;
-                                                    NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                    InputStream smbPowerFileWireless;
-                                                    InputStream smbPowerFileEthernet;
-                                                    CSVReader csv_power;
-
-                                                    boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
-                                                    if(wirelessFileAvailable) {
-                                                        smbPowerFileWireless = new SmbFile(url1, auth1).getInputStream();
-                                                        csv_power = new CSVReader(smbPowerFileWireless, "power");
-                                                    }
-                                                    else {
-                                                        smbPowerFileEthernet = new SmbFile(url2, auth1).getInputStream();
-                                                        csv_power = new CSVReader(smbPowerFileEthernet, "power");
-                                                    }
-
-                                                    power = csv_power.read();
-
-                                                    double currentPower = 0.0;
-                                                    for (int i = 0; i < power.size(); i++) {
-                                                        String[] row = power.get(i);
-                                                        if( i == power.size() - 1)
-                                                        {
-                                                            currentPower = Double.parseDouble(row[6]) * 60 / 1000;
-                                                        }
-                                                    }
-                                                    current = 0.0;
-                                                    current = Math.round(currentPower * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
-                                                } catch (Exception e) {
-                                                    e.printStackTrace();
-                                                }
-                                                }
-                                            });
-                                            thread.start();
-                                        }
-                                        catch(Exception e)
-                                        {
-                                            e.printStackTrace();
-                                        }
-                                        whilebool = true;
-                                        while(whilebool) {
-                                            if (!thread.isAlive()) {
-                                                value =  Double.toString(current);
-                                                toSpeak = "Current Power Consumption of the Refrigerator Sensor is " + value + " Watts Per Hour";
-                                                textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
-                                                whilebool = false;
-                                            }
-                                        }
-                                    }
-                                }
-                                else if(Arrays.asList(keywords).contains("air")
-                                        || Arrays.asList(keywords).contains("conditioner"))
-                                {
-                                    if(Arrays.asList(keywords).contains("total") || Arrays.asList(keywords).contains("average")
-                                            || Arrays.asList(keywords).contains("max") || Arrays.asList(keywords).contains("maximum")
-                                            || Arrays.asList(keywords).contains("min") || Arrays.asList(keywords).contains("minimum"))
-                                    {
-                                        jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
-                                        try{
-                                            //Creating a new thread for the file transfer, this takes the load off the main thread.
-                                            thread = new Thread(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                try
-                                                {
-                                                    //To get Samba Shared file from the Raspberry Pi
-                                                    List<String[]> power;
-
-                                                    String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + powerFileName;
-                                                    String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + powerFileName;
-                                                    NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                    InputStream smbPowerFileWireless;
-                                                    InputStream smbPowerFileEthernet;
-                                                    CSVReader csv_power;
-
-                                                    boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
-                                                    if(wirelessFileAvailable) {
-                                                        smbPowerFileWireless = new SmbFile(url1, auth1).getInputStream();
-                                                        csv_power = new CSVReader(smbPowerFileWireless, "power");
-                                                    }
-                                                    else {
-                                                        smbPowerFileEthernet = new SmbFile(url2, auth1).getInputStream();
-                                                        csv_power = new CSVReader(smbPowerFileEthernet, "power");
-                                                    }
-
-                                                    power = csv_power.read();
-
-                                                    double totalPower = 0.0;
-                                                    for (int i = 0; i < power.size(); i++) {
-                                                        String[] row = power.get(i);
-                                                        totalPower += Double.parseDouble(row[4]) * 60 / 1000;
-                                                    }
-                                                    total = 0.0;
-                                                    total = Math.round(totalPower * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
-                                                } catch (Exception e) {
-                                                    e.printStackTrace();
-                                                }
-                                                }
-                                            });
-                                            thread.start();
-                                        }
-                                        catch(Exception e)
-                                        {
-                                            e.printStackTrace();
-                                        }
-                                        whilebool = true;
-                                        while(whilebool) {
-                                            if (!thread.isAlive()) {
-                                                value =  Double.toString(total);
-                                                toSpeak = "Total Power Consumption of the Air Conditioner Sensor is " + value + " Watts Per Hour";
-                                                textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
-                                                whilebool = false;
-                                            }
-                                        }
-                                    }
-                                    else if(Arrays.asList(keywords).contains("current"))
-                                    {
-                                        jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
-                                        try{
-                                            //Creating a new thread for the file transfer, this takes the load off the main thread.
-                                            thread = new Thread(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                try
-                                                {
-                                                    //To get Samba Shared file from the Raspberry Pi
-                                                    List<String[]> power;
-
-                                                    String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + powerFileName;
-                                                    String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + powerFileName;
-                                                    NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                    InputStream smbPowerFileWireless;
-                                                    InputStream smbPowerFileEthernet;
-                                                    CSVReader csv_power;
-
-                                                    boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
-                                                    if(wirelessFileAvailable) {
-                                                        smbPowerFileWireless = new SmbFile(url1, auth1).getInputStream();
-                                                        csv_power = new CSVReader(smbPowerFileWireless, "power");
-                                                    }
-                                                    else {
-                                                        smbPowerFileEthernet = new SmbFile(url2, auth1).getInputStream();
-                                                        csv_power = new CSVReader(smbPowerFileEthernet, "power");
-                                                    }
-
-                                                    power = csv_power.read();
-
-                                                    double currentPower = 0.0;
-                                                    for (int i = 0; i < power.size(); i++) {
-                                                        String[] row = power.get(i);
-                                                        if( i == power.size() - 1)
-                                                        {
-                                                            currentPower = Double.parseDouble(row[3]) * 60 / 1000;
-                                                        }
-                                                    }
-                                                    current = 0.0;
-                                                    current = Math.round(currentPower * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
-                                                } catch (Exception e) {
-                                                    e.printStackTrace();
-                                                }
-                                                }
-                                            });
-                                            thread.start();
-                                        }
-                                        catch(Exception e)
-                                        {
-                                            e.printStackTrace();
-                                        }
-                                        whilebool = true;
-                                        while(whilebool) {
-                                            if (!thread.isAlive()) {
-                                                value =  Double.toString(current);
-                                                toSpeak = "Current Power Consumption of the Air Conditioner Sensor is " + value + " Watts Per Hour";
-                                                textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
-                                                whilebool = false;
-                                            }
-                                        }
-                                    }
-                                }
-                                else if(Arrays.asList(keywords).contains("kitchen"))
-                                {
-                                    if(Arrays.asList(keywords).contains("total") || Arrays.asList(keywords).contains("average")
-                                            || Arrays.asList(keywords).contains("max") || Arrays.asList(keywords).contains("maximum")
-                                            || Arrays.asList(keywords).contains("min") || Arrays.asList(keywords).contains("minimum"))
-                                    {
-                                        jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
-                                        try{
-                                            //Creating a new thread for the file transfer, this takes the load off the main thread.
-                                            thread = new Thread(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                try
-                                                {
-                                                    //To get Samba Shared file from the Raspberry Pi
-                                                    List<String[]> power;
-
-                                                    String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + powerFileName;
-                                                    String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + powerFileName;
-                                                    NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                    InputStream smbPowerFileWireless;
-                                                    InputStream smbPowerFileEthernet;
-                                                    CSVReader csv_power;
-
-                                                    boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
-                                                    if(wirelessFileAvailable) {
-                                                        smbPowerFileWireless = new SmbFile(url1, auth1).getInputStream();
-                                                        csv_power = new CSVReader(smbPowerFileWireless, "power");
-                                                    }
-                                                    else {
-                                                        smbPowerFileEthernet = new SmbFile(url2, auth1).getInputStream();
-                                                        csv_power = new CSVReader(smbPowerFileEthernet, "power");
-                                                    }
-
-                                                    power = csv_power.read();
-
-                                                    double totalPower = 0.0;
-                                                    for (int i = 0; i < power.size(); i++) {
-                                                        String[] row = power.get(i);
-                                                        totalPower += Double.parseDouble(row[3]) * 60 / 1000;
-                                                    }
-                                                    total = 0.0;
-                                                    total = Math.round(totalPower * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
-                                                } catch (Exception e) {
-                                                    e.printStackTrace();
-                                                }
-                                                }
-                                            });
-                                            thread.start();
-                                        }
-                                        catch(Exception e)
-                                        {
-                                            e.printStackTrace();
-                                        }
-                                        whilebool = true;
-                                        while(whilebool) {
-                                            if (!thread.isAlive()) {
-                                                value =  Double.toString(total);
-                                                toSpeak = "Total Power Consumption of the Air Conditioner Sensor is " + value + " Watts Per Hour";
-                                                textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
-                                                whilebool = false;
-                                            }
-                                        }
-                                    }
-                                    else if(Arrays.asList(keywords).contains("current"))
-                                    {
-                                        jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
-                                        try{
-                                            //Creating a new thread for the file transfer, this takes the load off the main thread.
-                                            thread = new Thread(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                try
-                                                {
-                                                    //To get Samba Shared file from the Raspberry Pi
-                                                    List<String[]> power;
-
-                                                    String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + powerFileName;
-                                                    String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + powerFileName;
-                                                    NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                    InputStream smbPowerFileWireless;
-                                                    InputStream smbPowerFileEthernet;
-                                                    CSVReader csv_power;
-
-                                                    boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
-                                                    if(wirelessFileAvailable) {
-                                                        smbPowerFileWireless = new SmbFile(url1, auth1).getInputStream();
-                                                        csv_power = new CSVReader(smbPowerFileWireless, "power");
-                                                    }
-                                                    else {
-                                                        smbPowerFileEthernet = new SmbFile(url2, auth1).getInputStream();
-                                                        csv_power = new CSVReader(smbPowerFileEthernet, "power");
-                                                    }
-
-                                                    power = csv_power.read();
-
-                                                    double currentPower = 0.0;
-                                                    for (int i = 0; i < power.size(); i++) {
-                                                        String[] row = power.get(i);
-                                                        if( i == power.size() - 1)
-                                                        {
-                                                            currentPower = Double.parseDouble(row[3]) * 60 / 1000;
-                                                        }
-                                                    }
-                                                    current = 0.0;
-                                                    current = Math.round(currentPower * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
-                                                } catch (Exception e) {
-                                                    e.printStackTrace();
-                                                }
-                                                }
-                                            });
-                                            thread.start();
-                                        }
-                                        catch(Exception e)
-                                        {
-                                            e.printStackTrace();
-                                        }
-                                        whilebool = true;
-                                        while(whilebool) {
-                                            if (!thread.isAlive()) {
-                                                value =  Double.toString(current);
-                                                toSpeak = "Current Power Consumption of the Air Conditioner Sensor is " + value + " Watts Per Hour";
-                                                textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
-                                                whilebool = false;
-                                            }
-                                        }
-                                    }
-                                }
-                                else if(Arrays.asList(keywords).contains("radiant")
-                                        && Arrays.asList(keywords).contains("floor")
-                                        && Arrays.asList(keywords).contains("pump"))
-                                {
-                                    if(Arrays.asList(keywords).contains("total") || Arrays.asList(keywords).contains("average")
-                                            || Arrays.asList(keywords).contains("max") || Arrays.asList(keywords).contains("maximum")
-                                            || Arrays.asList(keywords).contains("min") || Arrays.asList(keywords).contains("minimum"))
-                                    {
-                                        jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
-                                        try{
-                                            //Creating a new thread for the file transfer, this takes the load off the main thread.
-                                            thread = new Thread(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    try
-                                                    {
+                                                    try {
                                                         //To get Samba Shared file from the Raspberry Pi
                                                         List<String[]> power;
 
@@ -1316,11 +831,10 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                         CSVReader csv_power;
 
                                                         boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
-                                                        if(wirelessFileAvailable) {
+                                                        if (wirelessFileAvailable) {
                                                             smbPowerFileWireless = new SmbFile(url1, auth1).getInputStream();
                                                             csv_power = new CSVReader(smbPowerFileWireless, "power");
-                                                        }
-                                                        else {
+                                                        } else {
                                                             smbPowerFileEthernet = new SmbFile(url2, auth1).getInputStream();
                                                             csv_power = new CSVReader(smbPowerFileEthernet, "power");
                                                         }
@@ -1330,41 +844,36 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                         double totalPower = 0.0;
                                                         for (int i = 0; i < power.size(); i++) {
                                                             String[] row = power.get(i);
-                                                            totalPower += Double.parseDouble(row[7]) * 60 / 1000;
+                                                            totalPower += (Double.parseDouble(row[2]) / 3600000);
                                                         }
                                                         total = 0.0;
-                                                        total = Math.round(totalPower * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
+                                                        total = Math.round(totalPower * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
                                                     } catch (Exception e) {
                                                         e.printStackTrace();
                                                     }
                                                 }
                                             });
                                             thread.start();
-                                        }
-                                        catch(Exception e)
-                                        {
+                                        } catch (Exception e) {
                                             e.printStackTrace();
                                         }
                                         whilebool = true;
-                                        while(whilebool) {
+                                        while (whilebool) {
                                             if (!thread.isAlive()) {
-                                                value =  Double.toString(total);
-                                                toSpeak = "Total Power Consumption of the Radiant Floor Pump is " + value + " Watts Per Hour";
+                                                value = Double.toString(total);
+                                                toSpeak = "Total Power Consumption of the Lighting Sensor is " + value + " killowatt hours";
                                                 textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
                                                 whilebool = false;
                                             }
                                         }
-                                    }
-                                    else if(Arrays.asList(keywords).contains("current"))
-                                    {
+                                    } else if (Arrays.asList(keywords).contains("current")) {
                                         jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
-                                        try{
+                                        try {
                                             //Creating a new thread for the file transfer, this takes the load off the main thread.
                                             thread = new Thread(new Runnable() {
                                                 @Override
                                                 public void run() {
-                                                    try
-                                                    {
+                                                    try {
                                                         //To get Samba Shared file from the Raspberry Pi
                                                         List<String[]> power;
 
@@ -1376,11 +885,10 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                         CSVReader csv_power;
 
                                                         boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
-                                                        if(wirelessFileAvailable) {
+                                                        if (wirelessFileAvailable) {
                                                             smbPowerFileWireless = new SmbFile(url1, auth1).getInputStream();
                                                             csv_power = new CSVReader(smbPowerFileWireless, "power");
-                                                        }
-                                                        else {
+                                                        } else {
                                                             smbPowerFileEthernet = new SmbFile(url2, auth1).getInputStream();
                                                             csv_power = new CSVReader(smbPowerFileEthernet, "power");
                                                         }
@@ -1390,29 +898,369 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                         double currentPower = 0.0;
                                                         for (int i = 0; i < power.size(); i++) {
                                                             String[] row = power.get(i);
-                                                            if( i == power.size() - 1)
-                                                            {
-                                                                currentPower = Double.parseDouble(row[7]) * 60 / 1000;
+                                                            if (i == power.size() - 1) {
+                                                                currentPower = (Double.parseDouble(row[2]) / 3600000);
                                                             }
                                                         }
                                                         current = 0.0;
-                                                        current = Math.round(currentPower * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
+                                                        current = Math.round(currentPower * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
                                                     } catch (Exception e) {
                                                         e.printStackTrace();
                                                     }
                                                 }
                                             });
                                             thread.start();
-                                        }
-                                        catch(Exception e)
-                                        {
+                                        } catch (Exception e) {
                                             e.printStackTrace();
                                         }
                                         whilebool = true;
-                                        while(whilebool) {
+                                        while (whilebool) {
                                             if (!thread.isAlive()) {
-                                                value =  Double.toString(current);
-                                                toSpeak = "Current Power Consumption of the Radiant Floor Pump is " + value + " Watts Per Hour";
+                                                value = Double.toString(current);
+                                                toSpeak = "Current Power Consumption of the Lighting Sensor is " + value + " killowatt hours";
+                                                textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
+                                                whilebool = false;
+                                            }
+                                        }
+                                    }
+                                } else if (Arrays.asList(keywords).contains("refrigerator")) {
+                                    if (Arrays.asList(keywords).contains("total") || Arrays.asList(keywords).contains("average")
+                                            || Arrays.asList(keywords).contains("max") || Arrays.asList(keywords).contains("maximum")
+                                            || Arrays.asList(keywords).contains("min") || Arrays.asList(keywords).contains("minimum")) {
+                                        jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
+                                        try {
+                                            //Creating a new thread for the file transfer, this takes the load off the main thread.
+                                            thread = new Thread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    try {
+                                                        //To get Samba Shared file from the Raspberry Pi
+                                                        List<String[]> power;
+
+                                                        String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + powerFileName;
+                                                        String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + powerFileName;
+                                                        NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                        InputStream smbPowerFileWireless;
+                                                        InputStream smbPowerFileEthernet;
+                                                        CSVReader csv_power;
+
+                                                        boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                        if (wirelessFileAvailable) {
+                                                            smbPowerFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                            csv_power = new CSVReader(smbPowerFileWireless, "power");
+                                                        } else {
+                                                            smbPowerFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                            csv_power = new CSVReader(smbPowerFileEthernet, "power");
+                                                        }
+
+                                                        power = csv_power.read();
+
+                                                        double totalPower = 0.0;
+                                                        for (int i = 0; i < power.size(); i++) {
+                                                            String[] row = power.get(i);
+                                                            totalPower += Double.parseDouble(row[6]) / 3600000;
+                                                        }
+                                                        total = 0.0;
+                                                        total = Math.round(totalPower * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                                    } catch (Exception e) {
+                                                        e.printStackTrace();
+                                                    }
+                                                }
+                                            });
+                                            thread.start();
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
+                                        whilebool = true;
+                                        while (whilebool) {
+                                            if (!thread.isAlive()) {
+                                                value = Double.toString(total);
+                                                toSpeak = "Total Power Consumption of the Refrigerator Sensor is " + value + " killowatt hours";
+                                                textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
+                                                whilebool = false;
+                                            }
+                                        }
+                                    } else if (Arrays.asList(keywords).contains("current")) {
+                                        jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
+                                        try {
+                                            //Creating a new thread for the file transfer, this takes the load off the main thread.
+                                            thread = new Thread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    try {
+                                                        //To get Samba Shared file from the Raspberry Pi
+                                                        List<String[]> power;
+
+                                                        String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + powerFileName;
+                                                        String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + powerFileName;
+                                                        NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                        InputStream smbPowerFileWireless;
+                                                        InputStream smbPowerFileEthernet;
+                                                        CSVReader csv_power;
+
+                                                        boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                        if (wirelessFileAvailable) {
+                                                            smbPowerFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                            csv_power = new CSVReader(smbPowerFileWireless, "power");
+                                                        } else {
+                                                            smbPowerFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                            csv_power = new CSVReader(smbPowerFileEthernet, "power");
+                                                        }
+
+                                                        power = csv_power.read();
+
+                                                        double currentPower = 0.0;
+                                                        for (int i = 0; i < power.size(); i++) {
+                                                            String[] row = power.get(i);
+                                                            if (i == power.size() - 1) {
+                                                                currentPower = Double.parseDouble(row[6]) / 3600000;
+                                                            }
+                                                        }
+                                                        current = 0.0;
+                                                        current = Math.round(currentPower * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                                    } catch (Exception e) {
+                                                        e.printStackTrace();
+                                                    }
+                                                }
+                                            });
+                                            thread.start();
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
+                                        whilebool = true;
+                                        while (whilebool) {
+                                            if (!thread.isAlive()) {
+                                                value = Double.toString(current);
+                                                toSpeak = "Current Power Consumption of the Refrigerator Sensor is " + value + " killowatt hours";
+                                                textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
+                                                whilebool = false;
+                                            }
+                                        }
+                                    }
+                                } else if (Arrays.asList(keywords).contains("air")
+                                        || Arrays.asList(keywords).contains("conditioner")) {
+                                    if (Arrays.asList(keywords).contains("total") || Arrays.asList(keywords).contains("average")
+                                            || Arrays.asList(keywords).contains("max") || Arrays.asList(keywords).contains("maximum")
+                                            || Arrays.asList(keywords).contains("min") || Arrays.asList(keywords).contains("minimum")) {
+                                        jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
+                                        try {
+                                            //Creating a new thread for the file transfer, this takes the load off the main thread.
+                                            thread = new Thread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    try {
+                                                        //To get Samba Shared file from the Raspberry Pi
+                                                        List<String[]> power;
+
+                                                        String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + powerFileName;
+                                                        String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + powerFileName;
+                                                        NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                        InputStream smbPowerFileWireless;
+                                                        InputStream smbPowerFileEthernet;
+                                                        CSVReader csv_power;
+
+                                                        boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                        if (wirelessFileAvailable) {
+                                                            smbPowerFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                            csv_power = new CSVReader(smbPowerFileWireless, "power");
+                                                        } else {
+                                                            smbPowerFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                            csv_power = new CSVReader(smbPowerFileEthernet, "power");
+                                                        }
+
+                                                        power = csv_power.read();
+
+                                                        double totalPower = 0.0;
+                                                        for (int i = 0; i < power.size(); i++) {
+                                                            String[] row = power.get(i);
+                                                            totalPower += Double.parseDouble(row[4]) / 3600000;
+                                                        }
+                                                        total = 0.0;
+                                                        total = Math.round(totalPower * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                                    } catch (Exception e) {
+                                                        e.printStackTrace();
+                                                    }
+                                                }
+                                            });
+                                            thread.start();
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
+                                        whilebool = true;
+                                        while (whilebool) {
+                                            if (!thread.isAlive()) {
+                                                value = Double.toString(total);
+                                                toSpeak = "Total Power Consumption of the Air Conditioner Sensor is " + value + " killowatt hours";
+                                                textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
+                                                whilebool = false;
+                                            }
+                                        }
+                                    } else if (Arrays.asList(keywords).contains("current")) {
+                                        jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
+                                        try {
+                                            //Creating a new thread for the file transfer, this takes the load off the main thread.
+                                            thread = new Thread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    try {
+                                                        //To get Samba Shared file from the Raspberry Pi
+                                                        List<String[]> power;
+
+                                                        String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + powerFileName;
+                                                        String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + powerFileName;
+                                                        NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                        InputStream smbPowerFileWireless;
+                                                        InputStream smbPowerFileEthernet;
+                                                        CSVReader csv_power;
+
+                                                        boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                        if (wirelessFileAvailable) {
+                                                            smbPowerFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                            csv_power = new CSVReader(smbPowerFileWireless, "power");
+                                                        } else {
+                                                            smbPowerFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                            csv_power = new CSVReader(smbPowerFileEthernet, "power");
+                                                        }
+
+                                                        power = csv_power.read();
+
+                                                        double currentPower = 0.0;
+                                                        for (int i = 0; i < power.size(); i++) {
+                                                            String[] row = power.get(i);
+                                                            if (i == power.size() - 1) {
+                                                                currentPower = Double.parseDouble(row[3]) / 3600000;
+                                                            }
+                                                        }
+                                                        current = 0.0;
+                                                        current = Math.round(currentPower * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                                    } catch (Exception e) {
+                                                        e.printStackTrace();
+                                                    }
+                                                }
+                                            });
+                                            thread.start();
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
+                                        whilebool = true;
+                                        while (whilebool) {
+                                            if (!thread.isAlive()) {
+                                                value = Double.toString(current);
+                                                toSpeak = "Current Power Consumption of the Air Conditioner Sensor is " + value + " killowatt hours";
+                                                textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
+                                                whilebool = false;
+                                            }
+                                        }
+                                    }
+                                } else if (Arrays.asList(keywords).contains("kitchen")) {
+                                    if (Arrays.asList(keywords).contains("total") || Arrays.asList(keywords).contains("average")
+                                            || Arrays.asList(keywords).contains("max") || Arrays.asList(keywords).contains("maximum")
+                                            || Arrays.asList(keywords).contains("min") || Arrays.asList(keywords).contains("minimum")) {
+                                        jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
+                                        try {
+                                            //Creating a new thread for the file transfer, this takes the load off the main thread.
+                                            thread = new Thread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    try {
+                                                        //To get Samba Shared file from the Raspberry Pi
+                                                        List<String[]> power;
+
+                                                        String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + powerFileName;
+                                                        String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + powerFileName;
+                                                        NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                        InputStream smbPowerFileWireless;
+                                                        InputStream smbPowerFileEthernet;
+                                                        CSVReader csv_power;
+
+                                                        boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                        if (wirelessFileAvailable) {
+                                                            smbPowerFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                            csv_power = new CSVReader(smbPowerFileWireless, "power");
+                                                        } else {
+                                                            smbPowerFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                            csv_power = new CSVReader(smbPowerFileEthernet, "power");
+                                                        }
+
+                                                        power = csv_power.read();
+
+                                                        double totalPower = 0.0;
+                                                        for (int i = 0; i < power.size(); i++) {
+                                                            String[] row = power.get(i);
+                                                            totalPower += Double.parseDouble(row[3]) / 3600000;
+                                                        }
+                                                        total = 0.0;
+                                                        total = Math.round(totalPower * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                                    } catch (Exception e) {
+                                                        e.printStackTrace();
+                                                    }
+                                                }
+                                            });
+                                            thread.start();
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
+                                        whilebool = true;
+                                        while (whilebool) {
+                                            if (!thread.isAlive()) {
+                                                value = Double.toString(total);
+                                                toSpeak = "Total Power Consumption of the Kitchen Outlet is " + value + " killowatt hours";
+                                                textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
+                                                whilebool = false;
+                                            }
+                                        }
+                                    } else if (Arrays.asList(keywords).contains("current")) {
+                                        jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
+                                        try {
+                                            //Creating a new thread for the file transfer, this takes the load off the main thread.
+                                            thread = new Thread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    try {
+                                                        //To get Samba Shared file from the Raspberry Pi
+                                                        List<String[]> power;
+
+                                                        String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + powerFileName;
+                                                        String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + powerFileName;
+                                                        NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                        InputStream smbPowerFileWireless;
+                                                        InputStream smbPowerFileEthernet;
+                                                        CSVReader csv_power;
+
+                                                        boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                        if (wirelessFileAvailable) {
+                                                            smbPowerFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                            csv_power = new CSVReader(smbPowerFileWireless, "power");
+                                                        } else {
+                                                            smbPowerFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                            csv_power = new CSVReader(smbPowerFileEthernet, "power");
+                                                        }
+
+                                                        power = csv_power.read();
+
+                                                        double currentPower = 0.0;
+                                                        for (int i = 0; i < power.size(); i++) {
+                                                            String[] row = power.get(i);
+                                                            if (i == power.size() - 1) {
+                                                                currentPower = Double.parseDouble(row[3]) / 3600000;
+                                                            }
+                                                        }
+                                                        current = 0.0;
+                                                        current = Math.round(currentPower * Math.pow(10, 2)) / Math.pow(10, 2); //To round off to two decimal places.
+                                                    } catch (Exception e) {
+                                                        e.printStackTrace();
+                                                    }
+                                                }
+                                            });
+                                            thread.start();
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
+                                        whilebool = true;
+                                        while (whilebool) {
+                                            if (!thread.isAlive()) {
+                                                value = Double.toString(current);
+                                                toSpeak = "Current Power Consumption of the Kitchen Outlet is " + value + " killowatt hours";
                                                 textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
                                                 whilebool = false;
                                             }
@@ -1420,255 +1268,226 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                     }
                                 }
                             }
-                        }
-                        else if(Arrays.asList(keywords).contains("temperature"))
-                        {
-                            if(Arrays.asList(keywords).contains("south") || Arrays.asList(keywords).contains("exterior") || Arrays.asList(keywords).contains("outside"))
-                            {
-                                if(Arrays.asList(keywords).contains("average") || Arrays.asList(keywords).contains("total"))
-                                {
+                        } else if (Arrays.asList(keywords).contains("temperature")) {
+                            if (Arrays.asList(keywords).contains("south") || Arrays.asList(keywords).contains("exterior") || Arrays.asList(keywords).contains("outside")) {
+                                if (Arrays.asList(keywords).contains("average") || Arrays.asList(keywords).contains("total")) {
                                     jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
-                                    try{
+                                    try {
                                         //Creating a new thread for the file transfer, this takes the load off the main thread.
                                         thread = new Thread(new Runnable() {
                                             @Override
                                             public void run() {
-                                            try
-                                            {
-                                                //To get Samba Shared file from the Raspberry Pi
-                                                List<String[]> temperature;
+                                                try {
+                                                    //To get Samba Shared file from the Raspberry Pi
+                                                    List<String[]> temperature;
 
-                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
-                                                String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
-                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                InputStream smbTemperatureFileWireless;
-                                                InputStream smbTemperatureFileEthernet;
-                                                CSVReader csv_temperature;
+                                                    String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                    String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
+                                                    NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                    InputStream smbTemperatureFileWireless;
+                                                    InputStream smbTemperatureFileEthernet;
+                                                    CSVReader csv_temperature;
 
-                                                boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
-                                                if(wirelessFileAvailable) {
-                                                    smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
-                                                    csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                                    boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                    if (wirelessFileAvailable) {
+                                                        smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                        csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                                    } else {
+                                                        smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                        csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
+                                                    }
+
+                                                    temperature = csv_temperature.read();
+
+                                                    double sumOfTemp = 0.0;
+                                                    for (int i = 0; i < temperature.size(); i++) {
+                                                        String[] rows = temperature.get(i);
+                                                        sumOfTemp += Double.parseDouble(rows[5]);
+                                                    }
+                                                    double temp = sumOfTemp / (temperature.size());
+                                                    average = Math.round(temp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
+                                                    value = Double.toString(average);
+                                                } catch (Exception e) {
+                                                    e.printStackTrace();
                                                 }
-                                                else {
-                                                    smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
-                                                    csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
-                                                }
-
-                                                temperature = csv_temperature.read();
-
-                                                double sumOfTemp = 0.0;
-                                                for (int i = 0; i < temperature.size(); i++) {
-                                                    String[] rows = temperature.get(i);
-                                                    sumOfTemp += Double.parseDouble(rows[5]);
-                                                }
-                                                double temp = sumOfTemp/(temperature.size());
-                                                average = Math.round(temp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
-                                                value = Double.toString(average);
-                                            } catch (Exception e) {
-                                                e.printStackTrace();
-                                            }
                                             }
                                         });
                                         thread.start();
-                                    }
-                                    catch(Exception e)
-                                    {
+                                    } catch (Exception e) {
                                         e.printStackTrace();
                                     }
                                     whilebool = true;
-                                    while(whilebool) {
+                                    while (whilebool) {
                                         if (!thread.isAlive()) {
                                             toSpeak = "Average Temperature of the South Wall is " + value + " Fahrenheit";
                                             textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
                                             whilebool = false;
                                         }
                                     }
-                                }
-                                else if(Arrays.asList(keywords).contains("max") || Arrays.asList(keywords).contains("maximum"))
-                                {
+                                } else if (Arrays.asList(keywords).contains("max") || Arrays.asList(keywords).contains("maximum")) {
                                     jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
-                                    try{
+                                    try {
                                         //Creating a new thread for the file transfer, this takes the load off the main thread.
                                         thread = new Thread(new Runnable() {
                                             @Override
                                             public void run() {
-                                            try
-                                            {
-                                                //To get Samba Shared file from the Raspberry Pi
-                                                List<String[]> temperature;
+                                                try {
+                                                    //To get Samba Shared file from the Raspberry Pi
+                                                    List<String[]> temperature;
 
-                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
-                                                String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
-                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                InputStream smbTemperatureFileWireless;
-                                                InputStream smbTemperatureFileEthernet;
-                                                CSVReader csv_temperature;
+                                                    String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                    String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
+                                                    NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                    InputStream smbTemperatureFileWireless;
+                                                    InputStream smbTemperatureFileEthernet;
+                                                    CSVReader csv_temperature;
 
-                                                boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
-                                                if(wirelessFileAvailable) {
-                                                    smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
-                                                    csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
-                                                }
-                                                else {
-                                                    smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
-                                                    csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
-                                                }
-
-                                                temperature = csv_temperature.read();
-
-                                                String[] rows = temperature.get(0);
-                                                double maxTemp = Double.parseDouble(rows[5]);
-                                                for (int i = 0; i < temperature.size(); i++) {
-                                                    String[] row = temperature.get(i);
-                                                    if(Double.parseDouble(row[5]) > maxTemp)
-                                                    {
-                                                        maxTemp = Double.parseDouble(row[5]);
+                                                    boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                    if (wirelessFileAvailable) {
+                                                        smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                        csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                                    } else {
+                                                        smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                        csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
                                                     }
+
+                                                    temperature = csv_temperature.read();
+
+                                                    String[] rows = temperature.get(0);
+                                                    double maxTemp = Double.parseDouble(rows[5]);
+                                                    for (int i = 0; i < temperature.size(); i++) {
+                                                        String[] row = temperature.get(i);
+                                                        if (Double.parseDouble(row[5]) > maxTemp) {
+                                                            maxTemp = Double.parseDouble(row[5]);
+                                                        }
+                                                    }
+                                                    maximum = 0.0;
+                                                    maximum = Math.round(maxTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
+                                                    value = Double.toString(maximum);
+                                                } catch (Exception e) {
+                                                    e.printStackTrace();
                                                 }
-                                                maximum = 0.0;
-                                                maximum = Math.round(maxTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
-                                                value =  Double.toString(maximum);
-                                            } catch (Exception e) {
-                                                e.printStackTrace();
-                                            }
                                             }
                                         });
                                         thread.start();
-                                    }
-                                    catch(Exception e)
-                                    {
+                                    } catch (Exception e) {
                                         e.printStackTrace();
                                     }
                                     whilebool = true;
-                                    while(whilebool) {
+                                    while (whilebool) {
                                         if (!thread.isAlive()) {
                                             toSpeak = "Maximum Temperature of the South Wall is " + value + " Fahrenheit";
                                             textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
                                             whilebool = false;
                                         }
                                     }
-                                }
-                                else if(Arrays.asList(keywords).contains("min") || Arrays.asList(keywords).contains("minimum"))
-                                {
+                                } else if (Arrays.asList(keywords).contains("min") || Arrays.asList(keywords).contains("minimum")) {
                                     jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
-                                    try{
+                                    try {
                                         //Creating a new thread for the file transfer, this takes the load off the main thread.
                                         thread = new Thread(new Runnable() {
                                             @Override
                                             public void run() {
-                                            try
-                                            {
-                                                //To get Samba Shared file from the Raspberry Pi
-                                                List<String[]> temperature;
+                                                try {
+                                                    //To get Samba Shared file from the Raspberry Pi
+                                                    List<String[]> temperature;
 
-                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
-                                                String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
-                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                InputStream smbTemperatureFileWireless;
-                                                InputStream smbTemperatureFileEthernet;
-                                                CSVReader csv_temperature;
+                                                    String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                    String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
+                                                    NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                    InputStream smbTemperatureFileWireless;
+                                                    InputStream smbTemperatureFileEthernet;
+                                                    CSVReader csv_temperature;
 
-                                                boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
-                                                if(wirelessFileAvailable) {
-                                                    smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
-                                                    csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
-                                                }
-                                                else {
-                                                    smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
-                                                    csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
-                                                }
-
-                                                temperature = csv_temperature.read();
-
-                                                String[] rows = temperature.get(0);
-                                                double minTemp = Double.parseDouble(rows[5]);
-                                                for (int i = 0; i < temperature.size(); i++) {
-                                                    String[] row = temperature.get(i);
-                                                    if(Double.parseDouble(row[5]) < minTemp)
-                                                    {
-                                                        minTemp = Double.parseDouble(row[5]);
+                                                    boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                    if (wirelessFileAvailable) {
+                                                        smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                        csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                                    } else {
+                                                        smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                        csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
                                                     }
+
+                                                    temperature = csv_temperature.read();
+
+                                                    String[] rows = temperature.get(0);
+                                                    double minTemp = Double.parseDouble(rows[5]);
+                                                    for (int i = 0; i < temperature.size(); i++) {
+                                                        String[] row = temperature.get(i);
+                                                        if (Double.parseDouble(row[5]) < minTemp) {
+                                                            minTemp = Double.parseDouble(row[5]);
+                                                        }
+                                                    }
+                                                    minimum = 0.0;
+                                                    minimum = Math.round(minTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
+                                                    value = Double.toString(minimum);
+                                                } catch (Exception e) {
+                                                    e.printStackTrace();
                                                 }
-                                                minimum = 0.0;
-                                                minimum = Math.round(minTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
-                                                value =  Double.toString(minimum);
-                                            } catch (Exception e) {
-                                                e.printStackTrace();
-                                            }
                                             }
                                         });
                                         thread.start();
-                                    }
-                                    catch(Exception e)
-                                    {
+                                    } catch (Exception e) {
                                         e.printStackTrace();
                                     }
                                     whilebool = true;
-                                    while(whilebool) {
+                                    while (whilebool) {
                                         if (!thread.isAlive()) {
                                             toSpeak = "Minimum Temperature of the South Wall is " + value + " Fahrenheit";
                                             textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
                                             whilebool = false;
                                         }
                                     }
-                                }
-                                else if(Arrays.asList(keywords).contains("current"))
-                                {
+                                } else if (Arrays.asList(keywords).contains("current")) {
                                     jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
-                                    try{
+                                    try {
                                         //Creating a new thread for the file transfer, this takes the load off the main thread.
                                         thread = new Thread(new Runnable() {
                                             @Override
                                             public void run() {
-                                            try
-                                            {
-                                                //To get Samba Shared file from the Raspberry Pi
-                                                List<String[]> temperature;
+                                                try {
+                                                    //To get Samba Shared file from the Raspberry Pi
+                                                    List<String[]> temperature;
 
-                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
-                                                String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
-                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                InputStream smbTemperatureFileWireless;
-                                                InputStream smbTemperatureFileEthernet;
-                                                CSVReader csv_temperature;
+                                                    String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                    String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
+                                                    NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                    InputStream smbTemperatureFileWireless;
+                                                    InputStream smbTemperatureFileEthernet;
+                                                    CSVReader csv_temperature;
 
-                                                boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
-                                                if(wirelessFileAvailable) {
-                                                    smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
-                                                    csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
-                                                }
-                                                else {
-                                                    smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
-                                                    csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
-                                                }
-
-                                                temperature = csv_temperature.read();
-
-                                                double currentTemp = 0.0;
-                                                for (int i = 0; i < temperature.size(); i++) {
-                                                    String[] row = temperature.get(i);
-                                                    if( i == temperature.size() - 1)
-                                                    {
-                                                        currentTemp = Double.parseDouble(row[5]);
+                                                    boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                    if (wirelessFileAvailable) {
+                                                        smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                        csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                                    } else {
+                                                        smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                        csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
                                                     }
+
+                                                    temperature = csv_temperature.read();
+
+                                                    double currentTemp = 0.0;
+                                                    for (int i = 0; i < temperature.size(); i++) {
+                                                        String[] row = temperature.get(i);
+                                                        if (i == temperature.size() - 1) {
+                                                            currentTemp = Double.parseDouble(row[5]);
+                                                        }
+                                                    }
+                                                    current = 0.0;
+                                                    current = Math.round(currentTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
+                                                    value = Double.toString(current);
+                                                } catch (Exception e) {
+                                                    e.printStackTrace();
                                                 }
-                                                current = 0.0;
-                                                current = Math.round(currentTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
-                                                value =  Double.toString(current);
-                                            } catch (Exception e) {
-                                                e.printStackTrace();
-                                            }
                                             }
                                         });
                                         thread.start();
-                                    }
-                                    catch(Exception e)
-                                    {
+                                    } catch (Exception e) {
                                         e.printStackTrace();
                                     }
                                     whilebool = true;
-                                    while(whilebool) {
+                                    while (whilebool) {
                                         if (!thread.isAlive()) {
                                             toSpeak = "Current Temperature of the South Wall is " + value + " Fahrenheit";
                                             textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
@@ -1676,192 +1495,171 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                         }
                                     }
                                 }
-                            }
-                            else if(Arrays.asList(keywords).contains("interior")
-                                    || Arrays.asList(keywords).contains("inside"))
-                            {
-                                if(Arrays.asList(keywords).contains("average") || Arrays.asList(keywords).contains("total"))
-                                {
+                            } else if (Arrays.asList(keywords).contains("interior")
+                                    || Arrays.asList(keywords).contains("inside")) {
+                                if (Arrays.asList(keywords).contains("average") || Arrays.asList(keywords).contains("total")) {
                                     jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
-                                    try{
+                                    try {
                                         //Creating a new thread for the file transfer, this takes the load off the main thread.
                                         thread = new Thread(new Runnable() {
                                             @Override
                                             public void run() {
-                                            try
-                                            {
-                                                //To get Samba Shared file from the Raspberry Pi
-                                                List<String[]> temperature;
+                                                try {
+                                                    //To get Samba Shared file from the Raspberry Pi
+                                                    List<String[]> temperature;
 
-                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
-                                                String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
-                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                InputStream smbTemperatureFileWireless;
-                                                InputStream smbTemperatureFileEthernet;
-                                                CSVReader csv_temperature;
+                                                    String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                    String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
+                                                    NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                    InputStream smbTemperatureFileWireless;
+                                                    InputStream smbTemperatureFileEthernet;
+                                                    CSVReader csv_temperature;
 
-                                                boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
-                                                if(wirelessFileAvailable) {
-                                                    smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
-                                                    csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                                    boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                    if (wirelessFileAvailable) {
+                                                        smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                        csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                                    } else {
+                                                        smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                        csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
+                                                    }
+
+                                                    temperature = csv_temperature.read();
+
+                                                    double sumOfTemp = 0.0;
+                                                    for (int i = 0; i < temperature.size(); i++) {
+                                                        String[] rows = temperature.get(i);
+                                                        sumOfTemp += Double.parseDouble(rows[1]);
+                                                    }
+                                                    double temp = sumOfTemp / (temperature.size());
+                                                    average = 0.0;
+                                                    average = Math.round(temp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
+                                                    value = Double.toString(average);
+                                                } catch (Exception e) {
+                                                    e.printStackTrace();
                                                 }
-                                                else {
-                                                    smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
-                                                    csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
-                                                }
-
-                                                temperature = csv_temperature.read();
-
-                                                double sumOfTemp = 0.0;
-                                                for (int i = 0; i < temperature.size(); i++) {
-                                                    String[] rows = temperature.get(i);
-                                                    sumOfTemp += Double.parseDouble(rows[1]);
-                                                }
-                                                double temp = sumOfTemp/(temperature.size());
-                                                average = 0.0;
-                                                average = Math.round(temp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
-                                                value =  Double.toString(average);
-                                            } catch (Exception e) {
-                                                e.printStackTrace();
-                                            }
                                             }
                                         });
                                         thread.start();
-                                    }
-                                    catch(Exception e)
-                                    {
+                                    } catch (Exception e) {
                                         e.printStackTrace();
                                     }
                                     whilebool = true;
-                                    while(whilebool) {
+                                    while (whilebool) {
                                         if (!thread.isAlive()) {
                                             toSpeak = "Average Interior Temperature is " + value + " Fahrenheit";
                                             textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
                                             whilebool = false;
                                         }
                                     }
-                                }
-                                else if(Arrays.asList(keywords).contains("max") || Arrays.asList(keywords).contains("maximum"))
-                                {
+                                } else if (Arrays.asList(keywords).contains("max") || Arrays.asList(keywords).contains("maximum")) {
                                     jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
-                                    try{
+                                    try {
                                         //Creating a new thread for the file transfer, this takes the load off the main thread.
                                         thread = new Thread(new Runnable() {
                                             @Override
                                             public void run() {
-                                            try
-                                            {
-                                                //To get Samba Shared file from the Raspberry Pi
-                                                List<String[]> temperature;
+                                                try {
+                                                    //To get Samba Shared file from the Raspberry Pi
+                                                    List<String[]> temperature;
 
-                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
-                                                String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
-                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                InputStream smbTemperatureFileWireless;
-                                                InputStream smbTemperatureFileEthernet;
-                                                CSVReader csv_temperature;
+                                                    String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                    String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
+                                                    NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                    InputStream smbTemperatureFileWireless;
+                                                    InputStream smbTemperatureFileEthernet;
+                                                    CSVReader csv_temperature;
 
-                                                boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
-                                                if(wirelessFileAvailable) {
-                                                    smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
-                                                    csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
-                                                }
-                                                else {
-                                                    smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
-                                                    csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
-                                                }
-
-                                                temperature = csv_temperature.read();
-
-                                                String[] rows = temperature.get(0);
-                                                double maxTemp = Double.parseDouble(rows[2]);
-                                                for (int i = 0; i < temperature.size(); i++) {
-                                                    String[] row = temperature.get(i);
-                                                    if(Double.parseDouble(row[2]) > maxTemp)
-                                                    {
-                                                        maxTemp = Double.parseDouble(row[1]);
+                                                    boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                    if (wirelessFileAvailable) {
+                                                        smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                        csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                                    } else {
+                                                        smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                        csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
                                                     }
+
+                                                    temperature = csv_temperature.read();
+
+                                                    String[] rows = temperature.get(0);
+                                                    double maxTemp = Double.parseDouble(rows[2]);
+                                                    for (int i = 0; i < temperature.size(); i++) {
+                                                        String[] row = temperature.get(i);
+                                                        if (Double.parseDouble(row[2]) > maxTemp) {
+                                                            maxTemp = Double.parseDouble(row[1]);
+                                                        }
+                                                    }
+                                                    maximum = 0.0;
+                                                    maximum = Math.round(maxTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
+                                                    value = Double.toString(maximum);
+                                                } catch (Exception e) {
+                                                    e.printStackTrace();
                                                 }
-                                                maximum = 0.0;
-                                                maximum = Math.round(maxTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
-                                                value =  Double.toString(maximum);
-                                            } catch (Exception e) {
-                                                e.printStackTrace();
-                                            }
                                             }
                                         });
                                         thread.start();
-                                    }
-                                    catch(Exception e)
-                                    {
+                                    } catch (Exception e) {
                                         e.printStackTrace();
                                     }
                                     whilebool = true;
-                                    while(whilebool) {
+                                    while (whilebool) {
                                         if (!thread.isAlive()) {
                                             toSpeak = "Maximum Interior Temperature is " + value + " Fahrenheit";
                                             textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
                                             whilebool = false;
                                         }
                                     }
-                                }
-                                else if(Arrays.asList(keywords).contains("min") || Arrays.asList(keywords).contains("minimum"))
-                                {
+                                } else if (Arrays.asList(keywords).contains("min") || Arrays.asList(keywords).contains("minimum")) {
                                     jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
-                                    try{
+                                    try {
                                         //Creating a new thread for the file transfer, this takes the load off the main thread.
                                         thread = new Thread(new Runnable() {
                                             @Override
                                             public void run() {
-                                            try
-                                            {
-                                                //To get Samba Shared file from the Raspberry Pi
-                                                List<String[]> temperature;
+                                                try {
+                                                    //To get Samba Shared file from the Raspberry Pi
+                                                    List<String[]> temperature;
 
-                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
-                                                String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
-                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                InputStream smbTemperatureFileWireless;
-                                                InputStream smbTemperatureFileEthernet;
-                                                CSVReader csv_temperature;
+                                                    String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                    String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
+                                                    NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                    InputStream smbTemperatureFileWireless;
+                                                    InputStream smbTemperatureFileEthernet;
+                                                    CSVReader csv_temperature;
 
-                                                boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
-                                                if(wirelessFileAvailable) {
-                                                    smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
-                                                    csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
-                                                }
-                                                else {
-                                                    smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
-                                                    csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
-                                                }
-
-                                                temperature = csv_temperature.read();
-
-                                                String[] rows = temperature.get(0);
-                                                double minTemp = Double.parseDouble(rows[2]);
-                                                for (int i = 0; i < temperature.size(); i++) {
-                                                    String[] row = temperature.get(i);
-                                                    if(Double.parseDouble(row[2]) < minTemp)
-                                                    {
-                                                        minTemp = Double.parseDouble(row[2]);
+                                                    boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                    if (wirelessFileAvailable) {
+                                                        smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                        csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                                    } else {
+                                                        smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                        csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
                                                     }
-                                                }
-                                                minimum = 0.0;
-                                                minimum = Math.round(minTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
 
-                                            } catch (Exception e) {
-                                                e.printStackTrace();
-                                            }
+                                                    temperature = csv_temperature.read();
+
+                                                    String[] rows = temperature.get(0);
+                                                    double minTemp = Double.parseDouble(rows[2]);
+                                                    for (int i = 0; i < temperature.size(); i++) {
+                                                        String[] row = temperature.get(i);
+                                                        if (Double.parseDouble(row[2]) < minTemp) {
+                                                            minTemp = Double.parseDouble(row[2]);
+                                                        }
+                                                    }
+                                                    minimum = 0.0;
+                                                    minimum = Math.round(minTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
+
+                                                } catch (Exception e) {
+                                                    e.printStackTrace();
+                                                }
                                             }
                                         });
                                         thread.start();
-                                    }
-                                    catch(Exception e)
-                                    {
+                                    } catch (Exception e) {
                                         e.printStackTrace();
                                     }
                                     whilebool = true;
-                                    while(whilebool) {
+                                    while (whilebool) {
                                         if (!thread.isAlive()) {
                                             value = Double.toString(minimum);
                                             toSpeak = "Minimum Interior Temperature is " + value + " Fahrenheit";
@@ -1869,835 +1667,744 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                             whilebool = false;
                                         }
                                     }
-                                }
-                                else if(Arrays.asList(keywords).contains("current"))
-                                {
+                                } else if (Arrays.asList(keywords).contains("current")) {
                                     jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
-                                    try{
+                                    try {
                                         //Creating a new thread for the file transfer, this takes the load off the main thread.
                                         thread = new Thread(new Runnable() {
                                             @Override
                                             public void run() {
-                                            try
-                                            {
-                                                //To get Samba Shared file from the Raspberry Pi
-                                                List<String[]> temperature;
+                                                try {
+                                                    //To get Samba Shared file from the Raspberry Pi
+                                                    List<String[]> temperature;
 
-                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
-                                                String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
-                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                InputStream smbTemperatureFileWireless;
-                                                InputStream smbTemperatureFileEthernet;
-                                                CSVReader csv_temperature;
+                                                    String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                    String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
+                                                    NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                    InputStream smbTemperatureFileWireless;
+                                                    InputStream smbTemperatureFileEthernet;
+                                                    CSVReader csv_temperature;
 
-                                                boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
-                                                if(wirelessFileAvailable) {
-                                                    smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
-                                                    csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
-                                                }
-                                                else {
-                                                    smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
-                                                    csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
-                                                }
-
-                                                temperature = csv_temperature.read();
-
-                                                double currentTemp = 0.0;
-                                                for (int i = 0; i < temperature.size(); i++) {
-                                                    String[] row = temperature.get(i);
-                                                    if( i == temperature.size() - 1)
-                                                    {
-                                                        currentTemp = Double.parseDouble(row[2]);
+                                                    boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                    if (wirelessFileAvailable) {
+                                                        smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                        csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                                    } else {
+                                                        smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                        csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
                                                     }
-                                                }
-                                                current = 0.0;
-                                                current = Math.round(currentTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
 
-                                            } catch (Exception e) {
-                                                e.printStackTrace();
-                                            }
+                                                    temperature = csv_temperature.read();
+
+                                                    double currentTemp = 0.0;
+                                                    for (int i = 0; i < temperature.size(); i++) {
+                                                        String[] row = temperature.get(i);
+                                                        if (i == temperature.size() - 1) {
+                                                            currentTemp = Double.parseDouble(row[2]);
+                                                        }
+                                                    }
+                                                    current = 0.0;
+                                                    current = Math.round(currentTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
+
+                                                } catch (Exception e) {
+                                                    e.printStackTrace();
+                                                }
                                             }
                                         });
                                         thread.start();
-                                    }
-                                    catch(Exception e)
-                                    {
+                                    } catch (Exception e) {
                                         e.printStackTrace();
                                     }
                                     whilebool = true;
-                                    while(whilebool) {
+                                    while (whilebool) {
                                         if (!thread.isAlive()) {
-                                            value =  Double.toString(current);
+                                            value = Double.toString(current);
                                             toSpeak = "Current Interior Temperature is " + value + " Fahrenheit";
                                             textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
                                             whilebool = false;
                                         }
                                     }
                                 }
-                            }
-                            else if(Arrays.asList(keywords).contains("solar")
-                                    || Arrays.asList(keywords).contains("panel"))
-                            {
-                                if(Arrays.asList(keywords).contains("average") || Arrays.asList(keywords).contains("total"))
-                                {
+                            } else if (Arrays.asList(keywords).contains("solar")
+                                    || Arrays.asList(keywords).contains("panel")) {
+                                if (Arrays.asList(keywords).contains("average") || Arrays.asList(keywords).contains("total")) {
                                     jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
-                                    try{
+                                    try {
                                         //Creating a new thread for the file transfer, this takes the load off the main thread.
                                         thread = new Thread(new Runnable() {
                                             @Override
                                             public void run() {
-                                            try
-                                            {
-                                                //To get Samba Shared file from the Raspberry Pi
-                                                List<String[]> temperature;
+                                                try {
+                                                    //To get Samba Shared file from the Raspberry Pi
+                                                    List<String[]> temperature;
 
-                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
-                                                String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
-                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                InputStream smbTemperatureFileWireless;
-                                                InputStream smbTemperatureFileEthernet;
-                                                CSVReader csv_temperature;
+                                                    String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                    String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
+                                                    NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                    InputStream smbTemperatureFileWireless;
+                                                    InputStream smbTemperatureFileEthernet;
+                                                    CSVReader csv_temperature;
 
-                                                boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
-                                                if(wirelessFileAvailable) {
-                                                    smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
-                                                    csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                                    boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                    if (wirelessFileAvailable) {
+                                                        smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                        csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                                    } else {
+                                                        smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                        csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
+                                                    }
+
+                                                    temperature = csv_temperature.read();
+
+                                                    double sumOfTemp = 0.0;
+                                                    for (int i = 0; i < temperature.size(); i++) {
+                                                        String[] rows = temperature.get(i);
+                                                        sumOfTemp += Double.parseDouble(rows[3]);
+                                                    }
+                                                    double temp = sumOfTemp / (temperature.size());
+                                                    average = 0.0;
+                                                    average = Math.round(temp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
+                                                } catch (Exception e) {
+                                                    e.printStackTrace();
                                                 }
-                                                else {
-                                                    smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
-                                                    csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
-                                                }
-
-                                                temperature = csv_temperature.read();
-
-                                                double sumOfTemp = 0.0;
-                                                for (int i = 0; i < temperature.size(); i++) {
-                                                    String[] rows = temperature.get(i);
-                                                    sumOfTemp += Double.parseDouble(rows[3]);
-                                                }
-                                                double temp = sumOfTemp/(temperature.size());
-                                                average = 0.0;
-                                                average = Math.round(temp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
-                                            } catch (Exception e) {
-                                                e.printStackTrace();
-                                            }
                                             }
                                         });
                                         thread.start();
-                                    }
-                                    catch(Exception e)
-                                    {
+                                    } catch (Exception e) {
                                         e.printStackTrace();
                                     }
                                     whilebool = true;
-                                    while(whilebool) {
+                                    while (whilebool) {
                                         if (!thread.isAlive()) {
-                                            value =  Double.toString(average);
+                                            value = Double.toString(average);
                                             toSpeak = "Average Temperature of the Solar Panels is " + value + " Fahrenheit";
                                             textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
                                             whilebool = false;
                                         }
                                     }
-                                }
-                                else if(Arrays.asList(keywords).contains("max") || Arrays.asList(keywords).contains("maximum"))
-                                {
+                                } else if (Arrays.asList(keywords).contains("max") || Arrays.asList(keywords).contains("maximum")) {
                                     jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
-                                    try{
+                                    try {
                                         //Creating a new thread for the file transfer, this takes the load off the main thread.
                                         thread = new Thread(new Runnable() {
                                             @Override
                                             public void run() {
-                                            try
-                                            {
-                                                //To get Samba Shared file from the Raspberry Pi
-                                                List<String[]> temperature;
+                                                try {
+                                                    //To get Samba Shared file from the Raspberry Pi
+                                                    List<String[]> temperature;
 
-                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
-                                                String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
-                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                InputStream smbTemperatureFileWireless;
-                                                InputStream smbTemperatureFileEthernet;
-                                                CSVReader csv_temperature;
+                                                    String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                    String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
+                                                    NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                    InputStream smbTemperatureFileWireless;
+                                                    InputStream smbTemperatureFileEthernet;
+                                                    CSVReader csv_temperature;
 
-                                                boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
-                                                if(wirelessFileAvailable) {
-                                                    smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
-                                                    csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
-                                                }
-                                                else {
-                                                    smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
-                                                    csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
-                                                }
-
-                                                temperature = csv_temperature.read();
-
-                                                String[] rows = temperature.get(0);
-                                                double maxTemp = Double.parseDouble(rows[3]);
-                                                for (int i = 0; i < temperature.size(); i++) {
-                                                    String[] row = temperature.get(i);
-                                                    if(Double.parseDouble(row[3]) > maxTemp)
-                                                    {
-                                                        maxTemp = Double.parseDouble(row[3]);
+                                                    boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                    if (wirelessFileAvailable) {
+                                                        smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                        csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                                    } else {
+                                                        smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                        csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
                                                     }
+
+                                                    temperature = csv_temperature.read();
+
+                                                    String[] rows = temperature.get(0);
+                                                    double maxTemp = Double.parseDouble(rows[3]);
+                                                    for (int i = 0; i < temperature.size(); i++) {
+                                                        String[] row = temperature.get(i);
+                                                        if (Double.parseDouble(row[3]) > maxTemp) {
+                                                            maxTemp = Double.parseDouble(row[3]);
+                                                        }
+                                                    }
+                                                    maximum = 0.0;
+                                                    maximum = Math.round(maxTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
+                                                } catch (Exception e) {
+                                                    e.printStackTrace();
                                                 }
-                                                maximum = 0.0;
-                                                maximum = Math.round(maxTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
-                                            } catch (Exception e) {
-                                                e.printStackTrace();
-                                            }
                                             }
                                         });
                                         thread.start();
-                                    }
-                                    catch(Exception e)
-                                    {
+                                    } catch (Exception e) {
                                         e.printStackTrace();
                                     }
                                     whilebool = true;
-                                    while(whilebool) {
+                                    while (whilebool) {
                                         if (!thread.isAlive()) {
-                                            value =  Double.toString(maximum);
+                                            value = Double.toString(maximum);
                                             toSpeak = "Maximum Temperature of the Solar Panels is " + value + " Fahrenheit";
                                             textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
                                             whilebool = false;
                                         }
                                     }
-                                }
-                                else if(Arrays.asList(keywords).contains("min") || Arrays.asList(keywords).contains("minimum"))
-                                {
+                                } else if (Arrays.asList(keywords).contains("min") || Arrays.asList(keywords).contains("minimum")) {
                                     jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
-                                    try{
+                                    try {
                                         //Creating a new thread for the file transfer, this takes the load off the main thread.
                                         thread = new Thread(new Runnable() {
                                             @Override
                                             public void run() {
-                                            try
-                                            {
-                                                //To get Samba Shared file from the Raspberry Pi
-                                                List<String[]> temperature;
+                                                try {
+                                                    //To get Samba Shared file from the Raspberry Pi
+                                                    List<String[]> temperature;
 
-                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
-                                                String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
-                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                InputStream smbTemperatureFileWireless;
-                                                InputStream smbTemperatureFileEthernet;
-                                                CSVReader csv_temperature;
+                                                    String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                    String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
+                                                    NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                    InputStream smbTemperatureFileWireless;
+                                                    InputStream smbTemperatureFileEthernet;
+                                                    CSVReader csv_temperature;
 
-                                                boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
-                                                if(wirelessFileAvailable) {
-                                                    smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
-                                                    csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
-                                                }
-                                                else {
-                                                    smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
-                                                    csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
-                                                }
-
-                                                temperature = csv_temperature.read();
-
-                                                String[] rows = temperature.get(0);
-                                                double minTemp = Double.parseDouble(rows[3]);
-                                                for (int i = 0; i < temperature.size(); i++) {
-                                                    String[] row = temperature.get(i);
-                                                    if(Double.parseDouble(row[3]) < minTemp)
-                                                    {
-                                                        minTemp = Double.parseDouble(row[3]);
+                                                    boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                    if (wirelessFileAvailable) {
+                                                        smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                        csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                                    } else {
+                                                        smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                        csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
                                                     }
+
+                                                    temperature = csv_temperature.read();
+
+                                                    String[] rows = temperature.get(0);
+                                                    double minTemp = Double.parseDouble(rows[3]);
+                                                    for (int i = 0; i < temperature.size(); i++) {
+                                                        String[] row = temperature.get(i);
+                                                        if (Double.parseDouble(row[3]) < minTemp) {
+                                                            minTemp = Double.parseDouble(row[3]);
+                                                        }
+                                                    }
+                                                    minimum = 0.0;
+                                                    minimum = Math.round(minTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
+                                                } catch (Exception e) {
+                                                    e.printStackTrace();
                                                 }
-                                                minimum = 0.0;
-                                                minimum = Math.round(minTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
-                                            } catch (Exception e) {
-                                                e.printStackTrace();
-                                            }
                                             }
                                         });
                                         thread.start();
-                                    }
-                                    catch(Exception e)
-                                    {
+                                    } catch (Exception e) {
                                         e.printStackTrace();
                                     }
                                     whilebool = true;
-                                    while(whilebool) {
+                                    while (whilebool) {
                                         if (!thread.isAlive()) {
-                                            value =  Double.toString(minimum);
-                                            toSpeak = "Minimum Temperature of the Solar Panels is " + value +  " Fahrenheit";
+                                            value = Double.toString(minimum);
+                                            toSpeak = "Minimum Temperature of the Solar Panels is " + value + " Fahrenheit";
                                             textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
                                             whilebool = false;
                                         }
                                     }
-                                }
-                                else if(Arrays.asList(keywords).contains("current"))
-                                {
+                                } else if (Arrays.asList(keywords).contains("current")) {
                                     jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
-                                    try{
+                                    try {
                                         //Creating a new thread for the file transfer, this takes the load off the main thread.
                                         thread = new Thread(new Runnable() {
                                             @Override
                                             public void run() {
-                                            try
-                                            {
-                                                //To get Samba Shared file from the Raspberry Pi
-                                                List<String[]> temperature;
+                                                try {
+                                                    //To get Samba Shared file from the Raspberry Pi
+                                                    List<String[]> temperature;
 
-                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
-                                                String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
-                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                InputStream smbTemperatureFileWireless;
-                                                InputStream smbTemperatureFileEthernet;
-                                                CSVReader csv_temperature;
+                                                    String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                    String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
+                                                    NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                    InputStream smbTemperatureFileWireless;
+                                                    InputStream smbTemperatureFileEthernet;
+                                                    CSVReader csv_temperature;
 
-                                                boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
-                                                if(wirelessFileAvailable) {
-                                                    smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
-                                                    csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
-                                                }
-                                                else {
-                                                    smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
-                                                    csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
-                                                }
-
-                                                temperature = csv_temperature.read();
-
-                                                double currentTemp = 0.0;
-                                                for (int i = 0; i < temperature.size(); i++) {
-                                                    String[] row = temperature.get(i);
-                                                    if( i == temperature.size() - 1)
-                                                    {
-                                                        currentTemp = Double.parseDouble(row[3]);
+                                                    boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                    if (wirelessFileAvailable) {
+                                                        smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                        csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                                    } else {
+                                                        smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                        csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
                                                     }
+
+                                                    temperature = csv_temperature.read();
+
+                                                    double currentTemp = 0.0;
+                                                    for (int i = 0; i < temperature.size(); i++) {
+                                                        String[] row = temperature.get(i);
+                                                        if (i == temperature.size() - 1) {
+                                                            currentTemp = Double.parseDouble(row[3]);
+                                                        }
+                                                    }
+                                                    current = 0.0;
+                                                    current = Math.round(currentTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
+                                                } catch (Exception e) {
+                                                    e.printStackTrace();
                                                 }
-                                                current = 0.0;
-                                                current = Math.round(currentTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
-                                            } catch (Exception e) {
-                                                e.printStackTrace();
-                                            }
                                             }
                                         });
                                         thread.start();
-                                    }
-                                    catch(Exception e)
-                                    {
+                                    } catch (Exception e) {
                                         e.printStackTrace();
                                     }
                                     whilebool = true;
-                                    while(whilebool) {
+                                    while (whilebool) {
                                         if (!thread.isAlive()) {
-                                            value =  Double.toString(current);
+                                            value = Double.toString(current);
                                             toSpeak = "Current Temperature of the Solar Panel is " + value + " Fahrenheit";
                                             textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
                                             whilebool = false;
                                         }
                                     }
                                 }
-                            }
-                            else if(Arrays.asList(keywords).contains("roof"))
-                            {
-                                if(Arrays.asList(keywords).contains("average") || Arrays.asList(keywords).contains("total"))
-                                {
+                            } else if (Arrays.asList(keywords).contains("roof")) {
+                                if (Arrays.asList(keywords).contains("average") || Arrays.asList(keywords).contains("total")) {
                                     jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
-                                    try{
+                                    try {
                                         //Creating a new thread for the file transfer, this takes the load off the main thread.
                                         thread = new Thread(new Runnable() {
                                             @Override
                                             public void run() {
-                                            try
-                                            {
-                                                //To get Samba Shared file from the Raspberry Pi
-                                                List<String[]> temperature;
+                                                try {
+                                                    //To get Samba Shared file from the Raspberry Pi
+                                                    List<String[]> temperature;
 
-                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
-                                                String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
-                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                InputStream smbTemperatureFileWireless;
-                                                InputStream smbTemperatureFileEthernet;
-                                                CSVReader csv_temperature;
+                                                    String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                    String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
+                                                    NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                    InputStream smbTemperatureFileWireless;
+                                                    InputStream smbTemperatureFileEthernet;
+                                                    CSVReader csv_temperature;
 
-                                                boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
-                                                if(wirelessFileAvailable) {
-                                                    smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
-                                                    csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                                    boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                    if (wirelessFileAvailable) {
+                                                        smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                        csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                                    } else {
+                                                        smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                        csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
+                                                    }
+
+                                                    temperature = csv_temperature.read();
+
+                                                    double sumOfTemp = 0.0;
+                                                    for (int i = 0; i < temperature.size(); i++) {
+                                                        String[] rows = temperature.get(i);
+                                                        sumOfTemp += Double.parseDouble(rows[4]);
+                                                    }
+                                                    double temp = sumOfTemp / (temperature.size());
+                                                    average = 0.0;
+                                                    average = Math.round(temp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
+                                                } catch (Exception e) {
+                                                    e.printStackTrace();
                                                 }
-                                                else {
-                                                    smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
-                                                    csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
-                                                }
-
-                                                temperature = csv_temperature.read();
-
-                                                double sumOfTemp = 0.0;
-                                                for (int i = 0; i < temperature.size(); i++) {
-                                                    String[] rows = temperature.get(i);
-                                                    sumOfTemp += Double.parseDouble(rows[4]);
-                                                }
-                                                double temp = sumOfTemp/(temperature.size());
-                                                average = 0.0;
-                                                average = Math.round(temp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
-                                            } catch (Exception e) {
-                                                e.printStackTrace();
-                                            }
                                             }
                                         });
                                         thread.start();
-                                    }
-                                    catch(Exception e)
-                                    {
+                                    } catch (Exception e) {
                                         e.printStackTrace();
                                     }
                                     whilebool = true;
-                                    while(whilebool) {
+                                    while (whilebool) {
                                         if (!thread.isAlive()) {
-                                            value =  Double.toString(average);
+                                            value = Double.toString(average);
                                             toSpeak = "Average Temperature of the Roof is " + value + " Fahrenheit";
                                             textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
                                             whilebool = false;
                                         }
                                     }
-                                }
-                                else if(Arrays.asList(keywords).contains("max") || Arrays.asList(keywords).contains("maximum"))
-                                {
+                                } else if (Arrays.asList(keywords).contains("max") || Arrays.asList(keywords).contains("maximum")) {
                                     jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
-                                    try{
+                                    try {
                                         //Creating a new thread for the file transfer, this takes the load off the main thread.
                                         thread = new Thread(new Runnable() {
                                             @Override
                                             public void run() {
-                                            try
-                                            {
-                                                //To get Samba Shared file from the Raspberry Pi
-                                                List<String[]> temperature;
+                                                try {
+                                                    //To get Samba Shared file from the Raspberry Pi
+                                                    List<String[]> temperature;
 
-                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
-                                                String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
-                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                InputStream smbTemperatureFileWireless;
-                                                InputStream smbTemperatureFileEthernet;
-                                                CSVReader csv_temperature;
+                                                    String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                    String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
+                                                    NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                    InputStream smbTemperatureFileWireless;
+                                                    InputStream smbTemperatureFileEthernet;
+                                                    CSVReader csv_temperature;
 
-                                                boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
-                                                if(wirelessFileAvailable) {
-                                                    smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
-                                                    csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
-                                                }
-                                                else {
-                                                    smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
-                                                    csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
-                                                }
-
-                                                temperature = csv_temperature.read();
-
-                                                String[] rows = temperature.get(0);
-                                                double maxTemp = Double.parseDouble(rows[4]);
-                                                for (int i = 0; i < temperature.size(); i++) {
-                                                    String[] row = temperature.get(i);
-                                                    if(Double.parseDouble(row[4]) > maxTemp)
-                                                    {
-                                                        maxTemp = Double.parseDouble(row[4]);
+                                                    boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                    if (wirelessFileAvailable) {
+                                                        smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                        csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                                    } else {
+                                                        smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                        csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
                                                     }
-                                                }
-                                                maximum = 0.0;
-                                                maximum = Math.round(maxTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
 
-                                            } catch (Exception e) {
-                                                e.printStackTrace();
-                                            }
+                                                    temperature = csv_temperature.read();
+
+                                                    String[] rows = temperature.get(0);
+                                                    double maxTemp = Double.parseDouble(rows[4]);
+                                                    for (int i = 0; i < temperature.size(); i++) {
+                                                        String[] row = temperature.get(i);
+                                                        if (Double.parseDouble(row[4]) > maxTemp) {
+                                                            maxTemp = Double.parseDouble(row[4]);
+                                                        }
+                                                    }
+                                                    maximum = 0.0;
+                                                    maximum = Math.round(maxTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
+
+                                                } catch (Exception e) {
+                                                    e.printStackTrace();
+                                                }
                                             }
                                         });
                                         thread.start();
-                                    }
-                                    catch(Exception e)
-                                    {
+                                    } catch (Exception e) {
                                         e.printStackTrace();
                                     }
                                     whilebool = true;
-                                    while(whilebool) {
+                                    while (whilebool) {
                                         if (!thread.isAlive()) {
-                                            value =  Double.toString(maximum);
+                                            value = Double.toString(maximum);
                                             toSpeak = "Maximum Temperature of the roof is " + value + " Fahrenheit";
                                             textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
                                             whilebool = false;
                                         }
                                     }
-                                }
-                                else if(Arrays.asList(keywords).contains("min") || Arrays.asList(keywords).contains("minimum"))
-                                {
+                                } else if (Arrays.asList(keywords).contains("min") || Arrays.asList(keywords).contains("minimum")) {
                                     jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
-                                    try{
+                                    try {
                                         //Creating a new thread for the file transfer, this takes the load off the main thread.
                                         thread = new Thread(new Runnable() {
                                             @Override
                                             public void run() {
-                                            try
-                                            {
-                                                //To get Samba Shared file from the Raspberry Pi
-                                                List<String[]> temperature;
+                                                try {
+                                                    //To get Samba Shared file from the Raspberry Pi
+                                                    List<String[]> temperature;
 
-                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
-                                                String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
-                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                InputStream smbTemperatureFileWireless;
-                                                InputStream smbTemperatureFileEthernet;
-                                                CSVReader csv_temperature;
+                                                    String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                    String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
+                                                    NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                    InputStream smbTemperatureFileWireless;
+                                                    InputStream smbTemperatureFileEthernet;
+                                                    CSVReader csv_temperature;
 
-                                                boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
-                                                if(wirelessFileAvailable) {
-                                                    smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
-                                                    csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
-                                                }
-                                                else {
-                                                    smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
-                                                    csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
-                                                }
-
-                                                temperature = csv_temperature.read();
-
-                                                String[] rows = temperature.get(0);
-                                                double minTemp = Double.parseDouble(rows[4]);
-                                                for (int i = 0; i < temperature.size(); i++) {
-                                                    String[] row = temperature.get(i);
-                                                    if(Double.parseDouble(row[4]) < minTemp)
-                                                    {
-                                                        minTemp = Double.parseDouble(row[4]);
+                                                    boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                    if (wirelessFileAvailable) {
+                                                        smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                        csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                                    } else {
+                                                        smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                        csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
                                                     }
-                                                }
-                                                minimum = 0.0;
-                                                minimum = Math.round(minTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
 
-                                            } catch (Exception e) {
-                                                e.printStackTrace();
-                                            }
+                                                    temperature = csv_temperature.read();
+
+                                                    String[] rows = temperature.get(0);
+                                                    double minTemp = Double.parseDouble(rows[4]);
+                                                    for (int i = 0; i < temperature.size(); i++) {
+                                                        String[] row = temperature.get(i);
+                                                        if (Double.parseDouble(row[4]) < minTemp) {
+                                                            minTemp = Double.parseDouble(row[4]);
+                                                        }
+                                                    }
+                                                    minimum = 0.0;
+                                                    minimum = Math.round(minTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
+
+                                                } catch (Exception e) {
+                                                    e.printStackTrace();
+                                                }
                                             }
                                         });
                                         thread.start();
-                                    }
-                                    catch(Exception e)
-                                    {
+                                    } catch (Exception e) {
                                         e.printStackTrace();
                                     }
                                     whilebool = true;
-                                    while(whilebool) {
+                                    while (whilebool) {
                                         if (!thread.isAlive()) {
-                                            value =  Double.toString(minimum);
+                                            value = Double.toString(minimum);
                                             toSpeak = "Minimum Temperature of the roof is " + value + " Fahrenheit";
                                             textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
                                             whilebool = false;
                                         }
                                     }
-                                }
-                                else if(Arrays.asList(keywords).contains("current"))
-                                {
+                                } else if (Arrays.asList(keywords).contains("current")) {
                                     jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
-                                    try{
+                                    try {
                                         //Creating a new thread for the file transfer, this takes the load off the main thread.
                                         thread = new Thread(new Runnable() {
                                             @Override
                                             public void run() {
-                                            try
-                                            {
-                                                //To get Samba Shared file from the Raspberry Pi
-                                                List<String[]> temperature;
+                                                try {
+                                                    //To get Samba Shared file from the Raspberry Pi
+                                                    List<String[]> temperature;
 
-                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
-                                                String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
-                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                InputStream smbTemperatureFileWireless;
-                                                InputStream smbTemperatureFileEthernet;
-                                                CSVReader csv_temperature;
+                                                    String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                    String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
+                                                    NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                    InputStream smbTemperatureFileWireless;
+                                                    InputStream smbTemperatureFileEthernet;
+                                                    CSVReader csv_temperature;
 
-                                                boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
-                                                if(wirelessFileAvailable) {
-                                                    smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
-                                                    csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
-                                                }
-                                                else {
-                                                    smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
-                                                    csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
-                                                }
-
-                                                temperature = csv_temperature.read();
-
-                                                double currentTemp = 0.0;
-                                                for (int i = 0; i < temperature.size(); i++) {
-                                                    String[] row = temperature.get(i);
-                                                    if( (i == temperature.size() - 1))
-                                                    {
-                                                        currentTemp = Double.parseDouble(row[4]);
+                                                    boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                    if (wirelessFileAvailable) {
+                                                        smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                        csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                                    } else {
+                                                        smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                        csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
                                                     }
-                                                }
-                                                current = 0.0;
-                                                current = Math.round(currentTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
 
-                                            } catch (Exception e) {
-                                                e.printStackTrace();
-                                            }
+                                                    temperature = csv_temperature.read();
+
+                                                    double currentTemp = 0.0;
+                                                    for (int i = 0; i < temperature.size(); i++) {
+                                                        String[] row = temperature.get(i);
+                                                        if ((i == temperature.size() - 1)) {
+                                                            currentTemp = Double.parseDouble(row[4]);
+                                                        }
+                                                    }
+                                                    current = 0.0;
+                                                    current = Math.round(currentTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
+
+                                                } catch (Exception e) {
+                                                    e.printStackTrace();
+                                                }
                                             }
                                         });
                                         thread.start();
-                                    }
-                                    catch(Exception e)
-                                    {
+                                    } catch (Exception e) {
                                         e.printStackTrace();
                                     }
                                     whilebool = true;
-                                    while(whilebool) {
+                                    while (whilebool) {
                                         if (!thread.isAlive()) {
-                                            value =  Double.toString(current);
+                                            value = Double.toString(current);
                                             toSpeak = "Current Temperature of the roof is " + value + " Fahrenheit";
                                             textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
                                             whilebool = false;
                                         }
                                     }
                                 }
-                            }
-                            else if(Arrays.asList(keywords).contains("north"))
-                            {
-                                if(Arrays.asList(keywords).contains("average") || Arrays.asList(keywords).contains("total"))
-                                {
+                            } else if (Arrays.asList(keywords).contains("north")) {
+                                if (Arrays.asList(keywords).contains("average") || Arrays.asList(keywords).contains("total")) {
                                     jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
-                                    try{
+                                    try {
                                         //Creating a new thread for the file transfer, this takes the load off the main thread.
                                         thread = new Thread(new Runnable() {
                                             @Override
                                             public void run() {
-                                            try
-                                            {
-                                                //To get Samba Shared file from the Raspberry Pi
-                                                List<String[]> temperature;
+                                                try {
+                                                    //To get Samba Shared file from the Raspberry Pi
+                                                    List<String[]> temperature;
 
-                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
-                                                String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
-                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                InputStream smbTemperatureFileWireless;
-                                                InputStream smbTemperatureFileEthernet;
-                                                CSVReader csv_temperature;
+                                                    String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                    String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
+                                                    NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                    InputStream smbTemperatureFileWireless;
+                                                    InputStream smbTemperatureFileEthernet;
+                                                    CSVReader csv_temperature;
 
-                                                boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
-                                                if(wirelessFileAvailable) {
-                                                    smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
-                                                    csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
-                                                }
-                                                else {
-                                                    smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
-                                                    csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
-                                                }
+                                                    boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                    if (wirelessFileAvailable) {
+                                                        smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                        csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                                    } else {
+                                                        smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                        csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
+                                                    }
 
-                                                temperature = csv_temperature.read();
-                                                double sumOfTemp = 0.0;
-                                                for (int i = 0; i < temperature.size(); i++) {
-                                                    String[] rows = temperature.get(i);
-                                                    sumOfTemp += Double.parseDouble(rows[6]);
+                                                    temperature = csv_temperature.read();
+                                                    double sumOfTemp = 0.0;
+                                                    for (int i = 0; i < temperature.size(); i++) {
+                                                        String[] rows = temperature.get(i);
+                                                        sumOfTemp += Double.parseDouble(rows[6]);
+                                                    }
+                                                    double temp = sumOfTemp / (temperature.size());
+                                                    average = 0.0;
+                                                    average = Math.round(temp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
+                                                } catch (Exception e) {
+                                                    e.printStackTrace();
                                                 }
-                                                double temp = sumOfTemp/(temperature.size());
-                                                average = 0.0;
-                                                average = Math.round(temp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
-                                            } catch (Exception e) {
-                                                e.printStackTrace();
-                                            }
                                             }
                                         });
                                         thread.start();
-                                    }
-                                    catch(Exception e)
-                                    {
+                                    } catch (Exception e) {
                                         e.printStackTrace();
                                     }
                                     whilebool = true;
-                                    while(whilebool) {
+                                    while (whilebool) {
                                         if (!thread.isAlive()) {
-                                            value =  Double.toString(average);
+                                            value = Double.toString(average);
                                             toSpeak = "Average Temperature of the North Wall is " + value + " Fahrenheit";
                                             textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
                                             whilebool = false;
                                         }
                                     }
-                                }
-                                else if(Arrays.asList(keywords).contains("max") || Arrays.asList(keywords).contains("maximum"))
-                                {
+                                } else if (Arrays.asList(keywords).contains("max") || Arrays.asList(keywords).contains("maximum")) {
                                     jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
-                                    try{
+                                    try {
                                         //Creating a new thread for the file transfer, this takes the load off the main thread.
                                         thread = new Thread(new Runnable() {
                                             @Override
                                             public void run() {
-                                            try
-                                            {
-                                                //To get Samba Shared file from the Raspberry Pi
-                                                List<String[]> temperature;
+                                                try {
+                                                    //To get Samba Shared file from the Raspberry Pi
+                                                    List<String[]> temperature;
 
-                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
-                                                String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
-                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                InputStream smbTemperatureFileWireless;
-                                                InputStream smbTemperatureFileEthernet;
-                                                CSVReader csv_temperature;
+                                                    String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                    String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
+                                                    NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                    InputStream smbTemperatureFileWireless;
+                                                    InputStream smbTemperatureFileEthernet;
+                                                    CSVReader csv_temperature;
 
-                                                boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
-                                                if(wirelessFileAvailable) {
-                                                    smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
-                                                    csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
-                                                }
-                                                else {
-                                                    smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
-                                                    csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
-                                                }
-
-                                                temperature = csv_temperature.read();
-
-                                                String[] rows = temperature.get(0);
-                                                double maxTemp = Double.parseDouble(rows[6]);
-                                                for (int i = 0; i < temperature.size(); i++) {
-                                                    String[] row = temperature.get(i);
-                                                    if(Double.parseDouble(row[6]) > maxTemp)
-                                                    {
-                                                        maxTemp = Double.parseDouble(row[6]);
+                                                    boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                    if (wirelessFileAvailable) {
+                                                        smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                        csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                                    } else {
+                                                        smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                        csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
                                                     }
-                                                }
-                                                maximum = 0.0;
-                                                maximum = Math.round(maxTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
 
-                                            } catch (Exception e) {
-                                                e.printStackTrace();
-                                            }
+                                                    temperature = csv_temperature.read();
+
+                                                    String[] rows = temperature.get(0);
+                                                    double maxTemp = Double.parseDouble(rows[6]);
+                                                    for (int i = 0; i < temperature.size(); i++) {
+                                                        String[] row = temperature.get(i);
+                                                        if (Double.parseDouble(row[6]) > maxTemp) {
+                                                            maxTemp = Double.parseDouble(row[6]);
+                                                        }
+                                                    }
+                                                    maximum = 0.0;
+                                                    maximum = Math.round(maxTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
+
+                                                } catch (Exception e) {
+                                                    e.printStackTrace();
+                                                }
                                             }
                                         });
                                         thread.start();
-                                    }
-                                    catch(Exception e)
-                                    {
+                                    } catch (Exception e) {
                                         e.printStackTrace();
                                     }
                                     whilebool = true;
-                                    while(whilebool) {
+                                    while (whilebool) {
                                         if (!thread.isAlive()) {
-                                            value =  Double.toString(maximum);
+                                            value = Double.toString(maximum);
                                             toSpeak = "Maximum Temperature of the North Wall is " + value + " Fahrenheit";
                                             textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
                                             whilebool = false;
                                         }
                                     }
-                                }
-                                else if(Arrays.asList(keywords).contains("min") || Arrays.asList(keywords).contains("minimum"))
-                                {
+                                } else if (Arrays.asList(keywords).contains("min") || Arrays.asList(keywords).contains("minimum")) {
                                     jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
-                                    try{
+                                    try {
                                         //Creating a new thread for the file transfer, this takes the load off the main thread.
                                         thread = new Thread(new Runnable() {
                                             @Override
                                             public void run() {
-                                            try
-                                            {
-                                                //To get Samba Shared file from the Raspberry Pi
-                                                List<String[]> temperature;
+                                                try {
+                                                    //To get Samba Shared file from the Raspberry Pi
+                                                    List<String[]> temperature;
 
-                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
-                                                String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
-                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                InputStream smbTemperatureFileWireless;
-                                                InputStream smbTemperatureFileEthernet;
-                                                CSVReader csv_temperature;
+                                                    String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                    String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
+                                                    NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                    InputStream smbTemperatureFileWireless;
+                                                    InputStream smbTemperatureFileEthernet;
+                                                    CSVReader csv_temperature;
 
-                                                boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
-                                                if(wirelessFileAvailable) {
-                                                    smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
-                                                    csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
-                                                }
-                                                else {
-                                                    smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
-                                                    csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
-                                                }
-
-                                                temperature = csv_temperature.read();
-
-                                                String[] rows = temperature.get(0);
-                                                double minTemp = Double.parseDouble(rows[6]);
-                                                for (int i = 0; i < temperature.size(); i++) {
-                                                    String[] row = temperature.get(i);
-                                                    if(Double.parseDouble(row[6]) < minTemp)
-                                                    {
-                                                        minTemp = Double.parseDouble(row[6]);
+                                                    boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                    if (wirelessFileAvailable) {
+                                                        smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                        csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                                    } else {
+                                                        smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                        csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
                                                     }
-                                                }
-                                                minimum = 0.0;
-                                                minimum = Math.round(minTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
 
-                                            } catch (Exception e) {
-                                                e.printStackTrace();
-                                            }
+                                                    temperature = csv_temperature.read();
+
+                                                    String[] rows = temperature.get(0);
+                                                    double minTemp = Double.parseDouble(rows[6]);
+                                                    for (int i = 0; i < temperature.size(); i++) {
+                                                        String[] row = temperature.get(i);
+                                                        if (Double.parseDouble(row[6]) < minTemp) {
+                                                            minTemp = Double.parseDouble(row[6]);
+                                                        }
+                                                    }
+                                                    minimum = 0.0;
+                                                    minimum = Math.round(minTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
+
+                                                } catch (Exception e) {
+                                                    e.printStackTrace();
+                                                }
                                             }
                                         });
                                         thread.start();
-                                    }
-                                    catch(Exception e)
-                                    {
+                                    } catch (Exception e) {
                                         e.printStackTrace();
                                     }
                                     whilebool = true;
-                                    while(whilebool) {
+                                    while (whilebool) {
                                         if (!thread.isAlive()) {
-                                            value =  Double.toString(minimum);
+                                            value = Double.toString(minimum);
                                             toSpeak = "Minimum Temperature of the North Wall is " + value + " Fahrenheit";
                                             textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
                                             whilebool = false;
                                         }
                                     }
-                                }
-                                else if(Arrays.asList(keywords).contains("current"))
-                                {
+                                } else if (Arrays.asList(keywords).contains("current")) {
                                     jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
-                                    try{
+                                    try {
                                         //Creating a new thread for the file transfer, this takes the load off the main thread.
                                         thread = new Thread(new Runnable() {
                                             @Override
                                             public void run() {
-                                            try
-                                            {
-                                                //To get Samba Shared file from the Raspberry Pi
-                                                List<String[]> temperature;
+                                                try {
+                                                    //To get Samba Shared file from the Raspberry Pi
+                                                    List<String[]> temperature;
 
-                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
-                                                String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
-                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                InputStream smbTemperatureFileWireless;
-                                                InputStream smbTemperatureFileEthernet;
-                                                CSVReader csv_temperature;
+                                                    String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + temperatureFileName;
+                                                    String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + temperatureFileName;
+                                                    NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                                    InputStream smbTemperatureFileWireless;
+                                                    InputStream smbTemperatureFileEthernet;
+                                                    CSVReader csv_temperature;
 
-                                                boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
-                                                if(wirelessFileAvailable) {
-                                                    smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
-                                                    csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
-                                                }
-                                                else {
-                                                    smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
-                                                    csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
-                                                }
-
-                                                temperature = csv_temperature.read();
-
-                                                double currentTemp = 0.0;
-                                                for (int i = 0; i < temperature.size(); i++) {
-                                                    String[] row = temperature.get(i);
-                                                    if( i == temperature.size() - 1)
-                                                    {
-                                                        currentTemp = Double.parseDouble(row[6]);
+                                                    boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                                    if (wirelessFileAvailable) {
+                                                        smbTemperatureFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                        csv_temperature = new CSVReader(smbTemperatureFileWireless, "heat");
+                                                    } else {
+                                                        smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                        csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
                                                     }
+
+                                                    temperature = csv_temperature.read();
+
+                                                    double currentTemp = 0.0;
+                                                    for (int i = 0; i < temperature.size(); i++) {
+                                                        String[] row = temperature.get(i);
+                                                        if (i == temperature.size() - 1) {
+                                                            currentTemp = Double.parseDouble(row[6]);
+                                                        }
+                                                    }
+                                                    current = 0.0;
+                                                    current = Math.round(currentTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
+                                                } catch (Exception e) {
+                                                    e.printStackTrace();
                                                 }
-                                                current = 0.0;
-                                                current = Math.round(currentTemp * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
-                                            } catch (Exception e) {
-                                                e.printStackTrace();
-                                            }
                                             }
                                         });
                                         thread.start();
-                                    }
-                                    catch(Exception e)
-                                    {
+                                    } catch (Exception e) {
                                         e.printStackTrace();
                                     }
                                     whilebool = true;
-                                    while(whilebool) {
+                                    while (whilebool) {
                                         if (!thread.isAlive()) {
-                                            value =  Double.toString(current);
+                                            value = Double.toString(current);
                                             toSpeak = "Current Temperature of the North Wall is " + value + " Fahrenheit";
                                             textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
                                             whilebool = false;
@@ -2705,35 +2412,28 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                     }
                                 }
                             }
-                        }
-                        else if(Arrays.asList(keywords).contains("water"))
-                        {
-                            if(Arrays.asList(keywords).contains("usage")
+                        } else if (Arrays.asList(keywords).contains("water")) {
+                            if (Arrays.asList(keywords).contains("usage")
                                     || Arrays.asList(keywords).contains("use")
                                     || Arrays.asList(keywords).contains("used")
                                     || Arrays.asList(keywords).contains("consumption")
-                                    || Arrays.asList(keywords).contains("consumed"))
-                            {
-                                if(Arrays.asList(keywords).contains("outlet")
+                                    || Arrays.asList(keywords).contains("consumed")) {
+                                if (Arrays.asList(keywords).contains("outlet")
                                         || Arrays.asList(keywords).contains("sensor")
-                                        || Arrays.asList(keywords).contains("used"))
-                                {
-                                    if(Arrays.asList(keywords).contains("one")
-                                            || Arrays.asList(keywords).contains("1"))
-                                    {
-                                        if(Arrays.asList(keywords).contains("total") || Arrays.asList(keywords).contains("average")
+                                        || Arrays.asList(keywords).contains("used")) {
+                                    if (Arrays.asList(keywords).contains("one")
+                                            || Arrays.asList(keywords).contains("1")) {
+                                        if (Arrays.asList(keywords).contains("total") || Arrays.asList(keywords).contains("average")
                                                 || Arrays.asList(keywords).contains("max") || Arrays.asList(keywords).contains("maximum")
                                                 || Arrays.asList(keywords).contains("min") || Arrays.asList(keywords).contains("minimum")
-                                                || Arrays.asList(keywords).contains("current"))
-                                        {
+                                                || Arrays.asList(keywords).contains("current")) {
                                             jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
-                                            try{
+                                            try {
                                                 //Creating a new thread for the file transfer, this takes the load off the main thread.
                                                 thread = new Thread(new Runnable() {
                                                     @Override
                                                     public void run() {
-                                                        try
-                                                        {
+                                                        try {
                                                             //To get Samba Shared file from the Raspberry Pi
                                                             List<String[]> water;
 
@@ -2745,11 +2445,10 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                             CSVReader csv_water;
 
                                                             boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
-                                                            if(wirelessFileAvailable) {
+                                                            if (wirelessFileAvailable) {
                                                                 smbWaterFileWireless = new SmbFile(url1, auth1).getInputStream();
                                                                 csv_water = new CSVReader(smbWaterFileWireless, "water");
-                                                            }
-                                                            else {
+                                                            } else {
                                                                 smbWaterFileEthernet = new SmbFile(url2, auth1).getInputStream();
                                                                 csv_water = new CSVReader(smbWaterFileEthernet, "water");
                                                             }
@@ -2759,7 +2458,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                             double totalWater = 0.0;
                                                             for (int i = 0; i < water.size(); i++) {
                                                                 String[] row = water.get(i);
-                                                                totalWater += Double.parseDouble(row[2])*0.264172;
+                                                                totalWater += Double.parseDouble(row[2]) * 0.264172;
                                                             }
                                                             total = 0.0;
                                                             total = Math.round(totalWater * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
@@ -2769,39 +2468,33 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                     }
                                                 });
                                                 thread.start();
-                                            }
-                                            catch(Exception e)
-                                            {
+                                            } catch (Exception e) {
                                                 e.printStackTrace();
                                             }
                                             whilebool = true;
-                                            while(whilebool) {
+                                            while (whilebool) {
                                                 if (!thread.isAlive()) {
-                                                    value =  Double.toString(current);
+                                                    value = Double.toString(current);
                                                     toSpeak = "Total Water Consumption for sensor 1 is " + value + " Gallons";
                                                     textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
                                                     whilebool = false;
                                                 }
                                             }
                                         }
-                                    }
-                                    else if(Arrays.asList(keywords).contains("two")
+                                    } else if (Arrays.asList(keywords).contains("two")
                                             || Arrays.asList(keywords).contains("2")
-                                            || Arrays.asList(keywords).contains("too"))
-                                    {
-                                        if(Arrays.asList(keywords).contains("total") || Arrays.asList(keywords).contains("average")
+                                            || Arrays.asList(keywords).contains("too")) {
+                                        if (Arrays.asList(keywords).contains("total") || Arrays.asList(keywords).contains("average")
                                                 || Arrays.asList(keywords).contains("max") || Arrays.asList(keywords).contains("maximum")
                                                 || Arrays.asList(keywords).contains("min") || Arrays.asList(keywords).contains("minimum")
-                                                || Arrays.asList(keywords).contains("current"))
-                                        {
+                                                || Arrays.asList(keywords).contains("current")) {
                                             jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
-                                            try{
+                                            try {
                                                 //Creating a new thread for the file transfer, this takes the load off the main thread.
                                                 thread = new Thread(new Runnable() {
                                                     @Override
                                                     public void run() {
-                                                        try
-                                                        {
+                                                        try {
                                                             //To get Samba Shared file from the Raspberry Pi
                                                             List<String[]> water;
 
@@ -2813,11 +2506,10 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                             CSVReader csv_water;
 
                                                             boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
-                                                            if(wirelessFileAvailable) {
+                                                            if (wirelessFileAvailable) {
                                                                 smbWaterFileWireless = new SmbFile(url1, auth1).getInputStream();
                                                                 csv_water = new CSVReader(smbWaterFileWireless, "water");
-                                                            }
-                                                            else {
+                                                            } else {
                                                                 smbWaterFileEthernet = new SmbFile(url2, auth1).getInputStream();
                                                                 csv_water = new CSVReader(smbWaterFileEthernet, "water");
                                                             }
@@ -2827,7 +2519,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                             double totalWater = 0.0;
                                                             for (int i = 0; i < water.size(); i++) {
                                                                 String[] row = water.get(i);
-                                                                totalWater += Double.parseDouble(row[2])*0.264172;
+                                                                totalWater += Double.parseDouble(row[2]) * 0.264172;
                                                             }
                                                             total = 0.0;
                                                             total = Math.round(totalWater * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
@@ -2837,15 +2529,13 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                     }
                                                 });
                                                 thread.start();
-                                            }
-                                            catch(Exception e)
-                                            {
+                                            } catch (Exception e) {
                                                 e.printStackTrace();
                                             }
                                             whilebool = true;
-                                            while(whilebool) {
+                                            while (whilebool) {
                                                 if (!thread.isAlive()) {
-                                                    value =  Double.toString(current);
+                                                    value = Double.toString(current);
                                                     toSpeak = "Total Water Consumption for sensor 2 is " + value + " Gallons";
                                                     textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
                                                     whilebool = false;
@@ -2855,192 +2545,159 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                     }
                                 }
                             }
-                        }
-                        else if(Arrays.asList(keywords).contains("humidity"))
-                        {
-                            if(Arrays.asList(keywords).contains("current") || Arrays.asList(keywords).contains("total")
-                                    || Arrays.asList(keywords).contains("average")
-                                    || Arrays.asList(keywords).contains("max") || Arrays.asList(keywords).contains("maximum")
-                                    || Arrays.asList(keywords).contains("min") || Arrays.asList(keywords).contains("minimum"))
-                            {
-                                jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
-                                try{
-                                    //Creating a new thread for the file transfer, this takes the load off the main thread.
-                                    thread = new Thread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            try
-                                            {
-                                                //To get Samba Shared file from the Raspberry Pi
-                                                List<String[]> humidity;
-
-                                                String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + humidityFileName;
-                                                String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + humidityFileName;
-                                                NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                                InputStream smbHumidityFileWireless;
-                                                InputStream smbHumidityFileEthernet;
-                                                CSVReader csv_humidity;
-
-                                                boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
-                                                if(wirelessFileAvailable) {
-                                                    smbHumidityFileWireless = new SmbFile(url1, auth1).getInputStream();
-                                                    csv_humidity = new CSVReader(smbHumidityFileWireless, "humidity");
-                                                }
-                                                else {
-                                                    smbHumidityFileEthernet = new SmbFile(url2, auth1).getInputStream();
-                                                    csv_humidity = new CSVReader(smbHumidityFileEthernet, "humidity");
-                                                }
-
-                                                humidity = csv_humidity.read();
-
-                                                double currentHumidity = 0.0;
-                                                for (int i = 0; i < humidity.size(); i++) {
-                                                    String[] row = humidity.get(i);
-                                                    if( i == humidity.size() - 1)
-                                                    {
-                                                        currentHumidity = Double.parseDouble(row[2]);
-                                                    }
-                                                }
-                                                current = 0.0;
-                                                current = Math.round(currentHumidity * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
-                                            } catch (Exception e) {
-                                                e.printStackTrace();
-                                            }
-                                        }
-                                    });
-                                    thread.start();
-                                }
-                                catch(Exception e)
-                                {
-                                    e.printStackTrace();
-                                }
-                                whilebool = true;
-                                while(whilebool) {
-                                    if (!thread.isAlive()) {
-                                        value =  Double.toString(current);
-                                        toSpeak = "Current Humidity inside the house is " + value + " Percent";
-                                        textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
-                                        whilebool = false;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    else if(Arrays.asList(keywords).contains("nomajor") &&
-                                   Arrays.asList(keywords).contains("house") ||
-                                    Arrays.asList(keywords).contains("welcome") ||
-                                    Arrays.asList(keywords).contains("info") ||
-                                    Arrays.asList(keywords).contains("information") ||
-                                    Arrays.asList(keywords).contains("intro") ||
-                                    Arrays.asList(keywords).contains("introduction"))
-                    {
-                        if(Arrays.asList(keywords).contains("house") &&
-                                (Arrays.asList(keywords).contains("info") || Arrays.asList(keywords).contains("information") ||
-                                        Arrays.asList(keywords).contains("intro") || Arrays.asList(keywords).contains("introduction")) &&
-                                !Arrays.asList(keywords).contains("welcome"))
+                        } else if (Arrays.asList(keywords).contains("humidity"))
                         {
                             jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
-                            try{
+                            try {
                                 //Creating a new thread for the file transfer, this takes the load off the main thread.
                                 thread = new Thread(new Runnable() {
                                     @Override
                                     public void run() {
-                                    try
-                                    {
-                                        toSpeak = "";
-                                        String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + houseInfo;
-                                        String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + houseInfo;
-                                        NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                        SmbFile houseInfo;
+                                        try {
+                                            //To get Samba Shared file from the Raspberry Pi
+                                            List<String[]> humidity;
 
-                                        boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
-                                        if(wirelessFileAvailable) {
-                                            houseInfo  = new SmbFile(url1, auth1);
-                                        }
-                                        else {
-                                            houseInfo = new SmbFile(url2, auth1);
-                                        }
+                                            String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + humidityFileName;
+                                            String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + humidityFileName;
+                                            NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                            InputStream smbHumidityFileWireless;
+                                            InputStream smbHumidityFileEthernet;
+                                            CSVReader csv_humidity;
 
-                                        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new SmbFileInputStream(houseInfo)))) {
-                                            String line = reader.readLine();
-                                            while (line != null) {
-                                                toSpeak += line;
-                                                line = reader.readLine();
+                                            boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                            if (wirelessFileAvailable) {
+                                                smbHumidityFileWireless = new SmbFile(url1, auth1).getInputStream();
+                                                csv_humidity = new CSVReader(smbHumidityFileWireless, "humidity");
+                                            } else {
+                                                smbHumidityFileEthernet = new SmbFile(url2, auth1).getInputStream();
+                                                csv_humidity = new CSVReader(smbHumidityFileEthernet, "humidity");
                                             }
+
+                                            humidity = csv_humidity.read();
+
+                                            double currentHumidity = 0.0;
+                                            for (int i = 0; i < humidity.size(); i++) {
+                                                String[] row = humidity.get(i);
+                                                if (i == humidity.size() - 1) {
+                                                    currentHumidity = Double.parseDouble(row[1]);
+                                                }
+                                            }
+                                            current = 0.0;
+                                            current = Math.round(currentHumidity * Math.pow(10, 1)) / Math.pow(10, 1); //To round off to two decimal places.
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
                                         }
-                                    } catch (Exception e) {
-                                        e.printStackTrace();
-                                    }
                                     }
                                 });
                                 thread.start();
+                            } catch (Exception e) {
+                                e.printStackTrace();
                             }
-                            catch(Exception e)
-                            {
+                            whilebool = true;
+                            while (whilebool) {
+                                if (!thread.isAlive()) {
+                                    value = Double.toString(current);
+                                    toSpeak = "Current Humidity inside the house is " + value + " Percent";
+                                    textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
+                                    whilebool = false;
+                                }
+                            }
+                        }
+                    } else if (Arrays.asList(keywords).contains("nomajor") && (Arrays.asList(keywords).contains("house") || Arrays.asList(keywords).contains("welcome") || Arrays.asList(keywords).contains("info") || Arrays.asList(keywords).contains("information") || Arrays.asList(keywords).contains("intro") || Arrays.asList(keywords).contains("introduction"))) {
+                        if (!Arrays.asList(keywords).contains("welcome")) {
+                            jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
+                            try {
+                                //Creating a new thread for the file transfer, this takes the load off the main thread.
+                                thread = new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        try {
+                                            toSpeak = " ";
+                                            String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + houseInfo;
+                                            String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + houseInfo;
+                                            NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                            SmbFile houseInfo;
+
+                                            boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                            if (wirelessFileAvailable) {
+                                                houseInfo = new SmbFile(url1, auth1);
+                                            } else {
+                                                houseInfo = new SmbFile(url2, auth1);
+                                            }
+
+                                            try (BufferedReader reader = new BufferedReader(new InputStreamReader(new SmbFileInputStream(houseInfo)))) {
+                                                String line = reader.readLine();
+                                                while (line != null) {
+                                                    toSpeak += line;
+                                                    line = reader.readLine();
+                                                }
+                                            }
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                });
+                                thread.start();
+                            } catch (Exception e) {
                                 e.printStackTrace();
                             }
 
                             whilebool = true;
-                            while(whilebool) {
+                            while (whilebool) {
+                                if (!thread.isAlive()) {
+                                    textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
+                                    whilebool = false;
+                                }
+                            }
+                        } else {
+                            jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
+                            try {
+                                //Creating a new thread for the file transfer, this takes the load off the main thread.
+                                thread = new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        try {
+                                            toSpeak = " ";
+                                            String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + houseWelcome;
+                                            String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + houseWelcome;
+                                            NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
+                                            SmbFile houseInfo;
+
+                                            boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
+                                            if (wirelessFileAvailable) {
+                                                houseInfo = new SmbFile(url1, auth1);
+                                            } else {
+                                                houseInfo = new SmbFile(url2, auth1);
+                                            }
+                                            try (BufferedReader reader = new BufferedReader(new InputStreamReader(new SmbFileInputStream(houseInfo)))) {
+                                                String line = reader.readLine();
+                                                while (line != null) {
+                                                    toSpeak += line;
+                                                    line = reader.readLine();
+                                                }
+                                            }
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                });
+                                thread.start();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+
+                            whilebool = true;
+                            while (whilebool) {
                                 if (!thread.isAlive()) {
                                     textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
                                     whilebool = false;
                                 }
                             }
                         }
-                        else if(Arrays.asList(keywords).contains("welcome"))
-                        {
-                            jcifs.Config.registerSmbURLHandler(); //jcifs is used for handling smb file transfer.
-                            try{
-                                //Creating a new thread for the file transfer, this takes the load off the main thread.
-                                thread = new Thread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                    try
-                                    {
-                                        toSpeak = "";
-                                        String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + houseWelcome;
-                                        String url2 = "smb://" + ipAddressEthernet + "/" + sharedFolder + "/" + houseWelcome;
-                                        NtlmPasswordAuthentication auth1 = new NtlmPasswordAuthentication(domain, user, pass);
-                                        SmbFile houseInfo;
 
-                                        boolean wirelessFileAvailable = new SmbFile(url1, auth1).exists();
-                                        if(wirelessFileAvailable) {
-                                            houseInfo  = new SmbFile(url1, auth1);
-                                        }
-                                        else {
-                                            houseInfo = new SmbFile(url2, auth1);
-                                        }
-                                        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new SmbFileInputStream(houseInfo)))) {
-                                            String line = reader.readLine();
-                                            while (line != null) {
-                                                toSpeak += line;
-                                                line = reader.readLine();
-                                            }
-                                        }
-                                    } catch (Exception e) {
-                                        e.printStackTrace();
-                                    }
-                                    }
-                                });
-                                thread.start();
-                            }
-                            catch(Exception e)
-                            {
-                                e.printStackTrace();
-                            }
 
-                            whilebool = true;
-                            while(whilebool) {
-                                if (!thread.isAlive()) {
-                                    textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
-                                    whilebool = false;
-                                }
-                            }
-                        }
                     }
-
-                    if(!textToSpeech.isSpeaking()) {
+                    if (!textToSpeech.isSpeaking()) {
                         textToSpeech.stop();
                         textToSpeech.shutdown();
                     }
@@ -3060,8 +2717,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
         // Arrays Related to the Senior Year Design
         String major[]       = {"power", "temperature", "water", "humidity"};
         String quantity[]    = {"total", "average", "max", "maximum", "min", "minimum", "current"};
-        String power[]       = {"lighting", "air", "conditioner", "refrigerator", "kitchen", "radiant",
-                                "floor", "pump"};
+        String power[]       = {"lighting", "air", "conditioner", "refrigerator", "kitchen"};
         String temperature[] = {"south", "wall", "interior", "inside", "solar", "panel", "roof", "exterior",
                                 "outside", "north"};
         String water[]       = {"usage", "use", "used", "consumption", "consumed", "outlet", "sensor",

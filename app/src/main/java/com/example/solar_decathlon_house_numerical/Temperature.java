@@ -237,7 +237,7 @@ public class Temperature extends AppCompatActivity {
                                 }
                                 else {
                                     smbTemperatureFileEthernet = new SmbFile(url2, auth1).getInputStream();
-                                    csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");;
+                                    csv_temperature = new CSVReader(smbTemperatureFileEthernet, "heat");
                                 }
 
                                 temperatureData = csv_temperature.read();

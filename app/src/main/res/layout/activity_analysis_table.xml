@@ -243,6 +243,21 @@
                                 android:textAlignment="center"
                                 android:textColor="@color/colorPrimaryDark"
                                 android:textSize="20sp"
+                                android:textStyle="bold"></TextView>
+
+                            <TextView
+                                android:id="@+id/textView110"
+                                android:layout_width="150dp"
+                                android:layout_height="50dp"
+                                android:background="@drawable/table_shape"
+                                android:fontFamily="@font/digital_numericals_heavy"
+                                android:padding="5dp"
+                                android:scaleType="fitCenter"
+                                android:text="@string/q4_auto_one_hour"
+                                android:lineSpacingExtra="8sp"
+                                android:textAlignment="center"
+                                android:textColor="@color/colorPrimaryDark"
+                                android:textSize="20sp"
                                 android:textStyle="bold"
                                 android:layout_marginEnd="16dp"></TextView>
 
@@ -389,6 +404,21 @@
 
                             <TextView
                                 android:id="@+id/textView29"
+                                android:layout_width="150dp"
+                                android:layout_height="50dp"
+                                android:background="@drawable/table_shape"
+                                android:fontFamily="@font/digital_numericals_heavy"
+                                android:padding="5dp"
+                                android:scaleType="fitCenter"
+                                android:text=" "
+                                android:lineSpacingExtra="8sp"
+                                android:textAlignment="center"
+                                android:textColor="@color/colorPrimaryDark"
+                                android:textSize="20sp"
+                                android:textStyle="bold"></TextView>
+
+                            <TextView
+                                android:id="@+id/textView210"
                                 android:layout_width="150dp"
                                 android:layout_height="50dp"
                                 android:background="@drawable/table_shape"
@@ -557,6 +587,21 @@
                                 android:textAlignment="center"
                                 android:textColor="@color/colorPrimaryDark"
                                 android:textSize="20sp"
+                                android:textStyle="bold"></TextView>
+
+                            <TextView
+                                android:id="@+id/textView310"
+                                android:layout_width="150dp"
+                                android:layout_height="50dp"
+                                android:background="@drawable/table_shape"
+                                android:fontFamily="@font/digital_numericals_heavy"
+                                android:padding="5dp"
+                                android:scaleType="fitCenter"
+                                android:text=" "
+                                android:lineSpacingExtra="8sp"
+                                android:textAlignment="center"
+                                android:textColor="@color/colorPrimaryDark"
+                                android:textSize="20sp"
                                 android:textStyle="bold"
                                 android:layout_marginEnd="16dp"></TextView>
 
@@ -703,6 +748,21 @@
 
                             <TextView
                                 android:id="@+id/textView49"
+                                android:layout_width="150dp"
+                                android:layout_height="50dp"
+                                android:background="@drawable/table_shape"
+                                android:fontFamily="@font/digital_numericals_heavy"
+                                android:padding="5dp"
+                                android:scaleType="fitCenter"
+                                android:text=" "
+                                android:lineSpacingExtra="8sp"
+                                android:textAlignment="center"
+                                android:textColor="@color/colorPrimaryDark"
+                                android:textSize="20sp"
+                                android:textStyle="bold"></TextView>
+
+                            <TextView
+                                android:id="@+id/textView410"
                                 android:layout_width="150dp"
                                 android:layout_height="50dp"
                                 android:background="@drawable/table_shape"
@@ -871,6 +931,21 @@
                                 android:textAlignment="center"
                                 android:textColor="@color/colorPrimaryDark"
                                 android:textSize="20sp"
+                                android:textStyle="bold"></TextView>
+
+                            <TextView
+                                android:id="@+id/textView510"
+                                android:layout_width="150dp"
+                                android:layout_height="50dp"
+                                android:background="@drawable/table_shape"
+                                android:fontFamily="@font/digital_numericals_heavy"
+                                android:padding="5dp"
+                                android:scaleType="fitCenter"
+                                android:text=" "
+                                android:lineSpacingExtra="8sp"
+                                android:textAlignment="center"
+                                android:textColor="@color/colorPrimaryDark"
+                                android:textSize="20sp"
                                 android:textStyle="bold"
                                 android:layout_marginEnd="16dp"></TextView>
 
@@ -1016,6 +1091,21 @@
 
                             <TextView
                                 android:id="@+id/textView69"
+                                android:layout_width="150dp"
+                                android:layout_height="50dp"
+                                android:background="@drawable/table_shape"
+                                android:fontFamily="@font/digital_numericals_heavy"
+                                android:padding="5dp"
+                                android:scaleType="fitCenter"
+                                android:text=" "
+                                android:lineSpacingExtra="8sp"
+                                android:textAlignment="center"
+                                android:textColor="@color/colorPrimaryDark"
+                                android:textSize="20sp"
+                                android:textStyle="bold"></TextView>
+
+                            <TextView
+                                android:id="@+id/textView610"
                                 android:layout_width="150dp"
                                 android:layout_height="50dp"
                                 android:background="@drawable/table_shape"

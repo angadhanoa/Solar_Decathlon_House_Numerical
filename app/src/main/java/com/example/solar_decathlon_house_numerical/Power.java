@@ -18,10 +18,9 @@ import jcifs.smb.SmbFile;
 public class Power extends AppCompatActivity {
     Button refresh;
     TextView totalTextView1, totalTextView2, totalTextView3, totalTextView4,
-            totalTextView5, totalTextView6, totalTextView7, totalTextView8;
+            totalTextView5, totalTextView6, totalTextView8;
     TextView instantaneousTextView1, instantaneousTextView2, instantaneousTextView3,
-            instantaneousTextView4, instantaneousTextView5, instantaneousTextView6,
-            instantaneousTextView7, instantaneousTextView8;
+            instantaneousTextView4, instantaneousTextView5, instantaneousTextView6, instantaneousTextView8;
 
     double totalPowerProduction = 0.0;
     double totalPowerConsumption = 0.0;
@@ -30,7 +29,6 @@ public class Power extends AppCompatActivity {
     double totalWaterHeater = 0.0;
     double totalRefrigerator = 0.0;
     double totalKitchenOutlet = 0.0;
-    double totalRadiantFloorPump = 0.0;
 
     double instantaneousPowerProduction = 0.0;
     double instantaneousPowerConsumption = 0.0;
@@ -39,15 +37,10 @@ public class Power extends AppCompatActivity {
     double instantaneousWaterHeater = 0.0;
     double instantaneousRefrigerator = 0.0;
     double instantaneousKitchenOutlet = 0.0;
-    double instantaneousRadiantFloorPump = 0.0;
 
     String units = " KW/hr";
-    String totalPowerProduction1, totalLighting1, totalAirConditioner1,
-            totalWaterHeater1, totalRefrigerator1, totalKitchenOutlet1,
-            totalRadiantFloorPump1, totalPowerConsumption1;
-    String instantaneousPowerProduction1, instantaneousLighting1, instantaneousAirConditioner1,
-            instantaneousWaterHeater1, instantaneousRefrigerator1, instantaneousKitchenOutlet1,
-            instantaneousRadiantFloorPump1, instantaneousPowerConsumption1;
+    String totalPowerProduction1, totalLighting1, totalAirConditioner1, totalWaterHeater1, totalRefrigerator1, totalKitchenOutlet1, totalPowerConsumption1;
+    String instantaneousPowerProduction1, instantaneousLighting1, instantaneousAirConditioner1, instantaneousWaterHeater1, instantaneousRefrigerator1, instantaneousKitchenOutlet1, instantaneousPowerConsumption1;
 
     boolean while_boolean_total = true;
     boolean while_boolean_instant = true;
@@ -95,11 +88,6 @@ public class Power extends AppCompatActivity {
         totalTextView6 = findViewById(R.id.kitchen_outlet_total_value);
         instantaneousTextView6 = findViewById(R.id.kitchen_outlet_current_value);
 
-        //Radiant Floor Pump
-        totalTextView7 = findViewById(R.id.radiant_floor_pump_total_value);
-        instantaneousTextView7 = findViewById(R.id.radiant_floor_pump_current_value);
-
-        //For Graphing all the sensors at once.
         refresh = findViewById(R.id.one_for_all);
         refresh.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -139,7 +127,6 @@ public class Power extends AppCompatActivity {
                         double sumWaterHeater = 0.0;
                         double sumRefrigerator = 0.0;
                         double sumKitchenOutlet = 0.0;
-                        double sumRadiantFloorPump = 0.0;
 
                         final DateFormat df = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy");
                         int latestData = powerData.size() - 1; //To get the last row's #
@@ -149,7 +136,7 @@ public class Power extends AppCompatActivity {
                         String latestDate = df.format(date); //Date to String
                         String latestDateSubstring = latestDate.substring(0, 9);    //Extract "EEE MMM dd" part to compare
 
-                        for (int i = 0; i < powerData.size(); i++) {
+                        for (int i = 5; i < powerData.size(); i++) {
                             String[] row = powerData.get(i);
 
                             date = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy").parse(row[0]); //Extract date
@@ -158,25 +145,22 @@ public class Power extends AppCompatActivity {
 
                             //Only get the data if the day is the same.
                             if(latestDateSubstring.equalsIgnoreCase(dateFoundSubstring)) {
-                                sumPowerProduction += Double.parseDouble(row[1]);
-                                sumLighting += Double.parseDouble(row[2]);
-                                sumAirConditioner += Double.parseDouble(row[3]);
-                                sumWaterHeater += Double.parseDouble(row[4]);
-                                sumRefrigerator += Double.parseDouble(row[5]);
-                                sumKitchenOutlet += Double.parseDouble(row[6]);
-                                sumRadiantFloorPump += Double.parseDouble(row[7]);
+                                sumPowerProduction += Double.parseDouble(row[1])/3600000.00;    //Converting from WattsSecond to kWh
+                                sumLighting += Double.parseDouble(row[2])/3600000.00;
+                                sumAirConditioner += Double.parseDouble(row[3])/3600000.00;
+                                sumWaterHeater += Double.parseDouble(row[4])/3600000.00;
+                                sumRefrigerator += Double.parseDouble(row[5])/3600000.00;
+                                sumKitchenOutlet += Double.parseDouble(row[6])/3600000.00;
                             }
                         }
 
-                        totalPowerProduction = Math.round(sumPowerProduction * Math.pow(10, 1)) / Math.pow(10, 1);
-                        totalLighting = Math.round(sumLighting * Math.pow(10, 1)) / Math.pow(10, 1);
-                        totalAirConditioner = Math.round(sumAirConditioner * Math.pow(10, 1)) / Math.pow(10, 1);
-                        totalWaterHeater = Math.round(sumWaterHeater * Math.pow(10, 1)) / Math.pow(10, 1);
-                        totalRefrigerator = Math.round(sumRefrigerator * Math.pow(10, 1)) / Math.pow(10, 1);
-                        totalKitchenOutlet = Math.round(sumKitchenOutlet * Math.pow(10, 1)) / Math.pow(10, 1);
-                        totalRadiantFloorPump = Math.round(sumRadiantFloorPump * Math.pow(10, 1)) / Math.pow(10, 1);
-                        totalPowerConsumption = totalLighting + totalAirConditioner + totalWaterHeater +
-                                totalRefrigerator + totalKitchenOutlet + totalRadiantFloorPump;
+                        totalPowerProduction = Math.round(sumPowerProduction * Math.pow(10, 2)) / Math.pow(10, 2);
+                        totalLighting = Math.round(sumLighting * Math.pow(10, 2)) / Math.pow(10, 2);
+                        totalAirConditioner = Math.round(sumAirConditioner * Math.pow(10, 2)) / Math.pow(10, 2);
+                        totalWaterHeater = Math.round(sumWaterHeater * Math.pow(10, 2)) / Math.pow(10, 2);
+                        totalRefrigerator = Math.round(sumRefrigerator * Math.pow(10, 2)) / Math.pow(10, 2);
+                        totalKitchenOutlet = Math.round(sumKitchenOutlet * Math.pow(10, 2)) / Math.pow(10, 2);
+                        totalPowerConsumption = totalLighting + totalAirConditioner + totalWaterHeater + totalRefrigerator + totalKitchenOutlet;
 
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -213,28 +197,21 @@ public class Power extends AppCompatActivity {
                             int latestData = powerData.size() - 1; //To get the last row's #
                             String[] latestRow = powerData.get(latestData); //To get data from the last row
 
-                            double currentPowerProduction = Double.parseDouble(latestRow[1]);
-                            System.out.println(currentPowerProduction);
-                            double currentLighting = Double.parseDouble(latestRow[2]);
-                            double currentAirConditioner = Double.parseDouble(latestRow[3]);
-                            double currentWaterHeater = Double.parseDouble(latestRow[4]);
-                            double currentRefrigerator = Double.parseDouble(latestRow[5]);
-                            System.out.println(currentPowerProduction);
-                            double currentKitchenOutlet = Double.parseDouble(latestRow[6]);
-                            System.out.println(currentPowerProduction);
-                            double currentRadiantFloorPump = Double.parseDouble(latestRow[7]);
-                            System.out.println(currentPowerProduction);
+                            double currentPowerProduction = Double.parseDouble(latestRow[1])/3600000.00;    //Converting from WattsSecond to kWh
+                            double currentLighting = Double.parseDouble(latestRow[2])/3600000.00;
+                            double currentAirConditioner = Double.parseDouble(latestRow[3])/3600000.00;
+                            double currentWaterHeater = Double.parseDouble(latestRow[4])/3600000.00;
+                            double currentRefrigerator = Double.parseDouble(latestRow[5])/3600000.00;
+                            double currentKitchenOutlet = Double.parseDouble(latestRow[6])/3600000.00;
 
-                            instantaneousPowerProduction = Math.round(currentPowerProduction * Math.pow(10, 1)) / Math.pow(10, 1);
-                            instantaneousLighting = Math.round(currentLighting * Math.pow(10, 1)) / Math.pow(10, 1);
-                            instantaneousAirConditioner = Math.round(currentAirConditioner * Math.pow(10, 1)) / Math.pow(10, 1);
-                            instantaneousWaterHeater = Math.round(currentWaterHeater * Math.pow(10, 1)) / Math.pow(10, 1);
-                            instantaneousRefrigerator = Math.round(currentRefrigerator * Math.pow(10, 1)) / Math.pow(10, 1);
-                            instantaneousKitchenOutlet = Math.round(currentKitchenOutlet * Math.pow(10, 1)) / Math.pow(10, 1);
-                            instantaneousRadiantFloorPump = Math.round(currentRadiantFloorPump * Math.pow(10, 1)) / Math.pow(10, 1);
+                            instantaneousPowerProduction = Math.round(currentPowerProduction * Math.pow(10, 2)) / Math.pow(10, 2);
+                            instantaneousLighting = Math.round(currentLighting * Math.pow(10, 2)) / Math.pow(10, 2);
+                            instantaneousAirConditioner = Math.round(currentAirConditioner * Math.pow(10, 2)) / Math.pow(10, 2);
+                            instantaneousWaterHeater = Math.round(currentWaterHeater * Math.pow(10, 2)) / Math.pow(10, 2);
+                            instantaneousRefrigerator = Math.round(currentRefrigerator * Math.pow(10, 2)) / Math.pow(10, 2);
+                            instantaneousKitchenOutlet = Math.round(currentKitchenOutlet * Math.pow(10, 2)) / Math.pow(10, 2);
                             instantaneousPowerConsumption = instantaneousLighting + instantaneousAirConditioner +
-                                    instantaneousWaterHeater + instantaneousRefrigerator +
-                                    instantaneousKitchenOutlet + instantaneousRadiantFloorPump;
+                                    instantaneousWaterHeater + instantaneousRefrigerator + instantaneousKitchenOutlet;
 
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -257,7 +234,6 @@ public class Power extends AppCompatActivity {
                     totalWaterHeater1 = Double.toString(totalWaterHeater);
                     totalRefrigerator1 = Double.toString(totalRefrigerator);
                     totalKitchenOutlet1 = Double.toString(totalKitchenOutlet);
-                    totalRadiantFloorPump1 = Double.toString(totalRadiantFloorPump);
                     totalPowerConsumption1 = Double.toString(totalPowerConsumption);
 
                     string = totalPowerProduction1 +  units;
@@ -281,9 +257,6 @@ public class Power extends AppCompatActivity {
                     string = totalKitchenOutlet1 +  units;
                     totalTextView6.setText(string);
 
-                    string = totalRadiantFloorPump1 +  units;
-                    totalTextView7.setText(string);
-
                     while_boolean_total = false;
                 }
             }
@@ -297,7 +270,6 @@ public class Power extends AppCompatActivity {
                     instantaneousWaterHeater1 = Double.toString(instantaneousWaterHeater);
                     instantaneousRefrigerator1 = Double.toString(instantaneousRefrigerator);
                     instantaneousKitchenOutlet1 = Double.toString(instantaneousKitchenOutlet);
-                    instantaneousRadiantFloorPump1 = Double.toString(instantaneousRadiantFloorPump);
                     instantaneousPowerConsumption1 = Double.toString(instantaneousPowerConsumption);
 
                     string = instantaneousPowerProduction1 +  units;
@@ -320,9 +292,6 @@ public class Power extends AppCompatActivity {
 
                     string = instantaneousKitchenOutlet1 +  units;
                     instantaneousTextView6.setText(string);
-
-                    string = instantaneousRadiantFloorPump1 +  units;
-                    instantaneousTextView7.setText(string);
 
                     while_boolean_instant = false;
                 }

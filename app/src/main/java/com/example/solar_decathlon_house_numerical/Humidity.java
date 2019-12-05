@@ -78,7 +78,7 @@ public class Humidity extends AppCompatActivity {
                                 humidityData = csv_humidity.read();
 
                                 //Creating line graphs
-                                createLineGraph(humidityData, "humidity");
+                                createLineGraph(humidityData, "humidity"    );
 
                             } catch (Exception e) {
                                 e.printStackTrace();

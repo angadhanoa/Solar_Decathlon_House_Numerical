@@ -18,11 +18,11 @@ public class Analysis extends AppCompatActivity {
     String temperatureFileName = "heatsignature.csv";
 
     // Text Views for Auto Analysis table
-    TextView textView21, textView22, textView23, textView24, textView25, textView26, textView27, textView28, textView29,
-             textView31, textView32, textView33, textView34, textView35, textView36, textView37, textView38, textView39,
-             textView41, textView42, textView43, textView44, textView45, textView46, textView47, textView48, textView49,
-             textView51, textView52, textView53, textView54, textView55, textView56, textView57, textView58, textView59,
-             textView66, textView67, textView68, textView69;
+    TextView textView21, textView22, textView23, textView24, textView25, textView26, textView27, textView28, textView29, textView210,
+             textView31, textView32, textView33, textView34, textView35, textView36, textView37, textView38, textView39, textView310,
+             textView41, textView42, textView43, textView44, textView45, textView46, textView47, textView48, textView49, textView410,
+             textView51, textView52, textView53, textView54, textView55, textView56, textView57, textView58, textView59, textView510,
+             textView66, textView67, textView68, textView69, textView610;
 
     // Text Views for Manual Analysis Table
     TextView textView26Manual, textView27Manual, textView28Manual, textView29Manual,
@@ -43,6 +43,13 @@ public class Analysis extends AppCompatActivity {
     Double exteriorTemperature = 0.0;
     Double interiorTemperature = 0.0;
     Double roofTemperature = 0.0;
+    Double[] analyzedInteriorTemperature = new Double[12];
+    Double[] analyzedExteriorTemperature = new Double[12];
+    Double[] analyzedRoofTemperature = new Double[12];
+    Double analysisQ4Wall13;
+    Double analysisQ4Wall24;
+    Double analysisQ4Roof;
+    Double analysisQ4Floor;
 
     String units = '\u00B0' + "F";
     boolean while_boolean_instant = true;
@@ -218,6 +225,51 @@ public class Analysis extends AppCompatActivity {
                                 double currentExteriorTemperature = Double.parseDouble(latestRow[5]);
                                 double currentRoofTemperature = Double.parseDouble(latestRow[4]);
 
+                                int analysisData = temperatureData.size() - 1;
+                                String[] analysisRow = temperatureData.get(analysisData);
+                                double[] analysisInteriorTemperature = new double[12];
+                                double[] analysisExteriorTemperature = new double[12];
+                                double[] analysisRoofTemperature = new double[12];
+
+                                for(int i = 0; i < 12; i++)
+                                {
+                                    analysisInteriorTemperature[i] = 0.0;
+                                    analysisExteriorTemperature[i] = 0.0;
+                                    analysisRoofTemperature[i] = 0.0;
+                                }
+
+                                if((temperatureData.size() - 1) >= 13) //13 because this includes header row.
+                                {
+                                    for(int i = 0; i < 12; i++)
+                                    {
+                                        analysisInteriorTemperature[i] = Double.parseDouble(analysisRow[2]);
+                                        analysisExteriorTemperature[i] = Double.parseDouble(analysisRow[5]);
+                                        analysisRoofTemperature[i] = Double.parseDouble(analysisRow[3]);
+
+                                        analysisData = latestData - i - 1;
+                                        analysisRow = temperatureData.get(analysisData);
+                                    }
+                                }
+                                else
+                                {
+                                    for(int i = 0; i < temperatureData.size() - 1; i++)
+                                    {
+                                        analysisInteriorTemperature[i] = Double.parseDouble(analysisRow[2]);
+                                        analysisExteriorTemperature[i] = Double.parseDouble(analysisRow[5]);
+                                        analysisRoofTemperature[i] = Double.parseDouble(analysisRow[3]);
+
+                                        analysisData = latestData - i - 1;
+                                        analysisRow = temperatureData.get(analysisData);
+                                    }
+                                }
+
+                                for(int i = 0; i < 12; i++)
+                                {
+                                    analyzedInteriorTemperature[i] = Math.round(analysisInteriorTemperature[i] * Math.pow(10, 2)) / Math.pow(10, 2);
+                                    analyzedExteriorTemperature[i] = Math.round(analysisExteriorTemperature[i] * Math.pow(10, 2)) / Math.pow(10, 2);
+                                    analyzedRoofTemperature[i] = Math.round(analysisRoofTemperature[i] * Math.pow(10, 2)) / Math.pow(10, 2);
+                                }
+
                                 exteriorTemperature = Math.round(currentExteriorTemperature * Math.pow(10, 2)) / Math.pow(10, 2);
                                 interiorTemperature = Math.round(currentInteriorTemperature * Math.pow(10, 2)) / Math.pow(10, 2);
                                 roofTemperature = Math.round(currentRoofTemperature * Math.pow(10, 2)) / Math.pow(10, 2);
@@ -286,6 +338,22 @@ public class Analysis extends AppCompatActivity {
                         double q3TotalRounded    = Math.abs(Math.round(q3Total * Math.pow(10, 4)) / Math.pow(10, 4));
                         double q4TotalRounded    = Math.abs(Math.round(q4Total * Math.pow(10, 4)) / Math.pow(10, 4));
 
+                        for(int i = 0; i < 12; i++)
+                        {
+                            analysisQ4Wall13 += 5 * ((analyzedExteriorTemperature[i] - analyzedInteriorTemperature[i]) / rValueRoom) * 2 * length1 * width1 * constantKWhr * constantDollarsPerKWhr;
+                            analysisQ4Wall24 += 5 * ((analyzedExteriorTemperature[i] - analyzedInteriorTemperature[i]) / rValueRoom) * 2 * length2 * width1 * constantKWhr * constantDollarsPerKWhr;
+                            analysisQ4Roof   += 5 * ((analyzedExteriorTemperature[i] - analyzedRoofTemperature[i]) / rValueRoof) * 2 * length1 * width2 * constantKWhr * constantDollarsPerKWhr;
+                            analysisQ4Floor  += 5 * ((analyzedExteriorTemperature[i] - analyzedInteriorTemperature[i]) / rValueFloor) * 2 * length1 * width2 * constantKWhr * constantDollarsPerKWhr;
+                        }
+
+                        double analysisQ4Wall13Absolute = Math.abs(Math.round(analysisQ4Wall13 * Math.pow(10, 4)) / Math.pow(10, 4));
+                        double analysisQ4Wall24Absolute = Math.abs(Math.round(analysisQ4Wall24 * Math.pow(10, 4)) / Math.pow(10, 4));
+                        double analysisQ4RoofAbsolute = Math.abs(Math.round(analysisQ4Roof * Math.pow(10, 4)) / Math.pow(10, 4));
+                        double analysisQ4FloorAbsolute = Math.abs(Math.round(analysisQ4Floor * Math.pow(10, 4)) / Math.pow(10, 4));
+
+                        double analysisQ4Total = analysisQ4Wall13 + analysisQ4Wall24 + analysisQ4Floor + analysisQ4Roof;
+                        double analysisQ4TotalAbsolute = Math.abs(Math.round(analysisQ4Total * Math.pow(10, 4)) / Math.pow(10, 4));
+
                         //Converting Double to String
 
                         //Wall 1, 3
@@ -338,6 +406,13 @@ public class Analysis extends AppCompatActivity {
                         String q3stringTotal = Double.toString(q3TotalRounded);
                         String q4stringTotal = Double.toString(q4TotalRounded);
 
+                        //Total Over 1 hour
+                        String analyzedQ4Wall13Total = Double.toString(analysisQ4Wall13Absolute);
+                        String analyzedQ4Wall24Total = Double.toString(analysisQ4Wall24Absolute);
+                        String analyzedQ4RoofTotal = Double.toString(analysisQ4RoofAbsolute);
+                        String analyzedQ4FloorTotal = Double.toString(analysisQ4FloorAbsolute);
+                        String analyzedQ4Total = Double.toString(analysisQ4TotalAbsolute);
+
                         //Populating the Table cells
 
                         //Row 2
@@ -350,6 +425,7 @@ public class Analysis extends AppCompatActivity {
                         textView27.setText(q2stringWall13);
                         textView28.setText(q3stringWall13);
                         textView29.setText(q4stringWall13);
+                        textView210.setText(analyzedQ4Wall13Total);
 
                         //Row 3
                         textView31.setText(rValueRoomWall24);
@@ -361,6 +437,7 @@ public class Analysis extends AppCompatActivity {
                         textView37.setText(q2stringWall24);
                         textView38.setText(q3stringWall24);
                         textView39.setText(q4stringWall24);
+                        textView310.setText(analyzedQ4Wall24Total);
 
                         //Row 4
                         textView41.setText(rValueRoofString);
@@ -372,6 +449,7 @@ public class Analysis extends AppCompatActivity {
                         textView47.setText(q2stringRoof);
                         textView48.setText(q3stringRoof);
                         textView49.setText(q4stringRoof);
+                        textView410.setText(analyzedQ4RoofTotal);
 
                         //Row 5
                         textView51.setText(rValueFloorString);
@@ -383,12 +461,14 @@ public class Analysis extends AppCompatActivity {
                         textView57.setText(q2stringFloor);
                         textView58.setText(q3stringFloor);
                         textView59.setText(q4stringFloor);
+                        textView510.setText(analyzedQ4FloorTotal);
 
                         //Row 6
                         textView66.setText(q1stringTotal);
                         textView67.setText(q2stringTotal);
                         textView68.setText(q3stringTotal);
                         textView69.setText(q4stringTotal);
+                        textView610.setText(analyzedQ4Total);
 
                         while_boolean_instant = false;
                     }

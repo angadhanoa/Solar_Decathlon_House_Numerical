@@ -35,7 +35,7 @@ public class CSVReader {
                 if(power_water.equalsIgnoreCase("power")) {
                     row = csvLine.split("\t");  //Splits the row into array of sensor values.
 
-                    for(int i = 2; i < row.length-1; i++){
+                    for(int i = 2; i < row.length-2; i++){
                         summation += Double.parseDouble(row[i]); //Convert .csv String values to double for summation.
                     }
 
