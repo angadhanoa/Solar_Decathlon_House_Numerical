@@ -176,7 +176,7 @@ public class Temperature extends AppCompatActivity {
                                 String latestDate = df.format(date); //Date to String
                                 String latestDateSubstring = latestDate.substring(0, 9);    //Extract "EEE MMM dd" part to compare
 
-                                for (int i = 0; i < temperatureData.size(); i++) {
+                                for (int i = 10; i < temperatureData.size(); i++) {
                                     String[] row = temperatureData.get(i);
 
                                     date = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy").parse(row[0]); //Extract date
@@ -259,7 +259,7 @@ public class Temperature extends AppCompatActivity {
                                 String latestDate = df.format(date); //Date to String
                                 String latestDateSubstring = latestDate.substring(0, 9);    //Extract "EEE MMM dd" part to compare
 
-                                for (int i = 0; i < temperatureData.size(); i++) {
+                                for (int i = 10; i < temperatureData.size(); i++) {
                                     String[] row = temperatureData.get(i);
 
                                     date = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy").parse(row[0]); //Extract date
@@ -328,9 +328,6 @@ public class Temperature extends AppCompatActivity {
                                 final DateFormat df = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy");
                                 int latestData = temperatureData.size() - 1; //To get the last row's #
                                 String[] latestRow = temperatureData.get(latestData); //To get data from the last row
-
-                                Date date = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy").parse(latestRow[0]); //Extract date
-                                String latestDate = df.format(date); //Date to String
 
                                 double currentInteriorTemperature = Double.parseDouble(latestRow[2]);
                                 double currentSolarPanelTemperature = Double.parseDouble(latestRow[3]);

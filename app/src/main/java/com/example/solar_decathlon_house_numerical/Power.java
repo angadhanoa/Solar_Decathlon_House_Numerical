@@ -38,7 +38,7 @@ public class Power extends AppCompatActivity {
     double instantaneousRefrigerator = 0.0;
     double instantaneousKitchenOutlet = 0.0;
 
-    String units = " KW/hr";
+    String units = " kWh";
     String totalPowerProduction1, totalLighting1, totalAirConditioner1, totalWaterHeater1, totalRefrigerator1, totalKitchenOutlet1, totalPowerConsumption1;
     String instantaneousPowerProduction1, instantaneousLighting1, instantaneousAirConditioner1, instantaneousWaterHeater1, instantaneousRefrigerator1, instantaneousKitchenOutlet1, instantaneousPowerConsumption1;
 
@@ -136,7 +136,7 @@ public class Power extends AppCompatActivity {
                         String latestDate = df.format(date); //Date to String
                         String latestDateSubstring = latestDate.substring(0, 9);    //Extract "EEE MMM dd" part to compare
 
-                        for (int i = 5; i < powerData.size(); i++) {
+                        for (int i = 10; i < powerData.size(); i++) {
                             String[] row = powerData.get(i);
 
                             date = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy").parse(row[0]); //Extract date
@@ -160,7 +160,8 @@ public class Power extends AppCompatActivity {
                         totalWaterHeater = Math.round(sumWaterHeater * Math.pow(10, 2)) / Math.pow(10, 2);
                         totalRefrigerator = Math.round(sumRefrigerator * Math.pow(10, 2)) / Math.pow(10, 2);
                         totalKitchenOutlet = Math.round(sumKitchenOutlet * Math.pow(10, 2)) / Math.pow(10, 2);
-                        totalPowerConsumption = totalLighting + totalAirConditioner + totalWaterHeater + totalRefrigerator + totalKitchenOutlet;
+                        double powerConsumption = totalLighting + totalAirConditioner + totalWaterHeater + totalRefrigerator + totalKitchenOutlet;
+                        totalPowerConsumption = Math.round(powerConsumption * Math.pow(10, 2)) / Math.pow(10, 2);
 
                     } catch (Exception e) {
                         e.printStackTrace();

@@ -40,7 +40,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
         db.execSQL(CREATE_USER_TABLE);
     }
 
-
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
     {
@@ -205,8 +204,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
 
     /**
      * This method is to fetch user by email id and return the user record
-     *
-     * @return user object
      */
     public User getUserByEmail(String email)
     {

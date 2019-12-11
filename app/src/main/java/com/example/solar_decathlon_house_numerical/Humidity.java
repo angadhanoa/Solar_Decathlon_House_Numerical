@@ -26,6 +26,8 @@ import com.jjoe64.graphview.series.Series;
 import jcifs.smb.NtlmPasswordAuthentication;
 import jcifs.smb.SmbFile;
 
+import static java.sql.Types.NULL;
+
 public class Humidity extends AppCompatActivity {
     private static final String TAG = Humidity.class.getSimpleName();
     private GraphView lineGraph1;
@@ -78,7 +80,7 @@ public class Humidity extends AppCompatActivity {
                                 humidityData = csv_humidity.read();
 
                                 //Creating line graphs
-                                createLineGraph(humidityData, "humidity"    );
+                                createLineGraph(humidityData, "humidity");
 
                             } catch (Exception e) {
                                 e.printStackTrace();
@@ -109,13 +111,20 @@ public class Humidity extends AppCompatActivity {
             lineGraph1.getGridLabelRenderer().setLabelsSpace(10);
             lineGraph1.getGridLabelRenderer().setHorizontalLabelsAngle(135);
 
+            double toPut;
             Date date;
             final SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy");
             for (int i = 0; i < humidity.size(); i++) {
                 String[] rows = humidity.get(i);
-                Log.d(TAG, "Humidity: " + rows[0] + " " + Double.parseDouble(rows[2]));
+
+                if((Double.parseDouble(rows[2]) == NULL) || (rows[2] == null) || (rows[2].isEmpty()) || (rows[2].equalsIgnoreCase("NONE")))
+                    toPut = 0.0;
+                else
+                    toPut = Double.parseDouble(rows[2]);
+
+                Log.d(TAG, "Humidity: " + rows[0] + " " + toPut);
                 date = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy").parse(rows[0]);
-                humidity_dataPoints[i] = new DataPoint(date, Double.parseDouble(rows[2]));
+                humidity_dataPoints[i] = new DataPoint(date, toPut);
             }
             LineGraphSeries<DataPoint> series1 = new LineGraphSeries<DataPoint>(humidity_dataPoints);
             series1.setTitle("Humidity");
@@ -127,7 +136,7 @@ public class Humidity extends AppCompatActivity {
             series1.setOnDataPointTapListener(new OnDataPointTapListener() {
                 @Override
                 public void onTap(Series series1, DataPointInterface humidity_dataPoints) {
-                    Toast.makeText(getApplicationContext(), "Humidity: ["+ sdf.format(new Date((long) humidity_dataPoints.getX())) + "/" + humidity_dataPoints.getY() +" grams per meter cube]", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), "Humidity: ["+ sdf.format(new Date((long) humidity_dataPoints.getX())) + "/" + humidity_dataPoints.getY() +" %]", Toast.LENGTH_LONG).show();
                 }
             });
             lineGraph1.addSeries(series1);

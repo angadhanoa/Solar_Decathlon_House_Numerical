@@ -43,15 +43,14 @@ public class Analysis extends AppCompatActivity {
     Double exteriorTemperature = 0.0;
     Double interiorTemperature = 0.0;
     Double roofTemperature = 0.0;
-    Double[] analyzedInteriorTemperature = new Double[12];
-    Double[] analyzedExteriorTemperature = new Double[12];
-    Double[] analyzedRoofTemperature = new Double[12];
-    Double analysisQ4Wall13;
-    Double analysisQ4Wall24;
-    Double analysisQ4Roof;
-    Double analysisQ4Floor;
+    double analyzedInteriorTemperature[] = new double[12];
+    double analyzedExteriorTemperature[] = new double[12];
+    double analyzedRoofTemperature[]     = new double[12];
+    double analysisQ4Wall13;
+    double analysisQ4Wall24;
+    double analysisQ4Roof;
+    double analysisQ4Floor;
 
-    String units = '\u00B0' + "F";
     boolean while_boolean_instant = true;
     Thread threadInstant = new Thread();
 
@@ -83,6 +82,7 @@ public class Analysis extends AppCompatActivity {
         textView27 = findViewById(R.id.textView27);
         textView28 = findViewById(R.id.textView28);
         textView29 = findViewById(R.id.textView29);
+        textView210 = findViewById(R.id.textView210);
 
         //Row 3
         textView31 = findViewById(R.id.textView31);
@@ -94,6 +94,7 @@ public class Analysis extends AppCompatActivity {
         textView37 = findViewById(R.id.textView37);
         textView38 = findViewById(R.id.textView38);
         textView39 = findViewById(R.id.textView39);
+        textView310 = findViewById(R.id.textView310);
 
         //Row 4
         textView41 = findViewById(R.id.textView41);
@@ -105,6 +106,7 @@ public class Analysis extends AppCompatActivity {
         textView47 = findViewById(R.id.textView47);
         textView48 = findViewById(R.id.textView48);
         textView49 = findViewById(R.id.textView49);
+        textView410 = findViewById(R.id.textView410);
 
        //Row 5
         textView51 = findViewById(R.id.textView51);
@@ -116,12 +118,14 @@ public class Analysis extends AppCompatActivity {
         textView57 = findViewById(R.id.textView57);
         textView58 = findViewById(R.id.textView58);
         textView59 = findViewById(R.id.textView59);
+        textView510 = findViewById(R.id.textView510);
 
         //Row 6
         textView66 = findViewById(R.id.textView66);
         textView67 = findViewById(R.id.textView67);
         textView68 = findViewById(R.id.textView68);
         textView69 = findViewById(R.id.textView69);
+        textView610 = findViewById(R.id.textView610);
 
         //Manually Filled Table
 
@@ -338,20 +342,24 @@ public class Analysis extends AppCompatActivity {
                         double q3TotalRounded    = Math.abs(Math.round(q3Total * Math.pow(10, 4)) / Math.pow(10, 4));
                         double q4TotalRounded    = Math.abs(Math.round(q4Total * Math.pow(10, 4)) / Math.pow(10, 4));
 
+                        double tempDifferenceRoom, tempDifferenceRoof;
                         for(int i = 0; i < 12; i++)
                         {
-                            analysisQ4Wall13 += 5 * ((analyzedExteriorTemperature[i] - analyzedInteriorTemperature[i]) / rValueRoom) * 2 * length1 * width1 * constantKWhr * constantDollarsPerKWhr;
-                            analysisQ4Wall24 += 5 * ((analyzedExteriorTemperature[i] - analyzedInteriorTemperature[i]) / rValueRoom) * 2 * length2 * width1 * constantKWhr * constantDollarsPerKWhr;
-                            analysisQ4Roof   += 5 * ((analyzedExteriorTemperature[i] - analyzedRoofTemperature[i]) / rValueRoof) * 2 * length1 * width2 * constantKWhr * constantDollarsPerKWhr;
-                            analysisQ4Floor  += 5 * ((analyzedExteriorTemperature[i] - analyzedInteriorTemperature[i]) / rValueFloor) * 2 * length1 * width2 * constantKWhr * constantDollarsPerKWhr;
+                            tempDifferenceRoom = (analyzedExteriorTemperature[i]-analyzedInteriorTemperature[i]);
+                            tempDifferenceRoof = (analyzedExteriorTemperature[i]-analyzedRoofTemperature[i]);
+
+                            analysisQ4Wall13 += ((tempDifferenceRoom / rValueRoom) * 2 * length1 * width1 * constantKWhr * constantDollarsPerKWhr);
+                            analysisQ4Wall24 += ((tempDifferenceRoom / rValueRoom) * 2 * length2 * width1 * constantKWhr * constantDollarsPerKWhr);
+                            analysisQ4Roof   += ((tempDifferenceRoof / rValueRoof) * 2 * length1 * width2 * constantKWhr * constantDollarsPerKWhr);
+                            analysisQ4Floor  += ((tempDifferenceRoom / rValueFloor) * 2 * length1 * width2 * constantKWhr * constantDollarsPerKWhr);
                         }
 
-                        double analysisQ4Wall13Absolute = Math.abs(Math.round(analysisQ4Wall13 * Math.pow(10, 4)) / Math.pow(10, 4));
-                        double analysisQ4Wall24Absolute = Math.abs(Math.round(analysisQ4Wall24 * Math.pow(10, 4)) / Math.pow(10, 4));
-                        double analysisQ4RoofAbsolute = Math.abs(Math.round(analysisQ4Roof * Math.pow(10, 4)) / Math.pow(10, 4));
-                        double analysisQ4FloorAbsolute = Math.abs(Math.round(analysisQ4Floor * Math.pow(10, 4)) / Math.pow(10, 4));
+                        double analysisQ4Wall13Absolute = Math.abs(Math.round(analysisQ4Wall13 * 5 * Math.pow(10, 4)) / Math.pow(10, 4));
+                        double analysisQ4Wall24Absolute = Math.abs(Math.round(analysisQ4Wall24 * 5 * Math.pow(10, 4)) / Math.pow(10, 4));
+                        double analysisQ4RoofAbsolute = Math.abs(Math.round(analysisQ4Roof * 5 * Math.pow(10, 4)) / Math.pow(10, 4));
+                        double analysisQ4FloorAbsolute = Math.abs(Math.round(analysisQ4Floor * 5 * Math.pow(10, 4)) / Math.pow(10, 4));
 
-                        double analysisQ4Total = analysisQ4Wall13 + analysisQ4Wall24 + analysisQ4Floor + analysisQ4Roof;
+                        double analysisQ4Total = analysisQ4Wall13Absolute + analysisQ4Wall24Absolute + analysisQ4RoofAbsolute + analysisQ4FloorAbsolute;
                         double analysisQ4TotalAbsolute = Math.abs(Math.round(analysisQ4Total * Math.pow(10, 4)) / Math.pow(10, 4));
 
                         //Converting Double to String

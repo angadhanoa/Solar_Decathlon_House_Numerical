@@ -176,7 +176,7 @@ public class WaterFlow extends AppCompatActivity {
 
                 while(while_boolean) {
                     if (!threadSensor1.isAlive() && !threadSensor2.isAlive()) {
-                        totalWaterUsage = totalSensor1WaterUsage + totalSensor2WaterUsage;
+                        totalWaterUsage = Math.round( (totalSensor1WaterUsage + totalSensor2WaterUsage) * Math.pow(10, 1)) / Math.pow(10, 1);
                         totalSensor1WaterUsage1 = Double.toString(totalSensor1WaterUsage);
                         string = totalSensor1WaterUsage1 + units;
                         totalSensor1TextView.setText(string);

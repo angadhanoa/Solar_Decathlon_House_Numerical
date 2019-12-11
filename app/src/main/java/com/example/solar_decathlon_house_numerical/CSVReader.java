@@ -23,36 +23,21 @@ public class CSVReader {
         //Try to populate, if successful then try to close the file.
         try{
             String csvLine;
-            reader.readLine();  //First row is about headers, skip it.
+            for(int i = 0; i < 15; i++) {
+                reader.readLine();  //First 15 rows are about initializing files, skip it.
+            }
 
             //Read the .csv file one line at a time all the way till we reach the end.
             while((csvLine = reader.readLine()) != null){
-                double summation = 0;   /* Summation is used to create an extra column at the end of the line.
-                                         * It stores the sum of all the sensor values for that timestamp.
-                                         * It is used for the Summed-Up Power Consumption Graph and for Water Consumption.*/
                 String[] row;
 
-                if(power_water.equalsIgnoreCase("power")) {
-                    row = csvLine.split("\t");  //Splits the row into array of sensor values.
-
-                    for(int i = 2; i < row.length-2; i++){
-                        summation += Double.parseDouble(row[i]); //Convert .csv String values to double for summation.
-                    }
-
-                    String newStringPower = Double.toString(summation);
-                    String[] newRowPower = new String[row.length + 1];
-                    resultList.add(waterPower(newStringPower, newRowPower, row)); //Call a function "waterPower" to do the work
+                if(power_water.equalsIgnoreCase("water")) {
+                    row = csvLine.split(",");  //Splits the row into array of sensor values.
+                    resultList.add(row);
                 }
                 else{
-                    row = csvLine.split(",");  //This should imply the tab character to split the row.
-
-                    for(int i = 1; i < row.length; i++){
-                        summation += Double.parseDouble(row[i]); //Convert .csv String values to double for summation.
-                    }
-
-                    String newStringWater = Double.toString(summation);
-                    String[] newRowWater = new String[row.length + 1];
-                    resultList.add(waterPower(newStringWater, newRowWater, row)); //Call a function "waterPower" to do the work
+                    row = csvLine.split("\t");  //This should imply the tab character to split the row.
+                    resultList.add(row);
                 }
             }
         }
@@ -73,17 +58,5 @@ public class CSVReader {
             }
         }
         return resultList;
-    }
-
-    private static String[] waterPower(String newString, String[] newRow, String[] row)
-    {
-        //For loop to add extra row at the end of the row array.
-        for(int i = 0; i < row.length; i++){
-            newRow[i] = row[i];
-            if(i+1 == row.length){
-                newRow[i+1] = newString;
-            }
-        }
-        return newRow;
     }
 }

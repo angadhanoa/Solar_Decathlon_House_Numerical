@@ -156,7 +156,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                 power = csv_power.read();
 
                                                 double totalPower = 0.0;
-                                                for (int i = 0; i < power.size(); i++) {
+                                                for (int i = 10; i < power.size(); i++) {
                                                     String[] row = power.get(i);
                                                     totalPower += (Double.parseDouble(row[5]) / 3600000);
                                                 }
@@ -211,7 +211,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                 power = csv_power.read();
 
                                                 double currentPower = 0.0;
-                                                for (int i = 0; i < power.size(); i++) {
+                                                for (int i = 10; i < power.size(); i++) {
                                                     String[] row = power.get(i);
                                                     if (i == power.size() - 1) {
                                                         currentPower = (Double.parseDouble(row[5]) / 3600000);
@@ -269,7 +269,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                 temperature = csv_temperature.read();
 
                                                 double sumOfTemp = 0.0;
-                                                for (int i = 0; i < temperature.size(); i++) {
+                                                for (int i = 10; i < temperature.size(); i++) {
                                                     String[] rows = temperature.get(i);
                                                     sumOfTemp += Double.parseDouble(rows[7]);
                                                 }
@@ -325,7 +325,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
 
                                                 String[] rows = temperature.get(0);
                                                 double maxTemp = Double.parseDouble(rows[7]);
-                                                for (int i = 0; i < temperature.size(); i++) {
+                                                for (int i = 10; i < temperature.size(); i++) {
                                                     String[] row = temperature.get(i);
                                                     if (Double.parseDouble(row[7]) > maxTemp) {
                                                         maxTemp = Double.parseDouble(row[7]);
@@ -382,7 +382,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
 
                                                 String[] rows = temperature.get(0);
                                                 double minTemp = Double.parseDouble(rows[7]);
-                                                for (int i = 0; i < temperature.size(); i++) {
+                                                for (int i = 10; i < temperature.size(); i++) {
                                                     String[] row = temperature.get(i);
                                                     if (Double.parseDouble(row[7]) < minTemp) {
                                                         minTemp = Double.parseDouble(row[6]);
@@ -438,7 +438,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                 temperature = csv_temperature.read();
 
                                                 double currentTemp = 0.0;
-                                                for (int i = 0; i < temperature.size(); i++) {
+                                                for (int i = 10; i < temperature.size(); i++) {
                                                     String[] row = temperature.get(i);
                                                     if (i == temperature.size() - 1) {
                                                         currentTemp = Double.parseDouble(row[7]);
@@ -496,7 +496,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                 temperature = csv_temperature.read();
 
                                                 double sumOfTemp = 0.0;
-                                                for (int i = 0; i < temperature.size(); i++) {
+                                                for (int i = 10; i < temperature.size(); i++) {
                                                     String[] rows = temperature.get(i);
                                                     sumOfTemp += Double.parseDouble(rows[8]);
                                                 }
@@ -552,7 +552,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
 
                                                 String[] rows = temperature.get(0);
                                                 double maxTemp = Double.parseDouble(rows[8]);
-                                                for (int i = 0; i < temperature.size(); i++) {
+                                                for (int i = 10; i < temperature.size(); i++) {
                                                     String[] row = temperature.get(i);
                                                     if (Double.parseDouble(row[8]) > maxTemp) {
                                                         maxTemp = Double.parseDouble(row[8]);
@@ -609,7 +609,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
 
                                                 String[] rows = temperature.get(0);
                                                 double minTemp = Double.parseDouble(rows[8]);
-                                                for (int i = 0; i < temperature.size(); i++) {
+                                                for (int i = 10; i < temperature.size(); i++) {
                                                     String[] row = temperature.get(i);
                                                     if (Double.parseDouble(row[8]) < minTemp) {
                                                         minTemp = Double.parseDouble(row[8]);
@@ -665,7 +665,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                 temperature = csv_temperature.read();
 
                                                 double currentTemp = 0.0;
-                                                for (int i = 0; i < temperature.size(); i++) {
+                                                for (int i = 10; i < temperature.size(); i++) {
                                                     String[] row = temperature.get(i);
                                                     if (i == temperature.size() - 1) {
                                                         currentTemp = Double.parseDouble(row[8]);
@@ -727,7 +727,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                     power = csv_power.read();
 
                                                     double totalPower = 0.0;
-                                                    for (int i = 0; i < power.size(); i++) {
+                                                    for (int i = 10; i < power.size(); i++) {
                                                         String[] row = power.get(i);
                                                         totalPower += Double.parseDouble(row[1]) / 3600000;
                                                     }
@@ -781,7 +781,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                     power = csv_power.read();
 
                                                     double currentPower = 0.0;
-                                                    for (int i = 0; i < power.size(); i++) {
+                                                    for (int i = 10; i < power.size(); i++) {
                                                         String[] row = power.get(i);
                                                         if (i == power.size() - 1) {
                                                             currentPower = Double.parseDouble(row[1]) / 3600000;
@@ -842,7 +842,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                         power = csv_power.read();
 
                                                         double totalPower = 0.0;
-                                                        for (int i = 0; i < power.size(); i++) {
+                                                        for (int i = 10; i < power.size(); i++) {
                                                             String[] row = power.get(i);
                                                             totalPower += (Double.parseDouble(row[2]) / 3600000);
                                                         }
@@ -896,7 +896,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                         power = csv_power.read();
 
                                                         double currentPower = 0.0;
-                                                        for (int i = 0; i < power.size(); i++) {
+                                                        for (int i = 10; i < power.size(); i++) {
                                                             String[] row = power.get(i);
                                                             if (i == power.size() - 1) {
                                                                 currentPower = (Double.parseDouble(row[2]) / 3600000);
@@ -956,7 +956,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                         power = csv_power.read();
 
                                                         double totalPower = 0.0;
-                                                        for (int i = 0; i < power.size(); i++) {
+                                                        for (int i = 10; i < power.size(); i++) {
                                                             String[] row = power.get(i);
                                                             totalPower += Double.parseDouble(row[6]) / 3600000;
                                                         }
@@ -1010,7 +1010,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                         power = csv_power.read();
 
                                                         double currentPower = 0.0;
-                                                        for (int i = 0; i < power.size(); i++) {
+                                                        for (int i = 10; i < power.size(); i++) {
                                                             String[] row = power.get(i);
                                                             if (i == power.size() - 1) {
                                                                 currentPower = Double.parseDouble(row[6]) / 3600000;
@@ -1071,7 +1071,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                         power = csv_power.read();
 
                                                         double totalPower = 0.0;
-                                                        for (int i = 0; i < power.size(); i++) {
+                                                        for (int i = 10; i < power.size(); i++) {
                                                             String[] row = power.get(i);
                                                             totalPower += Double.parseDouble(row[4]) / 3600000;
                                                         }
@@ -1125,7 +1125,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                         power = csv_power.read();
 
                                                         double currentPower = 0.0;
-                                                        for (int i = 0; i < power.size(); i++) {
+                                                        for (int i = 10; i < power.size(); i++) {
                                                             String[] row = power.get(i);
                                                             if (i == power.size() - 1) {
                                                                 currentPower = Double.parseDouble(row[3]) / 3600000;
@@ -1185,7 +1185,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                         power = csv_power.read();
 
                                                         double totalPower = 0.0;
-                                                        for (int i = 0; i < power.size(); i++) {
+                                                        for (int i = 10; i < power.size(); i++) {
                                                             String[] row = power.get(i);
                                                             totalPower += Double.parseDouble(row[3]) / 3600000;
                                                         }
@@ -1239,7 +1239,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                         power = csv_power.read();
 
                                                         double currentPower = 0.0;
-                                                        for (int i = 0; i < power.size(); i++) {
+                                                        for (int i = 10; i < power.size(); i++) {
                                                             String[] row = power.get(i);
                                                             if (i == power.size() - 1) {
                                                                 currentPower = Double.parseDouble(row[3]) / 3600000;
@@ -1300,7 +1300,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                     temperature = csv_temperature.read();
 
                                                     double sumOfTemp = 0.0;
-                                                    for (int i = 0; i < temperature.size(); i++) {
+                                                    for (int i = 10; i < temperature.size(); i++) {
                                                         String[] rows = temperature.get(i);
                                                         sumOfTemp += Double.parseDouble(rows[5]);
                                                     }
@@ -1355,7 +1355,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
 
                                                     String[] rows = temperature.get(0);
                                                     double maxTemp = Double.parseDouble(rows[5]);
-                                                    for (int i = 0; i < temperature.size(); i++) {
+                                                    for (int i = 10; i < temperature.size(); i++) {
                                                         String[] row = temperature.get(i);
                                                         if (Double.parseDouble(row[5]) > maxTemp) {
                                                             maxTemp = Double.parseDouble(row[5]);
@@ -1412,7 +1412,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
 
                                                     String[] rows = temperature.get(0);
                                                     double minTemp = Double.parseDouble(rows[5]);
-                                                    for (int i = 0; i < temperature.size(); i++) {
+                                                    for (int i = 10; i < temperature.size(); i++) {
                                                         String[] row = temperature.get(i);
                                                         if (Double.parseDouble(row[5]) < minTemp) {
                                                             minTemp = Double.parseDouble(row[5]);
@@ -1468,7 +1468,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                     temperature = csv_temperature.read();
 
                                                     double currentTemp = 0.0;
-                                                    for (int i = 0; i < temperature.size(); i++) {
+                                                    for (int i = 10; i < temperature.size(); i++) {
                                                         String[] row = temperature.get(i);
                                                         if (i == temperature.size() - 1) {
                                                             currentTemp = Double.parseDouble(row[5]);
@@ -1527,7 +1527,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                     temperature = csv_temperature.read();
 
                                                     double sumOfTemp = 0.0;
-                                                    for (int i = 0; i < temperature.size(); i++) {
+                                                    for (int i = 10; i < temperature.size(); i++) {
                                                         String[] rows = temperature.get(i);
                                                         sumOfTemp += Double.parseDouble(rows[1]);
                                                     }
@@ -1583,7 +1583,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
 
                                                     String[] rows = temperature.get(0);
                                                     double maxTemp = Double.parseDouble(rows[2]);
-                                                    for (int i = 0; i < temperature.size(); i++) {
+                                                    for (int i = 10; i < temperature.size(); i++) {
                                                         String[] row = temperature.get(i);
                                                         if (Double.parseDouble(row[2]) > maxTemp) {
                                                             maxTemp = Double.parseDouble(row[1]);
@@ -1640,7 +1640,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
 
                                                     String[] rows = temperature.get(0);
                                                     double minTemp = Double.parseDouble(rows[2]);
-                                                    for (int i = 0; i < temperature.size(); i++) {
+                                                    for (int i = 10; i < temperature.size(); i++) {
                                                         String[] row = temperature.get(i);
                                                         if (Double.parseDouble(row[2]) < minTemp) {
                                                             minTemp = Double.parseDouble(row[2]);
@@ -1697,7 +1697,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                     temperature = csv_temperature.read();
 
                                                     double currentTemp = 0.0;
-                                                    for (int i = 0; i < temperature.size(); i++) {
+                                                    for (int i = 10; i < temperature.size(); i++) {
                                                         String[] row = temperature.get(i);
                                                         if (i == temperature.size() - 1) {
                                                             currentTemp = Double.parseDouble(row[2]);
@@ -1757,7 +1757,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                     temperature = csv_temperature.read();
 
                                                     double sumOfTemp = 0.0;
-                                                    for (int i = 0; i < temperature.size(); i++) {
+                                                    for (int i = 10; i < temperature.size(); i++) {
                                                         String[] rows = temperature.get(i);
                                                         sumOfTemp += Double.parseDouble(rows[3]);
                                                     }
@@ -1813,7 +1813,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
 
                                                     String[] rows = temperature.get(0);
                                                     double maxTemp = Double.parseDouble(rows[3]);
-                                                    for (int i = 0; i < temperature.size(); i++) {
+                                                    for (int i = 10; i < temperature.size(); i++) {
                                                         String[] row = temperature.get(i);
                                                         if (Double.parseDouble(row[3]) > maxTemp) {
                                                             maxTemp = Double.parseDouble(row[3]);
@@ -1870,7 +1870,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
 
                                                     String[] rows = temperature.get(0);
                                                     double minTemp = Double.parseDouble(rows[3]);
-                                                    for (int i = 0; i < temperature.size(); i++) {
+                                                    for (int i = 10; i < temperature.size(); i++) {
                                                         String[] row = temperature.get(i);
                                                         if (Double.parseDouble(row[3]) < minTemp) {
                                                             minTemp = Double.parseDouble(row[3]);
@@ -1926,7 +1926,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                     temperature = csv_temperature.read();
 
                                                     double currentTemp = 0.0;
-                                                    for (int i = 0; i < temperature.size(); i++) {
+                                                    for (int i = 10; i < temperature.size(); i++) {
                                                         String[] row = temperature.get(i);
                                                         if (i == temperature.size() - 1) {
                                                             currentTemp = Double.parseDouble(row[3]);
@@ -1984,7 +1984,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                     temperature = csv_temperature.read();
 
                                                     double sumOfTemp = 0.0;
-                                                    for (int i = 0; i < temperature.size(); i++) {
+                                                    for (int i = 10; i < temperature.size(); i++) {
                                                         String[] rows = temperature.get(i);
                                                         sumOfTemp += Double.parseDouble(rows[4]);
                                                     }
@@ -2040,7 +2040,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
 
                                                     String[] rows = temperature.get(0);
                                                     double maxTemp = Double.parseDouble(rows[4]);
-                                                    for (int i = 0; i < temperature.size(); i++) {
+                                                    for (int i = 10; i < temperature.size(); i++) {
                                                         String[] row = temperature.get(i);
                                                         if (Double.parseDouble(row[4]) > maxTemp) {
                                                             maxTemp = Double.parseDouble(row[4]);
@@ -2098,7 +2098,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
 
                                                     String[] rows = temperature.get(0);
                                                     double minTemp = Double.parseDouble(rows[4]);
-                                                    for (int i = 0; i < temperature.size(); i++) {
+                                                    for (int i = 10; i < temperature.size(); i++) {
                                                         String[] row = temperature.get(i);
                                                         if (Double.parseDouble(row[4]) < minTemp) {
                                                             minTemp = Double.parseDouble(row[4]);
@@ -2155,7 +2155,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                     temperature = csv_temperature.read();
 
                                                     double currentTemp = 0.0;
-                                                    for (int i = 0; i < temperature.size(); i++) {
+                                                    for (int i = 10; i < temperature.size(); i++) {
                                                         String[] row = temperature.get(i);
                                                         if ((i == temperature.size() - 1)) {
                                                             currentTemp = Double.parseDouble(row[4]);
@@ -2213,7 +2213,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
 
                                                     temperature = csv_temperature.read();
                                                     double sumOfTemp = 0.0;
-                                                    for (int i = 0; i < temperature.size(); i++) {
+                                                    for (int i = 10; i < temperature.size(); i++) {
                                                         String[] rows = temperature.get(i);
                                                         sumOfTemp += Double.parseDouble(rows[6]);
                                                     }
@@ -2269,7 +2269,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
 
                                                     String[] rows = temperature.get(0);
                                                     double maxTemp = Double.parseDouble(rows[6]);
-                                                    for (int i = 0; i < temperature.size(); i++) {
+                                                    for (int i = 10; i < temperature.size(); i++) {
                                                         String[] row = temperature.get(i);
                                                         if (Double.parseDouble(row[6]) > maxTemp) {
                                                             maxTemp = Double.parseDouble(row[6]);
@@ -2327,7 +2327,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
 
                                                     String[] rows = temperature.get(0);
                                                     double minTemp = Double.parseDouble(rows[6]);
-                                                    for (int i = 0; i < temperature.size(); i++) {
+                                                    for (int i = 10; i < temperature.size(); i++) {
                                                         String[] row = temperature.get(i);
                                                         if (Double.parseDouble(row[6]) < minTemp) {
                                                             minTemp = Double.parseDouble(row[6]);
@@ -2384,7 +2384,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                                     temperature = csv_temperature.read();
 
                                                     double currentTemp = 0.0;
-                                                    for (int i = 0; i < temperature.size(); i++) {
+                                                    for (int i = 10; i < temperature.size(); i++) {
                                                         String[] row = temperature.get(i);
                                                         if (i == temperature.size() - 1) {
                                                             currentTemp = Double.parseDouble(row[6]);
@@ -2579,7 +2579,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                             for (int i = 0; i < humidity.size(); i++) {
                                                 String[] row = humidity.get(i);
                                                 if (i == humidity.size() - 1) {
-                                                    currentHumidity = Double.parseDouble(row[1]);
+                                                    currentHumidity = Double.parseDouble(row[2]);
                                                 }
                                             }
                                             current = 0.0;
@@ -2597,7 +2597,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                             while (whilebool) {
                                 if (!thread.isAlive()) {
                                     value = Double.toString(current);
-                                    toSpeak = "Current Humidity inside the house is " + value + " Percent";
+                                    toSpeak = "Humidity inside the house is " + value + " Percent";
                                     textToSpeech.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
                                     whilebool = false;
                                 }
