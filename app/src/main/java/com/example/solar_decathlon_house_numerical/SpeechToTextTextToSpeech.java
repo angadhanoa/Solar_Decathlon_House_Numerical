@@ -2579,7 +2579,7 @@ public class SpeechToTextTextToSpeech extends AppCompatActivity {
                                             for (int i = 0; i < humidity.size(); i++) {
                                                 String[] row = humidity.get(i);
                                                 if (i == humidity.size() - 1) {
-                                                    currentHumidity = Double.parseDouble(row[2]);
+                                                    currentHumidity = Double.parseDouble(row[1]);
                                                 }
                                             }
                                             current = 0.0;

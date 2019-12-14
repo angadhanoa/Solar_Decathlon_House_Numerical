@@ -100,6 +100,7 @@ public class Power extends AppCompatActivity {
                     public void run() {
                     try {
                         //To get Samba Shared file from the Raspberry Pi
+
                         List<String[]> powerData;
 
                         String url1 = "smb://" + ipAddressWireless + "/" + sharedFolder + "/" + powerFileName;

@@ -117,10 +117,14 @@ public class Humidity extends AppCompatActivity {
             for (int i = 0; i < humidity.size(); i++) {
                 String[] rows = humidity.get(i);
 
-                if((Double.parseDouble(rows[2]) == NULL) || (rows[2] == null) || (rows[2].isEmpty()) || (rows[2].equalsIgnoreCase("NONE")))
+                if((Double.parseDouble(rows[1]) == NULL) || (rows[1] == null) || (rows[1].isEmpty()) || (rows[1].equalsIgnoreCase("NONE")))
+                    toPut = 0.0;
+                else if((Double.parseDouble(rows[1]) > 100.0))
+                    toPut = 100.0;
+                else if((Double.parseDouble(rows[1]) < 0.0))
                     toPut = 0.0;
                 else
-                    toPut = Double.parseDouble(rows[2]);
+                    toPut = Double.parseDouble(rows[1]);
 
                 Log.d(TAG, "Humidity: " + rows[0] + " " + toPut);
                 date = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy").parse(rows[0]);
